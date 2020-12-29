@@ -106,6 +106,7 @@
 
 (use-package pyenv-mode)
 
+(use-package dap-mode)
 (setq dap-auto-configure-features '(sessions locals controls tooltip))
 (require 'dap-python)
 (dap-register-debug-template "My App"
