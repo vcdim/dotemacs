@@ -30,6 +30,7 @@
 ;; (use-package doom-themes
 ;;   :init
 ;;   (load-theme 'dichromacy t))
+(set-face-attribute 'default nil :family "WenQuanYi Micro Hei Mono")
 
 ;; enable completions (ivy, counsel, ivy-rich, which-key)
 (use-package smex)
@@ -217,3 +218,16 @@
       '(("myblog"
          :url "http://galoisgu.com/wordpress/xmlrpc.php"
          :username "guqun")))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(org2blog which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode lsp-ui lsp-python-ms lsp-ivy ivy-rich helpful exec-path-from-shell doom-modeline dap-mode counsel auctex)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
