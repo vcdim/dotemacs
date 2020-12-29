@@ -22,35 +22,40 @@
 ;; customize fonts, mode-line, theme
 (use-package all-the-icons)
 (use-package doom-modeline
-  :init (doom-modeline-mode 1))
+  :init
+  (doom-modeline-mode 1))
 (use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
-(use-package doom-themes
-  :init (load-theme 'dichromacy t))
+  :hook
+  (prog-mode . rainbow-delimiters-mode))
+;; (use-package doom-themes
+;;   :init
+;;   (load-theme 'dichromacy t))
 
 ;; enable completions (ivy, counsel, ivy-rich, which-key)
 (use-package smex)
 (use-package ivy
   :diminish
-  :bind (("C-s" . swiper))
+  :bind
+  (("C-s" . swiper))
   :config
   (ivy-mode 1)
   )
 (use-package counsel
-  :bind (("M-x" . counsel-M-x)
-	 ("C-x b" . counsel-ibuffer)
-	 ("C-x C-f" . counsel-find-file)
-	 :map minibuffer-local-map
-	 ("C-r" . 'counsel-minibuffer-history)
-	 )
+  :bind
+  (("M-x" . counsel-M-x)
+   ("C-x b" . counsel-ibuffer)
+   ("C-x C-f" . counsel-find-file)
+   :map minibuffer-local-map
+   ("C-r" . 'counsel-minibuffer-history)
+   )
   :config
   (setq ivy-initial-inputs-alist nil)     ;; Don't start with ^
   )
 (use-package ivy-rich                     ;; 必须放在 counsel 之后，否则会报错
-  :init
-  (ivy-rich-mode 1))
+  :init (ivy-rich-mode 1))
 (use-package which-key
-  :init (which-key-mode)
+  :init
+  (which-key-mode)
   :diminish
   :config
   (setq which-key-idle-delay 0)
@@ -74,11 +79,12 @@
 
 ;; programming
 (use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook (
-	 (python-mode . lsp)
-	 (lsp-mode . lsp-enable-which-key-integration)
-	 )
+  :commands
+  (lsp lsp-deferred)
+  :hook
+  ((python-mode . lsp)
+   (lsp-mode . lsp-enable-which-key-integration)
+   )
   :init
   (setq lsp-keymap-prefix "C-c l")
   )
@@ -91,36 +97,28 @@
 )
 
 (use-package exec-path-from-shell
-  :ensure t
   :config
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 
+(use-package dap-mode
+  :config
+  (setq dap-auto-configure-features '(sessions locals controls tooltip))
+  )
+
 ;; python
 (use-package lsp-python-ms
-  :ensure t
-  :init (setq lsp-python-ms-auto-install-server t)
-  :hook (python-mode . (lambda ()
-                         (require 'lsp-python-ms)
-                         (lsp))))
+  :init
+  (setq lsp-python-ms-auto-install-server t)
+  :hook
+  (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
 
 (use-package pyenv-mode)
 
-(use-package dap-mode)
-(setq dap-auto-configure-features '(sessions locals controls tooltip))
 (require 'dap-python)
-(dap-register-debug-template "My App"
-  (list :type "python"
-        :args "-i"
-        :cwd nil
-        :env '(("DEBUG" . "1"))
-        :target-module (expand-file-name "~/src/myapp/.env/bin/myapp")
-        :request "launch"
-        :name "My App"))
 
 ;; treemacs
 (use-package treemacs
-  :ensure t
   :defer t
   :init
   (with-eval-after-load 'winum
@@ -190,27 +188,26 @@
 
 (use-package treemacs-projectile
   :after treemacs projectile
-  :ensure t)
+  )
 
 (use-package treemacs-icons-dired
   :after treemacs dired
-  :ensure t
-  :config (treemacs-icons-dired-mode))
+  :config (treemacs-icons-dired-mode)
+  )
 
 (use-package treemacs-magit
   :after treemacs magit
-  :ensure t)
+  )
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(treemacs-magit treemacs-icons-dired treemacs-projectile treemacs smex lsp-ui which-key use-package rainbow-delimiters pyenv-mode lsp-python-ms lsp-ivy ivy-rich home-end helpful exec-path-from-shell doom-themes doom-modeline counsel)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
+(use-package auctex
+  :defer
+  :config
+  )
+(add-hook
+ 'LaTeX-mode-hook
+ (lambda ()
+   (add-to-list 'TeX-command-list
+		'("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t)
+		)
+   )
  )
