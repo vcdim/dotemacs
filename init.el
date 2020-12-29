@@ -211,3 +211,9 @@
 		)
    )
  )
+
+(use-package org2blog)
+(setq org2blog/wp-blog-alist
+      '(("myblog"
+         :url "http://galoisgu.com/wordpress/xmlrpc.php"
+         :username "guqun")))
