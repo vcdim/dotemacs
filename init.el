@@ -19,19 +19,6 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-;; customize fonts, mode-line, theme
-(use-package all-the-icons)
-(use-package doom-modeline
-  :init
-  (doom-modeline-mode 1))
-(use-package rainbow-delimiters
-  :hook
-  (prog-mode . rainbow-delimiters-mode))
-;; (use-package doom-themes
-;;   :init
-;;   (load-theme 'dichromacy t))
-(set-face-attribute 'default nil :family "WenQuanYi Micro Hei Mono")
-
 ;; enable completions (ivy, counsel, ivy-rich, which-key)
 (use-package smex)
 (use-package ivy
@@ -53,13 +40,49 @@
   (setq ivy-initial-inputs-alist nil)     ;; Don't start with ^
   )
 (use-package ivy-rich                     ;; 必须放在 counsel 之后，否则会报错
-  :init (ivy-rich-mode 1))
+  :init
+  (ivy-rich-mode 1)
+  )
 (use-package which-key
   :init
   (which-key-mode)
   :diminish
   :config
   (setq which-key-idle-delay 0)
+  )
+
+;; customize fonts, mode-line, theme
+(use-package all-the-icons)
+(use-package doom-modeline
+  :init
+  (doom-modeline-mode 1)
+  )
+(use-package rainbow-delimiters
+  :hook
+  (prog-mode . rainbow-delimiters-mode)
+  )
+(use-package doom-themes
+  :init
+  (load-theme 'doom-opera-light t)
+  )
+;; (set-face-attribute 'default nil :family "WenQuanYi Micro Hei Mono")
+(use-package cnfonts
+  :init
+  (cnfonts-enable)
+  (cnfonts-set-spacemacs-fallback-fonts)
+  (setq cnfonts-use-face-font-rescale t)
+  )
+(use-package all-the-icons-ivy
+  :init
+  (add-hook 'after-init-hook 'all-the-icons-ivy-setup)
+  )
+(use-package all-the-icons-ivy-rich
+  :init
+  (all-the-icons-ivy-rich-mode 1)
+  )
+(use-package all-the-icons-dired
+  :init
+  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
   )
 
 ;; helpful
@@ -105,6 +128,10 @@
 (use-package dap-mode
   :config
   (setq dap-auto-configure-features '(sessions locals controls tooltip))
+  (dap-ui-mode 1)
+  (dap-tooltip-mode 1)
+  (tooltip-mode 1)
+  (dap-ui-controls-mode 1)
   )
 
 ;; python
@@ -218,16 +245,8 @@
       '(("myblog"
          :url "http://galoisgu.com/wordpress/xmlrpc.php"
          :username "guqun")))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(org2blog which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode lsp-ui lsp-python-ms lsp-ivy ivy-rich helpful exec-path-from-shell doom-modeline dap-mode counsel auctex)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+
+(use-package org-download)
+(use-package org-kanban)
+
+(setq org-src-fontify-natively t)
