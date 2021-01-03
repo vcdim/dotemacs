@@ -1,4 +1,4 @@
-;; remove things that looks in the 70s
+;; remove components from the 70s
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -34,8 +34,14 @@
 	 :map minibuffer-local-map
 	 ("C-r" . 'counsel-minibuffer-history))
 					; Don't start with ^
-  :config (setq ivy-initial-inputs-alist nil)     
-  )
+  :config (setq ivy-initial-inputs-alist nil)
+  :init
+  (setq counsel-find-file-ignore-regexp
+        (concat
+         ;; File names beginning with # or .
+         "\\(?:\\`[#.]\\)"
+         ;; File names ending with # or ~
+         "\\|\\(?:\\`.+?[#~]\\'\\)")))
 					; Must stay after counsel
 (use-package ivy-rich                     
   :init (ivy-rich-mode 1))
@@ -51,8 +57,8 @@
   :init (doom-modeline-mode 1))
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
-(use-package doom-themes
-  :init (load-theme 'doom-opera-light t))
+(use-package doom-themes)
+;;  :init (load-theme 'doom-opera-light t))
 
 (use-package cnfonts
   :init (cnfonts-enable)
@@ -144,7 +150,7 @@
           treemacs-recenter-after-project-jump   'always
           treemacs-recenter-after-project-expand 'on-distance
           treemacs-show-cursor                   nil
-          treemacs-show-hidden-files             t
+          treemacs-show-hidden-files             nil
           treemacs-silent-filewatch              nil
           treemacs-silent-refresh                nil
           treemacs-sorting                       'alphabetic-asc
@@ -182,7 +188,9 @@
   :after treemacs magit)
 
 ;; auctex
-(use-package auctex)
+(use-package auctex
+  :defer t
+  )
 (add-hook
  'LaTeX-mode-hook
  (lambda ()
@@ -196,11 +204,10 @@
       '(("myblog"
          :url "http://galoisgu.com/wordpress/xmlrpc.php"
          :username "guqun")))
-
 (use-package org-download)
 (use-package org-kanban)
-(use-package org-superstar
-  :init (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
+(use-package org-superstar)
+(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
 (use-package org-roam
   :hook (after-init . org-roam-mode)
   :custom (org-roam-directory "~/SynologyDrive/org/roam/")
@@ -227,8 +234,62 @@
         org-roam-server-network-label-truncate-length 60
         org-roam-server-network-label-wrap-length 20)
   )
+(use-package org-fancy-priorities
+  :ensure t
+  :hook
+  (org-mode . org-fancy-priorities-mode)
+  :config
+  (setq org-fancy-priorities-list
+	'((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
+	  (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
+(defface org-checkbox-done-text
+  '((t (:foreground "#71696A" :strike-through t)))
+  "Face for the text part of a checked org-mode checkbox.")
+(font-lock-add-keywords
+ 'org-mode
+ `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+    1 'org-checkbox-done-text prepend)) 'append)
+(add-hook 'org-mode-hook (lambda ()
+   "Beautify Org Checkbox Symbol"
+   (push '("[ ]" . "☐") prettify-symbols-alist)
+   (push '("[X]" . "☑") prettify-symbols-alist)
+   (push '("[-]" . "❍") prettify-symbols-alist)
+   (prettify-symbols-mode)))
+(setq org-ellipsis " ↴ ")
 (setq org-src-fontify-natively t)
+(setq org-hide-emphasis-markers t)
+(require 'org-tempo)
+(setq org-file-apps
+      '(("\\.pdf::\\([[:digit:]]+\\)\\'" lambda
+        (_file link)
+        (org-pdfview-open link))
+       ("\\.pdf\\'" lambda
+        (_file link)
+        (org-pdfview-open link))
+       (directory . emacs)
+       (auto-mode . emacs)
+       ("\\.mm\\'" . default)
+       ("\\.x?html?\\'" . default)
+       ("\\.pdf?\\'" . system)
+       ("\\.pptx?\\'" . system)
+       ("\\.docx?\\'" . system)
+       ("\\.xlsx?\\'" . system)
+       ("\\.png?\\'" . system)))
+
+;; zero width space
+(defun insert-zero-width-space () (interactive) (insert-char #x200b))
+(defun my-latex-filter-zws (text backend info)
+  (when (org-export-derived-backend-p backend 'latex)
+    (replace-regexp-in-string "\x200B" "{}" text)))
 
 ;; key bindings
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
+(global-set-key (kbd "C-=") 'cnfonts-increase-fontsize)
+(global-set-key (kbd "C--") 'cnfonts-decrease-fontsize)
+
+(toggle-frame-maximized)
+(setq doc-view-resolution 200)
+
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file)
