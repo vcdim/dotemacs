@@ -18,72 +18,52 @@
   (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t)
+					; make init.el clean
+(setq custom-file (concat user-emacs-directory "custom.el"))
 
 ;; enable completions (ivy, counsel, ivy-rich, which-key)
 (use-package smex)
 (use-package ivy
   :diminish
-  :bind
-  (("C-s" . swiper))
-  :config
-  (ivy-mode 1)
-  )
+  :bind (("C-s" . swiper))
+  :config (ivy-mode 1))
 (use-package counsel
-  :bind
-  (("M-x" . counsel-M-x)
-   ("C-x b" . counsel-ibuffer)
-   ("C-x C-f" . counsel-find-file)
-   :map minibuffer-local-map
-   ("C-r" . 'counsel-minibuffer-history)
-   )
-  :config
-  (setq ivy-initial-inputs-alist nil)     ;; Don't start with ^
+  :bind (("M-x" . counsel-M-x)
+	 ("C-x b" . counsel-ibuffer)
+	 ("C-x C-f" . counsel-find-file)
+	 :map minibuffer-local-map
+	 ("C-r" . 'counsel-minibuffer-history))
+					; Don't start with ^
+  :config (setq ivy-initial-inputs-alist nil)     
   )
-(use-package ivy-rich                     ;; 必须放在 counsel 之后，否则会报错
-  :init
-  (ivy-rich-mode 1)
-  )
+					; Must stay after counsel
+(use-package ivy-rich                     
+  :init (ivy-rich-mode 1))
+
 (use-package which-key
-  :init
-  (which-key-mode)
+  :init (which-key-mode)
   :diminish
-  :config
-  (setq which-key-idle-delay 0)
-  )
+  :config (setq which-key-idle-delay 0))
 
 ;; customize fonts, mode-line, theme
 (use-package all-the-icons)
 (use-package doom-modeline
-  :init
-  (doom-modeline-mode 1)
-  )
+  :init (doom-modeline-mode 1))
 (use-package rainbow-delimiters
-  :hook
-  (prog-mode . rainbow-delimiters-mode)
-  )
+  :hook (prog-mode . rainbow-delimiters-mode))
 (use-package doom-themes
-  :init
-  (load-theme 'doom-opera-light t)
-  )
-;; (set-face-attribute 'default nil :family "WenQuanYi Micro Hei Mono")
+  :init (load-theme 'doom-opera-light t))
+
 (use-package cnfonts
-  :init
-  (cnfonts-enable)
+  :init (cnfonts-enable)
   (cnfonts-set-spacemacs-fallback-fonts)
-  (setq cnfonts-use-face-font-rescale t)
-  )
+  (setq cnfonts-use-face-font-rescale t))
 (use-package all-the-icons-ivy
-  :init
-  (add-hook 'after-init-hook 'all-the-icons-ivy-setup)
-  )
+  :init (add-hook 'after-init-hook 'all-the-icons-ivy-setup))
 (use-package all-the-icons-ivy-rich
-  :init
-  (all-the-icons-ivy-rich-mode 1)
-  )
+  :init (all-the-icons-ivy-rich-mode 1))
 (use-package all-the-icons-dired
-  :init
-  (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
-  )
+  :init (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
 
 ;; helpful
 (use-package helpful
@@ -94,36 +74,23 @@
   ([remap describe-function] . counsel-describe-function)
   ([remap describe-command] . helpful-command)
   ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key)
-  )
-
-;; key bindings
-(global-set-key (kbd "<home>") 'beginning-of-line)
-(global-set-key (kbd "<end>") 'end-of-line)
+  ([remap describe-key] . helpful-key))
 
 ;; programming
 (use-package lsp-mode
-  :commands
-  (lsp lsp-deferred)
-  :hook
-  ((python-mode . lsp)
-   (lsp-mode . lsp-enable-which-key-integration)
-   )
-  :init
-  (setq lsp-keymap-prefix "C-c l")
-  )
+  :commands (lsp lsp-deferred)
+  :hook ((python-mode . lsp)
+	 (lsp-mode . lsp-enable-which-key-integration))
+  :init (setq lsp-keymap-prefix "C-c l"))
 (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
 (use-package lsp-ui
-  :config
-  (setq lsp-ui-doc-position 'at-point)
+  :config (setq lsp-ui-doc-position 'at-point)
   (setq lsp-ui-doc-max-width 400)
-  (setq lsp-ui-doc-max-height 20)
-)
+  (setq lsp-ui-doc-max-height 20))
 
 (use-package exec-path-from-shell
-  :config
-  (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize)))
+  :config (when (memq window-system '(mac ns x))
+	    (exec-path-from-shell-initialize)))
 
 (use-package dap-mode
   :config
@@ -131,26 +98,20 @@
   (dap-ui-mode 1)
   (dap-tooltip-mode 1)
   (tooltip-mode 1)
-  (dap-ui-controls-mode 1)
-  )
+  (dap-ui-controls-mode 1))
 
 ;; python
 (use-package lsp-python-ms
-  :init
-  (setq lsp-python-ms-auto-install-server t)
-  :hook
-  (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
-
+  :init (setq lsp-python-ms-auto-install-server t)
+  :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
 (use-package pyenv-mode)
-
 (require 'dap-python)
 
 ;; treemacs
 (use-package treemacs
   :defer t
-  :init
-  (with-eval-after-load 'winum
-    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :init (with-eval-after-load 'winum
+	  (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
   :config
   (progn
     (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
@@ -194,7 +155,6 @@
           treemacs-user-header-line-format       nil
           treemacs-width                         35
           treemacs-workspace-switch-cleanup      nil)
-
     (treemacs-resize-icons 18)
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
@@ -213,33 +173,24 @@
         ("C-x t B"   . treemacs-bookmark)
         ("C-x t C-t" . treemacs-find-file)
         ("C-x t M-t" . treemacs-find-tag)))
-
 (use-package treemacs-projectile
-  :after treemacs projectile
-  )
-
+  :after treemacs projectile)
 (use-package treemacs-icons-dired
   :after treemacs dired
-  :config (treemacs-icons-dired-mode)
-  )
-
+  :config (treemacs-icons-dired-mode))
 (use-package treemacs-magit
-  :after treemacs magit
-  )
+  :after treemacs magit)
 
-(use-package auctex
-  :defer
-  :config
-  )
+;; auctex
+(use-package auctex)
 (add-hook
  'LaTeX-mode-hook
  (lambda ()
-   (add-to-list 'TeX-command-list
-		'("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t)
-		)
-   )
- )
+   (add-to-list
+    'TeX-command-list
+    '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))))
 
+;; org
 (use-package org2blog)
 (setq org2blog/wp-blog-alist
       '(("myblog"
@@ -248,21 +199,20 @@
 
 (use-package org-download)
 (use-package org-kanban)
+(use-package org-superstar
+  :init (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
 (use-package org-roam
-  :hook
-  (after-init . org-roam-mode)
-  :custom
-  (org-roam-directory "~/SynologyDrive/org/roam/")
+  :hook (after-init . org-roam-mode)
+  :custom (org-roam-directory "~/SynologyDrive/org/roam/")
   :bind
   (:map org-roam-mode-map
-   (("C-c n l" . org-roam)
-    ("C-c n f" . org-roam-find-file)
-    ("C-c n g" . org-roam-graph))
-   :map org-mode-map
-   (("C-c n i" . org-roam-insert)
-    ("C-c n I" . org-roam-insert-immediate))
-   )
-  )
+	(("C-c n l" . org-roam)
+	 ("C-c n f" . org-roam-find-file)
+	 ("C-c n g" . org-roam-graph))
+	:map org-mode-map
+	(("C-c n i" . org-roam-insert)
+	 ("C-c n I" . org-roam-insert-immediate))
+	))
 (use-package org-roam-server
   :config
   (setq org-roam-server-host "127.0.0.1"
@@ -277,5 +227,8 @@
         org-roam-server-network-label-truncate-length 60
         org-roam-server-network-label-wrap-length 20)
   )
-
 (setq org-src-fontify-natively t)
+
+;; key bindings
+(global-set-key (kbd "<home>") 'beginning-of-line)
+(global-set-key (kbd "<end>") 'end-of-line)
