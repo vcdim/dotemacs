@@ -13,3 +13,5 @@
 /org-roam.db
 /bookmarks
 /url/
+*.el#
+/projectile-bookmarks.eld

@@ -4,6 +4,8 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 
+(set-frame-parameter (selected-frame) 'alpha '(90 . 50))
+
 ;; setup basic package manager and repositories
 (require 'package)
 (setq package-archives
@@ -18,8 +20,6 @@
   (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t)
-					; make init.el clean
-(setq custom-file (concat user-emacs-directory "custom.el"))
 
 ;; enable completions (ivy, counsel, ivy-rich, which-key)
 (use-package smex)
@@ -232,8 +232,7 @@
         org-roam-server-network-arrows nil
         org-roam-server-network-label-truncate t
         org-roam-server-network-label-truncate-length 60
-        org-roam-server-network-label-wrap-length 20)
-  )
+        org-roam-server-network-label-wrap-length 20))
 (use-package org-fancy-priorities
   :ensure t
   :hook
@@ -291,5 +290,6 @@
 (toggle-frame-maximized)
 (setq doc-view-resolution 200)
 
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+					; make init.el clean
+(setq custom-file (concat user-emacs-directory "custom.el"))
 (load custom-file)
