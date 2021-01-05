@@ -105,11 +105,16 @@
    (python-mode . dap-ui-mode))
   :config
   (require 'dap-python)  
-  (setq dap-auto-configure-features '(sessions locals controls tooltip repl))
+  (setq dap-auto-configure-features '(sessions breakpoints locals controls tooltip repl))
   (dap-ui-mode 1)
   (dap-tooltip-mode 1)
   (tooltip-mode 1)
   (dap-ui-controls-mode 1))
+(use-package company)
+(add-hook 'after-init-hook 'global-company-mode)
+(use-package company-lsp
+  :config
+  (push 'company-lsp company-backends))
 
 ;; python
 (use-package lsp-python-ms

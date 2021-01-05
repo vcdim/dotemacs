@@ -17,4 +17,5 @@
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
  '(package-selected-packages
-   '(company-lsp which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode org2blog org-superstar org-roam-server org-kanban org-fancy-priorities org-download lsp-ui lsp-python-ms lsp-ivy helpful exec-path-from-shell doom-themes doom-modeline dap-mode counsel cnfonts auctex all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-dired)))
+   (quote
+    (company-capf company-mode company company-lsp which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode org2blog org-superstar org-roam-server org-kanban org-fancy-priorities org-download lsp-ui lsp-python-ms lsp-ivy helpful exec-path-from-shell doom-themes doom-modeline dap-mode counsel cnfonts auctex all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-dired))))
