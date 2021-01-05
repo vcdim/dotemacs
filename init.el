@@ -11,8 +11,7 @@
 (setq package-archives
       '(("mepla" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
         ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
-        ("elpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-        ))
+        ("elpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
 (package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
@@ -33,16 +32,12 @@
 	 ("C-x C-f" . counsel-find-file)
 	 :map minibuffer-local-map
 	 ("C-r" . 'counsel-minibuffer-history))
-					; Don't start with ^
+  ;; Don't start with ^
   :config (setq ivy-initial-inputs-alist nil)
   :init
   (setq counsel-find-file-ignore-regexp
-        (concat
-         ;; File names beginning with # or .
-         "\\(?:\\`[#.]\\)"
-         ;; File names ending with # or ~
-         "\\|\\(?:\\`.+?[#~]\\'\\)")))
-					; Must stay after counsel
+        (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)")))
+;; Must stay after counsel
 (use-package ivy-rich                     
   :init (ivy-rich-mode 1))
 
@@ -99,8 +94,18 @@
 	    (exec-path-from-shell-initialize)))
 
 (use-package dap-mode
+  :bind
+  (("<f7>" . dap-step-in)
+   ("<M-f7>" . dap-step-out)
+   ("<f8>" . dap-next)
+   ("<f9>" . dap-continue)
+   ("<f5>" . dap-debug))
+  :hook
+  ((python-mode . dap-mode)
+   (python-mode . dap-ui-mode))
   :config
-  (setq dap-auto-configure-features '(sessions locals controls tooltip))
+  (require 'dap-python)  
+  (setq dap-auto-configure-features '(sessions locals controls tooltip repl))
   (dap-ui-mode 1)
   (dap-tooltip-mode 1)
   (tooltip-mode 1)
@@ -155,7 +160,7 @@
           treemacs-silent-refresh                nil
           treemacs-sorting                       'alphabetic-asc
           treemacs-space-between-root-nodes      t
-          treemacs-tag-follow-cleanup            t
+	  treemacs-tag-follow-cleanup            t
           treemacs-tag-follow-delay              1.5
           treemacs-user-mode-line-format         nil
           treemacs-user-header-line-format       nil
