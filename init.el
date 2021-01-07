@@ -124,7 +124,11 @@
 (use-package pyenv-mode)
 (require 'dap-python)
 
-;; treemacs
+;; treemacs, ibuffer
+(use-package all-the-icons-ibuffer
+  :init (all-the-icons-ibuffer-mode 1))
+(use-package ibuffer-vc)
+
 (use-package treemacs
   :defer t
   :init (with-eval-after-load 'winum
@@ -245,7 +249,6 @@
         org-roam-server-network-label-truncate-length 60
         org-roam-server-network-label-wrap-length 20))
 (use-package org-fancy-priorities
-  :ensure t
   :hook
   (org-mode . org-fancy-priorities-mode)
   :config
@@ -297,6 +300,7 @@
 (global-set-key (kbd "<end>") 'end-of-line)
 (global-set-key (kbd "C-=") 'cnfonts-increase-fontsize)
 (global-set-key (kbd "C--") 'cnfonts-decrease-fontsize)
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 (toggle-frame-maximized)
 (setq doc-view-resolution 200)
