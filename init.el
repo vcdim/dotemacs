@@ -5,6 +5,7 @@
 (menu-bar-mode -1)
 
 (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
+(setq make-backup-files nil)
 
 ;; setup basic package manager and repositories
 (require 'package)
@@ -300,6 +301,6 @@
 (toggle-frame-maximized)
 (setq doc-view-resolution 200)
 
-					; make init.el clean
+;; make init.el clean
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (load custom-file)
