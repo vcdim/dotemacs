@@ -255,6 +255,17 @@
   (setq org-fancy-priorities-list
 	'((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
 	  (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
+(use-package pdf-tools
+  :defer t
+  :commands (pdf-view-mode pdf-tools-install)
+  :mode ("\\.[pP][dD][fF]" . pdf-view-mode)
+  :magic ("%PDF" . pdf-view-mode)
+  :config (pdf-tools-install)
+  )
+(use-package pdf-view-restore
+  :after pdf-tools
+  :config
+  (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
 (use-package org-pdftools
   :hook (org-mode . org-pdftools-setup-link))
 (use-package org-noter-pdftools
@@ -281,21 +292,15 @@
 (setq org-hide-emphasis-markers t)
 (require 'org-tempo)
 (setq org-file-apps
-      '(("\\.pdf::\\([[:digit:]]+\\)\\'" lambda
-        (_file link)
-        (org-pdfview-open link))
-       ("\\.pdf\\'" lambda
-        (_file link)
-        (org-pdfview-open link))
-       (directory . emacs)
-       (auto-mode . emacs)
-       ("\\.mm\\'" . default)
-       ("\\.x?html?\\'" . default)
-       ("\\.pdf?\\'" . system)
-       ("\\.pptx?\\'" . system)
-       ("\\.docx?\\'" . system)
-       ("\\.xlsx?\\'" . system)
-       ("\\.png?\\'" . system)))
+      '(("\\.pdf\\'" . (lambda (file link) (org-pdftools-open link)))
+	(directory . emacs)
+	(auto-mode . emacs)
+	("\\.mm\\'" . default)
+	("\\.x?html?\\'" . default)
+	("\\.pptx?\\'" . system)
+	("\\.docx?\\'" . system)
+	("\\.xlsx?\\'" . system)
+	("\\.png?\\'" . system)))
 
 ;; zero width space
 (defun insert-zero-width-space () (interactive) (insert-char #x200b))
