@@ -255,6 +255,14 @@
   (setq org-fancy-priorities-list
 	'((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
 	  (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
+(use-package org-noter-pdftools
+  :after org-noter
+  :config
+  (with-eval-after-load 'pdf-annot
+    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+
 (defface org-checkbox-done-text
   '((t (:foreground "#71696A" :strike-through t)))
   "Face for the text part of a checked org-mode checkbox.")
