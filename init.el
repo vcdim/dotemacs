@@ -59,7 +59,7 @@
   :config
   (dashboard-setup-startup-hook)
   (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-  (setq dashboard-banner-logo-title "笔耕不辍，静水流深")
+  (setq dashboard-banner-logo-title "笔耕不辍, 静水流深        ")
   (setq dashboard-startup-banner "~/.emacs.d/g.png")
   (setq dashboard-set-footer nil)
   )
@@ -329,3 +329,7 @@
 ;; make init.el clean
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (load custom-file)
+
+(setenv "LANG" "en_US.UTF-8")
+(setenv "LC_ALL" "en_US.UTF-8")
+(setenv "LC_CTYPE" "en_US.UTF-8")
