@@ -55,6 +55,14 @@
   :hook (prog-mode . rainbow-delimiters-mode))
 (use-package doom-themes)
 ;;  :init (load-theme 'doom-opera-light t))
+(use-package dashboard
+  :config
+  (dashboard-setup-startup-hook)
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  (setq dashboard-banner-logo-title "笔耕不辍，静水流深")
+  (setq dashboard-startup-banner "~/.emacs.d/g.png")
+  (setq dashboard-set-footer nil)
+  )
 
 (use-package cnfonts
   :init (cnfonts-enable)
