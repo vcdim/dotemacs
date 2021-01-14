@@ -75,6 +75,9 @@
 (use-package all-the-icons-dired
   :init (add-hook 'dired-mode-hook 'all-the-icons-dired-mode))
 
+(use-package highlight-indent-guides
+  :config (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
+
 ;; helpful
 (use-package helpful
   :custom
@@ -133,6 +136,24 @@
 (require 'dap-python)
 
 ;; treemacs, ibuffer
+(setq dired-guess-shell-alist-user '(("\\.pdf\\'" "open")
+                                   ("\\.doc\\'" "open")
+                                   ("\\.docx\\'" "open")
+                                   ("\\.ppt\\'" "open")
+                                   ("\\.pptx\\'" "open")
+                                   ("\\.xls\\'" "open")))
+(add-hook 'dired-load-hook
+          (lambda ()
+            (setq dired-x-hands-off-my-keys nil)
+            (load "dired-x")
+            ;; Set dired-x global variables here.  For example:
+            ;; (setq dired-guess-shell-gnutar "gtar")
+            ))
+(add-hook 'dired-mode-hook
+          (lambda ()
+            ;; Set dired-x buffer-local variables here.  For example:
+            ;; (dired-omit-mode 1)
+            ))
 (use-package all-the-icons-ibuffer
   :init (all-the-icons-ibuffer-mode 1))
 (use-package ibuffer-vc)
