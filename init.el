@@ -127,7 +127,10 @@
 (use-package company-lsp
   :config
   (push 'company-lsp company-backends))
-
+(use-package yasnippet
+  :init
+  (yas-global-mode 1))
+(use-package yasnippet-snippets)
 ;; python
 (use-package lsp-python-ms
   :init (setq lsp-python-ms-auto-install-server t)
