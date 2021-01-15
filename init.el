@@ -39,7 +39,8 @@
   (setq counsel-find-file-ignore-regexp
         (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)")))
 ;; Must stay after counsel
-(use-package ivy-rich                     
+(use-package ivy-rich
+  :after counsel
   :init (ivy-rich-mode 1))
 
 (use-package which-key
@@ -94,9 +95,44 @@
   :init (setq lsp-keymap-prefix "C-c l"))
 (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
 (use-package lsp-ui
-  :config (setq lsp-ui-doc-position 'at-point)
-  (setq lsp-ui-doc-max-width 400)
-  (setq lsp-ui-doc-max-height 20))
+  :custom
+  (lsp-ui-imenu-enable t)
+
+  (lsp-ui-sideline-ignore-duplicate t)
+  (lsp-ui-sideline-show-symbol t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-sideline-show-diagnostics nil)
+  (lsp-ui-sideline-show-code-actions t)
+  (lsp-ui-sideline-code-actions-prefix "")
+  
+  (lsp-ui-peek-enable t)
+  (lsp-ui-peek-peek-height 20)
+  (lsp-ui-peek-list-width 50)
+  (lsp-ui-peek-fontify 'on-demand)
+
+  (lsp-ui-doc-enable nil)
+  (lsp-ui-doc-position 'at-point)
+  (lsp-ui-doc-max-width 400)
+  (lsp-ui-doc-max-height 20)
+  (lsp-ui-doc-use-webkit t)
+  :preface
+  (defun ladicle/toggle-lsp-ui-doc ()
+    (interactive)
+    (if lsp-ui-doc-mode
+        (progn
+          (lsp-ui-doc-mode -1)
+          (lsp-ui-doc--hide-frame))
+      (lsp-ui-doc-mode 1)))
+  :bind
+  (:map lsp-mode-map
+	("C-c C-r" . lsp-ui-peek-find-references)
+	("C-c C-j" . lsp-ui-peek-find-definitions)
+	("C-c i" . lsp-ui-peek-find-definitions)
+	("C-c m" . lsp-ui-imenu)
+	("C-c s" . lsp-ui-sideline-mode)
+	("C-c d"   . ladicle/toggle-lsp-ui-doc))
+  :hook
+  (lsp-mode . lsp-ui-mode))
 
 (use-package exec-path-from-shell
   :config (when (memq window-system '(mac ns x))
@@ -326,10 +362,13 @@
 (toggle-frame-maximized)
 (setq doc-view-resolution 200)
 
-;; make init.el clean
-(setq custom-file (concat user-emacs-directory "custom.el"))
-(load custom-file)
-
 (setenv "LANG" "en_US.UTF-8")
 (setenv "LC_ALL" "en_US.UTF-8")
 (setenv "LC_CTYPE" "en_US.UTF-8")
+
+(setq url-proxy-services '(("http" . "127.0.0.1:7890")
+			   ("https" . "127.0.0.1:7890")))
+
+;; make init.el clean
+(setq custom-file (concat user-emacs-directory "custom.el"))
+(load custom-file)
