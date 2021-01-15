@@ -19,6 +19,9 @@
  '(ansi-color-names-vector
    ["#2d3743" "#ff4242" "#74af68" "#dbdb95" "#34cae2" "#008b8b" "#00ede1" "#e1e1e0"])
  '(fci-rule-color "#5c5e5e")
+ '(highlight-indent-guides-delay 0)
+ '(highlight-indent-guides-method 'character)
+ '(highlight-indent-guides-responsive 'stack)
  '(jdee-db-active-breakpoint-face-colors (cons "#0d0d0d" "#81a2be"))
  '(jdee-db-requested-breakpoint-face-colors (cons "#0d0d0d" "#b5bd68"))
  '(jdee-db-spec-breakpoint-face-colors (cons "#0d0d0d" "#5a5b5a"))
@@ -37,7 +40,7 @@
  '(org-latex-pdf-process
    '("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))
  '(package-selected-packages
-   '(dashboard pdf-view-restore org-noter-pdftools org-pdftools ibuffer-vc all-the-icons-ibuffer dired-narrow dired-ranger dired-subtree dired-rainbow dired-open dired-avfs dired-filter dired-list dired-collapse dired-hacks-utils dired+ company-capf company-mode company company-lsp which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode org2blog org-superstar org-roam-server org-kanban org-fancy-priorities org-download lsp-ui lsp-python-ms lsp-ivy helpful exec-path-from-shell doom-themes doom-modeline dap-mode counsel cnfonts auctex all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-dired))
+   '(highlight-indent-guides highlight-indent-guide dashboard pdf-view-restore org-noter-pdftools org-pdftools ibuffer-vc all-the-icons-ibuffer dired-narrow dired-ranger dired-subtree dired-rainbow dired-open dired-avfs dired-filter dired-list dired-collapse dired-hacks-utils dired+ company-capf company-mode company company-lsp which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode org2blog org-superstar org-roam-server org-kanban org-fancy-priorities org-download lsp-ui lsp-python-ms lsp-ivy helpful exec-path-from-shell doom-themes doom-modeline dap-mode counsel cnfonts auctex all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-dired))
  '(pdf-view-midnight-colors (cons "#c5c8c6" "#1d1f21"))
  '(rustic-ansi-faces
    ["#1d1f21" "#cc6666" "#b5bd68" "#f0c674" "#81a2be" "#c9b4cf" "#8abeb7" "#c5c8c6"])
