@@ -42,6 +42,49 @@
 (use-package ivy-rich
   :after counsel
   :init (ivy-rich-mode 1))
+(use-package ivy-bibtex
+  :init
+  (setq ivy-re-builders-alist
+	'((ivy-bibtex . ivy--regex-ignore-order)
+	  (t . ivy--regex-plus)))
+  (setq bibtex-completion-bibliography
+	'("~/SynologyDrive/Library/bib/mybib.bib"))
+  (setq bibtex-completion-library-path
+	'("~/SynologyDrive/Library/pdf"))
+  (setq bibtex-completion-pdf-field "File")
+  (setq bibtex-completion-notes-path "~/SynologyDrive/Library/notes")
+  (setq bibtex-completion-display-formats
+    '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
+      (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+      (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+      (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+      (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
+  (setq bibtex-completion-pdf-symbol "⌘")
+  (setq bibtex-completion-notes-symbol "✎")
+  (setq bibtex-completion-pdf-extension '(".pdf" ".djvu"))
+  (setq bibtex-completion-format-citation-functions
+	'((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
+	  (latex-mode    . bibtex-completion-format-citation-cite)
+	  (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+	  (default       . bibtex-completion-format-citation-default)))  
+  (defun ivy-bibtex-my-publications (&optional arg)
+    "Search BibTeX entries authored by “Jane Doe”.
+
+With a prefix ARG, the cache is invalidated and the bibliography reread."
+    (interactive "P")
+    (when arg
+      (bibtex-completion-clear-cache))
+    (bibtex-completion-init)
+    (ivy-read "BibTeX Items: "
+              (bibtex-completion-candidates)
+              :initial-input "Jane Doe"
+              :caller 'ivy-bibtex
+              :action ivy-bibtex-default-action))
+
+  ;; Bind this search function to Ctrl-x p:
+  (global-set-key (kbd "C-x p") 'ivy-bibtex-my-publications)
+  )
+
 
 (use-package which-key
   :init (which-key-mode)
