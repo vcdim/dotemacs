@@ -402,24 +402,24 @@
   (setq org-fancy-priorities-list
 	'((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
 	  (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
-;; (use-package pdf-tools
-;;   :defer t
-;;   :commands (pdf-view-mode pdf-tools-install)
-;;   :mode ("\\.[pP][dD][fF]" . pdf-view-mode)
-;;   :magic ("%PDF" . pdf-view-mode)
-;;   :config (pdf-tools-install :no-query)
-;;   )
-;; (use-package pdf-view-restore
-;;   :after pdf-tools
-;;   :config
-;;   (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
-;; (use-package org-pdftools
-;;   :hook (org-mode . org-pdftools-setup-link))
-;; (use-package org-noter-pdftools
-;;   :after org-noter
-;;   :config
-;;   (with-eval-after-load 'pdf-annot
-;;     (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+(use-package pdf-tools
+  :defer t
+  :commands (pdf-view-mode pdf-tools-install)
+  :mode ("\\.[pP][dD][fF]" . pdf-view-mode)
+  :magic ("%PDF" . pdf-view-mode)
+  :config (pdf-tools-install :no-query)
+  )
+(use-package pdf-view-restore
+  :after pdf-tools
+  :config
+  (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
+(use-package org-noter-pdftools
+  :after org-noter
+  :config
+  (with-eval-after-load 'pdf-annot
+    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 
 (defface org-checkbox-done-text
   '((t (:foreground "#71696A" :strike-through t)))

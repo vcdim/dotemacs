@@ -27,7 +27,7 @@
  '(jdee-db-requested-breakpoint-face-colors (cons "#0d0d0d" "#b5bd68"))
  '(jdee-db-spec-breakpoint-face-colors (cons "#0d0d0d" "#5a5b5a"))
  '(objed-cursor-color "#cc6666")
- '(org-export-backends '(html latex))
+ '(org-export-backends '(beamer html latex))
  '(org-file-apps
    '((directory . emacs)
      (auto-mode . emacs)
