@@ -21,6 +21,12 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(unless (package-installed-p 'quelpa)
+  (with-temp-buffer
+    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+    (eval-buffer)
+    (quelpa-self-upgrade)))
+
 ;; enable completions (ivy, counsel, ivy-rich, which-key)
 (use-package smex)
 (use-package ivy
@@ -85,6 +91,15 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (global-set-key (kbd "C-x p") 'ivy-bibtex-my-publications)
   )
 
+(use-package ivy-posframe
+  :init
+  (setq ivy-posframe-display-functions-alist
+      '((swiper          . ivy-display-function-fallback)
+        (complete-symbol . ivy-posframe-display-at-point)
+        (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
+        (t               . ivy-posframe-display)))
+  (ivy-posframe-mode 1)
+  )
 
 (use-package which-key
   :init (which-key-mode)
@@ -133,6 +148,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (use-package highlight-indent-guides
   :config (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
+
+(use-package org-pretty-tags)
 
 ;; helpful
 (use-package helpful
@@ -516,6 +533,68 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (global-set-key (kbd "C-+") 'toggle-hiding)
 (global-set-key (kbd "C-\\") 'toggle-selective-display)
 (add-hook 'prog-mode-hook #'hs-minor-mode)
+
+;; email
+(add-to-list 'load-path "/usr/local/Cellar/mu/1.4.14/share/emacs/site-lisp/mu/mu4e")
+(require 'mu4e)
+(setq mail-user-agent 'mu4e-user-agent)
+
+(setq mu4e-drafts-folder "/Drafts")
+(setq mu4e-sent-folder   "/Sent")
+(setq mu4e-trash-folder  "/Deleted")
+(setq mu4e-maildir-shortcuts
+      '((:maildir "/Inbox" :key ?i)
+	(:maildir "/Sent" :key ?s)
+	(:maildir "/Deleted" :key ?d)
+	(:maildir "/Archive" :key ?a)
+	(:maildir "/Drafts" :key ?r)
+	(:maildir "/Edria" :key ?e)	
+	))
+(setq mu4e-get-mail-command "offlineimap")
+(setq mu4e-update-interval 300)             ;; update every 5 minutes
+(setq
+ user-mail-address "guqun@outlook.com"
+ user-full-name  "Qun Gu"
+ mu4e-compose-signature
+ (concat
+  "Qun Gu\n"
+  "Sent from Emacs"))
+(use-package mu4e-views
+  :after mu4e
+  :defer nil
+  :bind (:map mu4e-headers-mode-map
+	    ("v" . mu4e-views-mu4e-select-view-msg-method) ;; select viewing method
+	    ("M-n" . mu4e-views-cursor-msg-view-window-down) ;; from headers window scroll the email view
+	    ("M-p" . mu4e-views-cursor-msg-view-window-up) ;; from headers window scroll the email view
+            ("f" . mu4e-views-toggle-auto-view-selected-message) ;; toggle opening messages automatically when moving in the headers view
+	    )
+  :config
+  (setq mu4e-views-completion-method 'ivy) ;; use ivy for completion
+  (setq mu4e-views-default-view-method "html") ;; make xwidgets default
+  (mu4e-views-mu4e-use-view-msg-method "html") ;; select the default
+  (setq mu4e-views-next-previous-message-behaviour 'stick-to-current-window) ;; when pressing n and p stay in the current window
+  (setq mu4e-views-auto-view-selected-message t)) ;; automatically open messages when moving in the headers view
+
+(use-package mu4e-alert
+  :after mu4e
+  :init
+  (setq mu4e-alert-interesting-mail-query
+     "flag:unread maildir:/Inbox"
+     )
+  (mu4e-alert-enable-mode-line-display)
+  (defun gjstein-refresh-mu4e-alert-mode-line ()
+    (interactive)
+    (mu4e~proc-kill)
+    (mu4e-alert-enable-mode-line-display)
+    )
+  (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line)
+  )
+(use-package mu4e-marker-icons
+  :init (mu4e-marker-icons-mode 1))
+
+(setq smtpmail-default-smtp-server "smtp.office365.com"
+      smtpmail-smtp-server "smtp.office365.com"
+      smtpmail-smtp-service 587)
 
 ;; key bindings
 (global-set-key (kbd "<home>") 'beginning-of-line)
