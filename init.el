@@ -23,3 +23,7 @@
 
 ;; 加载 emacs-config.org
 (org-babel-load-file "~/.emacs.d/emacs-config.org")
+
+;; 加载 custom.el
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(load custom-file)

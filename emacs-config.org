@@ -1,6 +1,23 @@
 #+TITLE: Emacs Configuration
+#+STARTUP: overview
 #+PROPERTY: results silent
 
+* 启动性能
+** 检测
+   #+begin_src elisp
+     (defun efs/display-startup-time ()
+       (message "Emacs loaded in %s with %d garbage collections."
+		(format "%.2f seconds"
+			(float-time
+			(time-subtract after-init-time before-init-time)))
+		gcs-done))
+
+     (add-hook 'emacs-startup-hook #'efs/display-startup-time)
+   #+end_src
+** no-littering
+   #+begin_src elisp
+     (use-package no-littering)
+   #+end_src
 * 简化界面
 ** DONE 删除启动消息
    #+begin_src elisp
@@ -22,181 +39,48 @@
    #+begin_src elisp
      (toggle-frame-maximized)
    #+end_src
+** DONE 设置透明度
+   #+begin_src elisp
+     (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
+   #+end_src
 * 简单设置
-** 不需要备份文件
+** DONE 不需要备份文件
   #+begin_src elisp
      (setq make-backup-files nil)
   #+end_src
-** 按键修改
+** DONE 按键修改
    #+begin_src elisp
      (global-set-key (kbd "<home>") 'beginning-of-line)
      (global-set-key (kbd "<end>") 'end-of-line)
    #+end_src
-** 系统编码
+** DONE 系统编码
    #+begin_src elisp
      (setenv "LANG" "en_US.UTF-8")
      (setenv "LC_ALL" "en_US.UTF-8")
      (setenv "LC_CTYPE" "en_US.UTF-8")
    #+end_src
-** 系统代理
+** DEPRECATED 系统代理
    #+begin_src elisp
      ;; (setq url-proxy-services '(("http" . "127.0.0.1:7890")
      ;; 			   ("https" . "127.0.0.1:7890")))
    #+end_src
-** 环境变量
+** DONE 环境变量
 *** exec-path-from-shell
     #+begin_src elisp
-       (use-package exec-path-from-shell
-	 :config (when (memq window-system '(mac ns x))
-		   (exec-path-from-shell-initialize)))
+      (use-package exec-path-from-shell
+	:config
+	(when (memq window-system '(mac ns x))
+	  (exec-path-from-shell-initialize)))
     #+end_src
-* 美化界面
-** DONE 设置透明度
-   #+begin_src elisp
-     (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
-   #+end_src
-   
-* 包管理器
-** use-package
-   #+begin_src elisp
-     (package-initialize)
-     (unless (package-installed-p 'use-package)
-       (package-install 'use-package))
-     (require 'use-package)
-     (setq use-package-always-ensure t)
-   #+end_src
-   
-** quelpa
-   #+begin_src elisp
-     (unless (package-installed-p 'quelpa)
-       (with-temp-buffer
-	 (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-	 (eval-buffer)
-	 (quelpa-self-upgrade)))
-   #+end_src
-   
-* 自动补全
-** smex
-   Smart M-x
-   #+begin_src elisp
-     ;; (use-package smex)
-   #+end_src
-** ivy
-   #+begin_src elisp
-     (use-package ivy
-       :diminish
-       :bind (("C-s" . swiper))
-       :config (ivy-mode 1))
-   #+end_src
-** ivy-rich
-   #+begin_src elisp
-     (use-package ivy-rich
-       :after (counsel ivy)
-       :init (ivy-rich-mode 1))
-   #+end_src
-
-** ivy-bibtex
-   #+begin_src elisp
-     (use-package ivy-bibtex
-       :init
-       (setq ivy-re-builders-alist
-	     '((ivy-bibtex . ivy--regex-ignore-order)
-	       (t . ivy--regex-plus)))
-       (setq bibtex-completion-bibliography
-	     '("~/SynologyDrive/Library/bib/mybib.bib"))
-       (setq bibtex-completion-library-path
-	     '("~/SynologyDrive/Library/pdf"))
-       (setq bibtex-completion-pdf-field "File")
-       (setq bibtex-completion-notes-path "~/SynologyDrive/Library/notes")
-       (setq bibtex-completion-display-formats
-	 '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
-	   (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
-	   (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-	   (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-	   (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
-       (setq bibtex-completion-pdf-symbol "⌘")
-       (setq bibtex-completion-notes-symbol "✎")
-       (setq bibtex-completion-pdf-extension '(".pdf" ".djvu"))
-       (setq bibtex-completion-format-citation-functions
-	     '((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
-	       (latex-mode    . bibtex-completion-format-citation-cite)
-	       (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
-	       (default       . bibtex-completion-format-citation-default)))  
-       (defun ivy-bibtex-my-publications (&optional arg)
-	 "Search BibTeX entries authored by “Jane Doe”.
-
-     With a prefix ARG, the cache is invalidated and the bibliography reread."
-	 (interactive "P")
-	 (when arg
-	   (bibtex-completion-clear-cache))
-	 (bibtex-completion-init)
-	 (ivy-read "BibTeX Items: "
-		   (bibtex-completion-candidates)
-		   :initial-input "Jane Doe"
-		   :caller 'ivy-bibtex
-		   :action ivy-bibtex-default-action))
-
-       ;; Bind this search function to Ctrl-x p:
-       (global-set-key (kbd "C-x p") 'ivy-bibtex-my-publications)
-       )
-   #+end_src
-
-** ivy-posframe
-   #+begin_src 
-     (use-package ivy-posframe
-       :init
-       (setq ivy-posframe-display-functions-alist
-	   '((swiper          . ivy-display-function-fallback)
-	     (complete-symbol . ivy-posframe-display-at-point)
-	     (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
-	     (t               . ivy-posframe-display)))
-       (ivy-posframe-mode 1)
-       )
-   #+end_src
-** counsel
-   #+begin_src elisp
-     (use-package counsel
-       :bind (("M-x" . counsel-M-x)
-	      ("C-x b" . counsel-ibuffer)
-	      ("C-x C-f" . counsel-find-file)
-	      :map minibuffer-local-map
-	      ("C-r" . 'counsel-minibuffer-history))
-       ;; Don't start with ^
-       :config (setq ivy-initial-inputs-alist nil)
-       :init
-       (setq counsel-find-file-ignore-regexp
-	     (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)")))
-   #+end_src
-   
-** which-key
-   #+begin_src elisp
-     (use-package which-key
-       :init (which-key-mode)
-       :diminish
-       :config (setq which-key-idle-delay 0))
-   #+end_src
-** helpful
-   #+begin_src elisp
-     (use-package helpful
-       :custom
-       (counsel-describe-function-function #'helpful-callable)
-       (counsel-describe-variable-function #'helpful-variable)
-       :bind
-       ([remap describe-function] . counsel-describe-function)
-       ([remap describe-command] . helpful-command)
-       ([remap describe-variable] . counsel-describe-variable)
-       ([remap describe-key] . helpful-key))
-   #+end_src
 * 外观设置
 ** 主题
-
 *** doom-themes
     #+begin_src elisp
-     (use-package doom-themes
-       ;;  :init (load-theme 'doom-opera-light t)
-       )
+      (use-package doom-themes
+	:init
+	(load-theme 'doom-solarized-dark t)
+	)
     #+end_src
-    
 *** kaolin-themes
     #+begin_src elisp
      (use-package kaolin-themes
@@ -205,7 +89,6 @@
        ;;  (kaolin-treemacs-theme)
        )
     #+end_src
-    
 *** base16-themes
     #+begin_src elisp
      (use-package base16-theme
@@ -213,9 +96,30 @@
        ;;  (load-theme 'base16-default-dark t)
        )
     #+end_src
+*** modus-themes
+    #+begin_src elisp
+      (use-package modus-themes
+	:ensure
+	:init
+	;; Add all your customizations prior to loading the themes
+	(setq modus-themes-slanted-constructs t
+	      modus-themes-bold-constructs nil)
+
+	;; Load the theme files before enabling a theme
+	(modus-themes-load-themes)
+	:config
+	;; Load the theme of your choice:
+	:bind ("<f5>" . modus-themes-toggle))
+    #+end_src
+*** sublime-themes
+    #+begin_src elisp
+      (use-package sublime-themes)
+    #+end_src
 ** all-the-icons
    #+begin_src elisp 
-     (use-package all-the-icons)
+     (use-package all-the-icons
+       :after cnfonts
+       )
    #+end_src
 *** all-the-icons-ivy
     #+begin_src elisp
@@ -260,64 +164,27 @@
        (setq doom-modeline-major-mode-icon t)
        (setq doom-modeline-major-mode-color-icon t)
        (setq doom-modeline-buffer-state-icon t)
-
-       ;; Whether display the modification icon for the buffer.
-       ;; It respects `doom-modeline-icon' and `doom-modeline-buffer-state-icon'.
        (setq doom-modeline-buffer-modification-icon t)
-
-       ;; Whether to use unicode as a fallback (instead of ASCII) when not using icons.
-       (setq doom-modeline-unicode-fallback nil)
-
-       ;; Whether display the minor modes in the mode-line.
+       (setq doom-modeline-unicode-fallback t)
        (setq doom-modeline-minor-modes nil)
-
-       ;; If non-nil, a word count will be added to the selection-info modeline segment.
-       (setq doom-modeline-enable-word-count nil)
-
-       ;; Major modes in which to display word count continuously.
-       ;; Also applies to any derived modes. Respects `doom-modeline-enable-word-count'.
-       ;; If it brings the sluggish issue, disable `doom-modeline-enable-word-count' or
-       ;; remove the modes from `doom-modeline-continuous-word-count-modes'.
+       (setq doom-modeline-enable-word-count t)
        (setq doom-modeline-continuous-word-count-modes '(markdown-mode gfm-mode org-mode))
-
-       ;; Whether display the buffer encoding.
        (setq doom-modeline-buffer-encoding t)
-
-       ;; Whether display the indentation information.
        (setq doom-modeline-indent-info nil)
-
-       ;; If non-nil, only display one number for checker information if applicable.
        (setq doom-modeline-checker-simple-format t)
-
-       ;; The maximum number displayed for notifications.
        (setq doom-modeline-number-limit 99)
-
-       ;; The maximum displayed length of the branch name of version control.
        (setq doom-modeline-vcs-max-length 12)
-
-       ;; Whether display the workspace name. Non-nil to display in the mode-line.
        (setq doom-modeline-workspace-name t)
-
-       ;; Whether display the perspective name. Non-nil to display in the mode-line.
        (setq doom-modeline-persp-name t)
-
-       ;; If non nil the default perspective name is displayed in the mode-line.
        (setq doom-modeline-display-default-persp-name nil)
-
-       ;; If non nil the perspective name is displayed alongside a folder icon.
        (setq doom-modeline-persp-icon t)
-
-       ;; Whether display the `lsp' state. Non-nil to display in the mode-line.
        (setq doom-modeline-lsp t)
-
        ;; Whether display the GitHub notifications. It requires `ghub' package.
-       (setq doom-modeline-github nil)
+       (setq doom-modeline-github t)
 
        ;; The interval of checking GitHub.
        (setq doom-modeline-github-interval (* 30 60))
 
-       ;; Whether display the modal state icon.
-       ;; Including `evil', `overwrite', `god', `ryo' and `xah-fly-keys', etc.
        (setq doom-modeline-modal-icon t)
 
        ;; Whether display the mu4e notifications. It requires `mu4e-alert' package.
@@ -379,7 +246,17 @@
        (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
        (setq dashboard-banner-logo-title "笔耕不辍, 静水流深        ")
        (setq dashboard-startup-banner "~/.emacs.d/g.png")
+       (setq dashboard-center-content t)
        (setq dashboard-set-footer nil)
+       (setq dashboard-items '((recents  . 5)
+			       (bookmarks . 5)
+			       (projects . 5)
+			       (agenda . 5)
+			       (registers . 5)))
+       (setq dashboard-set-heading-icons t)
+       (setq dashboard-set-file-icons t)
+       (setq dashboard-set-navigator t)
+       (setq dashboard-set-init-info t)
        )
    #+end_src
 
@@ -389,15 +266,16 @@
        :init
        (cnfonts-enable)
        (cnfonts-set-spacemacs-fallback-fonts)
-       (setq cnfonts-use-face-font-rescale t)
-       (setq cnfonts-personal-fontnames
-	     '(("Operator Mono Book" "Operator Mono Lig")
-	       ()
-	       ()
-	       ))
+       (setq cnfonts-profiles
+	     '("program" "org-mode" "read-book"))
+       (setq cnfonts-personal-fontnames '(("Iosevka Comfy")
+					  ()
+					  ()))
+       :bind
+       (("C-=" . cnfonts-increase-fontsize)
+	("C--" . cnfonts-decrease-fontsize)
+	)
        )
-     (global-set-key (kbd "C-=") 'cnfonts-increase-fontsize)
-     (global-set-key (kbd "C--") 'cnfonts-decrease-fontsize)
    #+end_src
    
 ** highlight-indent-guides
@@ -559,8 +437,8 @@
    #+end_src
 ** ibuffer-vc
    #+begin_src elisp
-     (use-package ibuffer-vc)
      (global-set-key (kbd "C-x C-b") 'ibuffer)
+     (use-package ibuffer-vc)
    #+end_src
 ** dired
    #+begin_src elisp
@@ -583,7 +461,142 @@
 		 ;; (dired-omit-mode 1)
 		 ))
    #+end_src
-* 编程配置 
+** ranger
+   #+begin_src elisp
+     (use-package ranger)
+   #+end_src
+* 包管理器
+** use-package
+   #+begin_src elisp
+     (package-initialize)
+     (unless (package-installed-p 'use-package)
+       (package-install 'use-package))
+     (require 'use-package)
+     (setq use-package-always-ensure t)
+   #+end_src
+   
+** quelpa
+   #+begin_src elisp
+     ;; (unless (package-installed-p 'quelpa)
+     ;;   (with-temp-buffer
+     ;;     (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+     ;;     (eval-buffer)
+     ;;     (quelpa-self-upgrade)))
+   #+end_src
+   
+* 自动补全
+** smex
+   Smart M-x
+   #+begin_src elisp
+     ;; (use-package smex)
+   #+end_src
+** ivy
+   #+begin_src elisp
+     (use-package ivy
+       :diminish
+       :bind (("C-s" . swiper))
+       :config (ivy-mode 1))
+   #+end_src
+** ivy-rich
+   #+begin_src elisp
+     (use-package ivy-rich
+       :after (counsel ivy)
+       :init (ivy-rich-mode 1))
+   #+end_src
+
+** ivy-bibtex
+   #+begin_src elisp
+     (use-package ivy-bibtex
+       :init
+       (setq ivy-re-builders-alist
+	     '((ivy-bibtex . ivy--regex-ignore-order)
+	       (t . ivy--regex-plus)))
+       (setq bibtex-completion-bibliography
+	     '("~/SynologyDrive/Library/bib/mybib.bib"))
+       (setq bibtex-completion-library-path
+	     '("~/SynologyDrive/Library/pdf"))
+       (setq bibtex-completion-pdf-field "File")
+       (setq bibtex-completion-notes-path "~/SynologyDrive/Library/notes")
+       (setq bibtex-completion-display-formats
+	 '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
+	   (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+	   (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	   (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	   (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
+       (setq bibtex-completion-pdf-symbol "⌘")
+       (setq bibtex-completion-notes-symbol "✎")
+       (setq bibtex-completion-pdf-extension '(".pdf" ".djvu"))
+       (setq bibtex-completion-format-citation-functions
+	     '((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
+	       (latex-mode    . bibtex-completion-format-citation-cite)
+	       (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+	       (default       . bibtex-completion-format-citation-default)))  
+       (defun ivy-bibtex-my-publications (&optional arg)
+	 "Search BibTeX entries authored by “Jane Doe”.
+
+     With a prefix ARG, the cache is invalidated and the bibliography reread."
+	 (interactive "P")
+	 (when arg
+	   (bibtex-completion-clear-cache))
+	 (bibtex-completion-init)
+	 (ivy-read "BibTeX Items: "
+		   (bibtex-completion-candidates)
+		   :initial-input "Jane Doe"
+		   :caller 'ivy-bibtex
+		   :action ivy-bibtex-default-action))
+
+       ;; Bind this search function to Ctrl-x p:
+       :bind (("C-x p" . ivy-bibtex-my-publications))
+       )
+   #+end_src
+
+** ivy-posframe
+   #+begin_src 
+     (use-package ivy-posframe
+       :init
+       (setq ivy-posframe-display-functions-alist
+	   '((swiper          . ivy-display-function-fallback)
+	     (complete-symbol . ivy-posframe-display-at-point)
+	     (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
+	     (t               . ivy-posframe-display)))
+       (ivy-posframe-mode 1)
+       )
+   #+end_src
+** counsel
+   #+begin_src elisp
+     (use-package counsel
+       :bind (("M-x" . counsel-M-x)
+	      ("C-x b" . counsel-ibuffer)
+	      ("C-x C-f" . counsel-find-file)
+	      :map minibuffer-local-map
+	      ("C-r" . 'counsel-minibuffer-history))
+       ;; Don't start with ^
+       :config (setq ivy-initial-inputs-alist nil)
+       :init
+       (setq counsel-find-file-ignore-regexp
+	     (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)")))
+   #+end_src
+   
+** which-key
+   #+begin_src elisp
+     (use-package which-key
+       :init (which-key-mode)
+       :diminish
+       :config (setq which-key-idle-delay 0))
+   #+end_src
+** helpful
+   #+begin_src elisp
+     (use-package helpful
+       :custom
+       (counsel-describe-function-function #'helpful-callable)
+       (counsel-describe-variable-function #'helpful-variable)
+       :bind
+       ([remap describe-function] . counsel-describe-function)
+       ([remap describe-command] . helpful-command)
+       ([remap describe-variable] . counsel-describe-variable)
+       ([remap describe-key] . helpful-key))
+   #+end_src
+* 编程配置
 ** 代码补全
 *** lsp-mode
     #+begin_src elisp
@@ -596,7 +609,8 @@
 
 *** lsp-ivy
     #+begin_src elisp
-      (use-package lsp-ivy :commands lsp-ivy-workspace-symbol)
+      (use-package lsp-ivy
+	:commands lsp-ivy-workspace-symbol)
     #+end_src
     
 *** lsp-ui
@@ -683,136 +697,159 @@
 	(tooltip-mode 1)
 	(dap-ui-controls-mode 1))
     #+end_src
- 
+** 版本控制
+*** ghub
+    #+begin_src elisp
+      ;; (use-package ghub)
+    #+end_src
+*** projectile
+    #+begin_src elisp
+      (use-package projectile
+	:init
+	(projectile-mode +1)
+	:bind (:map projectile-mode-map
+		    ("s-p" . projectile-command-map)
+		    ("C-c p" . projectile-command-map)))
+    #+end_src
 ** 编程语言
-*** python
-
-**** lsp-python-ms
+*** org
+**** org-pomodoro
      #+begin_src elisp
-	(use-package lsp-python-ms
-	  :init (setq lsp-python-ms-auto-install-server t)
-	  :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
+       (use-package org-pomodoro
+	 :commands org-pomodoro
+	 )
      #+end_src
-     
-**** pyenv-mode
-     #+begin_src elisp
-	(use-package pyenv-mode)
-     #+end_src
-     
-**** dap-python
-     #+begin_src elisp
-	(require 'dap-python)
-     #+end_src
-*** org  
 **** org-pretty-tags
      #+begin_src elisp
-       (use-package org-pretty-tags)
+       (use-package org-pretty-tags
+	 :after orgmode
+	 )
      #+end_src
-
-**** org 配置
-***** org-capture
-      #+begin_src elisp
-	(setq org-capture-templates
-	      '(("t" "Todo" entry (file+headline "~/SynologyDrive/org/todo.org" "Tasks")
-		 "* TODO %?\n  %i\n  %a")
-		("j" "Journal" entry (file+datetree "~/SynologyDrive/org/journal.org")
-		 "* %?\nEntered on %U\n  %i")))
-
-      #+end_src
-***** org2blog
-      #+begin_src elisp
-	(use-package org2blog
-	  :config
-	  (setq org2blog/wp-blog-alist
-		'(("myblog"
-		   :url "http://galoisgu.com/wordpress/xmlrpc.php"
-		   :username "guqun")))
-	  )
-      #+end_src
-***** org-download
-      #+begin_src elisp
-	(use-package org-download)
-      #+end_src
-***** org-kanban
-      #+begin_src elisp
-	(use-package org-kanban)
-      #+end_src
-***** org-superstar
-      #+begin_src elisp
-	(use-package org-superstar)
-	(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+**** org-capture
+     #+begin_src elisp
+       (setq org-capture-templates
+	     '(
+	       ("n" "Next" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
+		"* TODO %?\n SCHEDULED: %T \n %i\n  %a")
+	       ("t" "Todo" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
+		"* TODO %?\n SCHEDULED: %^T\n")
+	       ("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
+		"* TODO %?\n SCHEDULED: %^T \n %i\n  %a")
+	       ("j" "Journal" entry (file+datetree "~/SynologyDrive/org/journal.org")
+		"* %?\nEntered on %U\n  %i")
+	       ("m" "Email" entry (file+headline "~/SynologyDrive/org/todo.org" "Email")
+		"* TODO %^{待办事项} %^g\n  SCHEDULED: %T DEADLINE: %^T \n  :PROPERTIES:\n  LINK:%i %a\n  :END:\n  %?")
+	     ))
      #+end_src
-***** org-roam
-      #+begin_src elisp
-	(use-package org-roam
-	  :hook (after-init . org-roam-mode)
-	  :custom (org-roam-directory "~/SynologyDrive/org/roam/")
-	  :bind
-	  (:map org-roam-mode-map
-		(("C-c n l" . org-roam)
-		 ("C-c n f" . org-roam-find-file)
-		 ("C-c n g" . org-roam-graph))
-		:map org-mode-map
-		(("C-c n i" . org-roam-insert)
-		 ("C-c n I" . org-roam-insert-immediate))
-		))
-      #+end_src
-***** org-roam-server
-      #+begin_src elisp
-	(use-package org-roam-server
-	  :config
-	  (setq org-roam-server-host "127.0.0.1"
-		org-roam-server-port 8080
-		org-roam-server-authenticate nil
-		org-roam-server-export-inline-images t
-		org-roam-server-serve-files nil
-		org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
-		org-roam-server-network-poll t
-		org-roam-server-network-arrows nil
-		org-roam-server-network-label-truncate t
-		org-roam-server-network-label-truncate-length 60
-		org-roam-server-network-label-wrap-length 20))
-      #+end_src
-***** org-fancy-priorities
-      #+begin_src elisp
-	(use-package org-fancy-priorities
-	  :hook
-	  (org-mode . org-fancy-priorities-mode)
-	  :config
-	  (setq org-fancy-priorities-list
-		'((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
-		  (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
-      #+end_src
-***** org-pdftools
-      #+begin_src elisp
-	(use-package org-pdftools
-	  :hook (org-mode . org-pdftools-setup-link))
-      #+end_src
-***** org-noter-pdftools
-      #+begin_src elisp
-	(use-package org-noter-pdftools
-	  :after org-noter
-	  :config
-	  (with-eval-after-load 'pdf-annot
-	    (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
-      #+end_src
-***** org-super-agenda
-      #+begin_src elisp
-	(use-package org-super-agenda
-	  :config
-	  (setq org-super-agenda-groups
-		'((:name "Next Items"
-			 :time-grid t
-			 :tag ("NEXT" "outbox"))
-		  (:name "Important"
-			 :priority "A")
-		  (:name "Quick Picks"
-			 :effort< "0:30")
-		  (:priority<= "B"
-			       :scheduled future
-			       :order 1)))
-	  )
-      #+end_src
+**** org2blog
+     #+begin_src elisp
+       (use-package org2blog
+	 :after org
+	 :config
+	 (setq org2blog/wp-blog-alist
+	       '(("myblog"
+		  :url "http://galoisgu.com/wordpress/xmlrpc.php"
+		  :username "guqun")))
+	 )
+     #+end_src
+**** org-download
+     #+begin_src elisp
+       (use-package org-download
+	 :commands org)
+     #+end_src
+**** org-kanban
+     #+begin_src elisp
+       (use-package org-kanban
+	 :commands org-kanban)
+     #+end_src
+**** org-superstar
+     #+begin_src elisp
+       (use-package org-superstar)
+       (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+    #+end_src
+**** org-roam
+     #+begin_src elisp
+       (use-package org-roam
+	 :hook (after-init . org-roam-mode)
+	 :custom (org-roam-directory "~/SynologyDrive/org/roam/")
+	 :bind
+	 (:map org-roam-mode-map
+	       (("C-c n l" . org-roam)
+		("C-c n f" . org-roam-find-file)
+		("C-c n g" . org-roam-graph))
+	       :map org-mode-map
+	       (("C-c n i" . org-roam-insert)
+		("C-c n I" . org-roam-insert-immediate))
+	       ))
+     #+end_src
+**** org-roam-server
+     #+begin_src elisp
+       (use-package org-roam-server
+	 :after org-roam
+	 :config
+	 (setq org-roam-server-host "127.0.0.1"
+	       org-roam-server-port 8080
+	       org-roam-server-authenticate nil
+	       org-roam-server-export-inline-images t
+	       org-roam-server-serve-files nil
+	       org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
+	       org-roam-server-network-poll t
+	       org-roam-server-network-arrows nil
+	       org-roam-server-network-label-truncate t
+	       org-roam-server-network-label-truncate-length 60
+	       org-roam-server-network-label-wrap-length 20))
+     #+end_src
+**** org-fancy-priorities
+     #+begin_src elisp
+       (use-package org-fancy-priorities
+	 :hook
+	 (org-mode . org-fancy-priorities-mode)
+	 :config
+	 (setq org-fancy-priorities-list
+	       '((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
+		 (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
+     #+end_src
+**** org-pdftools
+     #+begin_src elisp
+       (use-package org-pdftools
+	 :hook (org-mode . org-pdftools-setup-link))
+     #+end_src
+**** org-noter-pdftools
+     #+begin_src elisp
+       (use-package org-noter-pdftools
+	 :after org-noter
+	 :config
+	 (with-eval-after-load 'pdf-annot
+	   (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
+     #+end_src
+**** org-super-agenda
+     #+begin_src elisp
+       (use-package org-super-agenda
+	 :config
+	 (setq org-super-agenda-groups
+	       '((:name "Next Items"
+			:time-grid t
+			:tag ("NEXT" "outbox"))
+		 (:name "Important"
+			:priority "A")
+		 (:name "Quick Picks"
+			:effort< "0:30")
+		 (:priority<= "B"
+			      :scheduled future
+			      :order 1)))
+	 )
+     #+end_src
+**** org-mime
+     #+begin_src elisp
+       (use-package org-mime
+	 :after org
+	 )
+     #+end_src
+**** org-protocol
+     #+begin_src elisp
+       (require 'org-protocol)
+     #+end_src
+**** 其他配置
 ***** 按键配置
       #+begin_src elisp
 	(setq org-support-shift-select 1)
@@ -823,6 +860,7 @@
 	(defun my-latex-filter-zws (text backend info)
 	  (when (org-export-derived-backend-p backend 'latex)
 	    (replace-regexp-in-string "\x200B" "{}" text)))
+	(global-set-key (kbd "C-*") 'insert-zero-width-space)
       #+end_src
 ***** 快捷键配置
       #+begin_src elisp
@@ -886,7 +924,50 @@
       #+begin_src elisp
 	(setq org-todo-keywords
 	      '((sequence "TODO" "NEXT" "|" "DONE" "DEPRECATED")))
+	(setq org-todo-keyword-faces
+	  '(("TODO" . (:foreground "red" :weight bold))
+	    ("NEXT" . "#E35DBF")
+	    ("DONE" . (:foreground "#1AA260" :weight bold))
+	    ("DEPRECATED" . (:foreground "#888888")))
+	  )
       #+end_src
+***** 字体
+      #+begin_src elisp
+	(custom-theme-set-faces
+	 'user
+	 '(variable-pitch ((t (:family "CMU Typewriter Text"))))
+	 '(fixed-pitch ((t ( :family "Fira Code" :height 160))))
+	 '(org-block ((t (:inherit fixed-pitch))))
+	 '(org-code ((t (:inherit (shadow fixed-pitch)))))
+	 '(org-document-info ((t (:foreground "dark orange"))))
+	 '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+	 '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+	 '(org-link ((t (:foreground "royal blue" :underline t))))
+	 '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+	 '(org-property-value ((t (:inherit fixed-pitch))) t)
+	 '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+	 '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+	 '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+	 '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+      #+end_src
+*** python
+
+**** lsp-python-ms
+     #+begin_src elisp
+	(use-package lsp-python-ms
+	  :init (setq lsp-python-ms-auto-install-server t)
+	  :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
+     #+end_src
+     
+**** pyenv-mode
+     #+begin_src elisp
+	(use-package pyenv-mode)
+     #+end_src
+     
+**** dap-python
+     #+begin_src elisp
+	(require 'dap-python)
+     #+end_src
 *** latex
 **** 编译器配置
      #+begin_src elisp
@@ -928,6 +1009,17 @@
    #+begin_src elisp
      (setq doc-view-resolution 200)
    #+end_src
+** calfw
+   #+begin_src elisp
+     (use-package calfw
+       :config
+       (require 'calfw-org)
+       (setq cfw:org-overwrite-default-keybinding t))
+   #+end_src
+** powerthesaurus
+   #+begin_src elisp
+     (use-package powerthesaurus)
+   #+end_src
 ** pdf
 *** pdf-tools
     #+begin_src elisp
@@ -949,31 +1041,63 @@
 ** email
 *** mu4e
     #+begin_src elisp
-       (add-to-list 'load-path "/usr/local/Cellar/mu/1.4.14/share/emacs/site-lisp/mu/mu4e")
-       (require 'mu4e)
-       (setq mail-user-agent 'mu4e-user-agent)
+      (add-to-list 'load-path "/usr/local/Cellar/mu/1.4.14/share/emacs/site-lisp/mu/mu4e")
+      (require 'mu4e)
+      (setq mu4e-change-filenames-when-moving t)
+      (setq mu4e-contexts
+	    (list
+	     ;; Gmail account
+	     (make-mu4e-context
+	      :name "gmail"
+	      :vars '((mu4e-maildir . "~/.mail/gmail/")
+		      (user-mail-address . "davidguqun@gmail.com")
+		      (user-full-name    . "Qun Gu")
+		      (mu4e-drafts-folder  . "/gmail/[Gmail]/Drafts")
+		      (mu4e-sent-folder  . "/gmail/[Gmail]/Sent Mail")
+		      (mu4e-refile-folder  . "/gmail/[Gmail]/All Mail")
+		      (mu4e-trash-folder  . "/gmail/[Gmail]/Trash")
+		      (mu4e-maildir-shortcuts . 
+					      ((:maildir "/gmail/Inbox" :key ?i)
+					       (:maildir "/gmail/[Gmail]/Sent Mail" :key ?s)
+					       (:maildir "/gmail/[Gmail]/Trash" :key ?d)
+					       (:maildir "/gmail/[Gmail]/All Mail" :key ?a)
+					       (:maildir "/gmail/[Gmail]/Drafts" :key ?r)
+					       (:maildir "/gmail/Edria" :key ?e)
+					       )
+					      )		
+		      )
+	      )
 
-       (setq mu4e-drafts-folder "/Drafts")
-       (setq mu4e-sent-folder   "/Sent")
-       (setq mu4e-trash-folder  "/Deleted")
-       (setq mu4e-maildir-shortcuts
-	     '((:maildir "/Inbox" :key ?i)
-	       (:maildir "/Sent" :key ?s)
-	       (:maildir "/Deleted" :key ?d)
-	       (:maildir "/Archive" :key ?a)
-	       (:maildir "/Drafts" :key ?r)
-	       (:maildir "/Edria" :key ?e)	
-	       ))
-       (setq mu4e-get-mail-command "offlineimap")
-       (setq mu4e-update-interval 300)             ;; update every 5 minutes
-       (setq
-	user-mail-address "guqun@outlook.com"
-	user-full-name  "Qun Gu"
-	mu4e-compose-signature
-	(concat
-	 "Qun Gu\n"
-	 "Sent from Emacs"))
-       (setq mu4e-use-fancy-chars t)
+	     ;; Outlook account
+	     (make-mu4e-context
+	      :name "outlook"
+	      :vars '((mu4e-maildir . "~/.mail/outlook/")
+		      (user-mail-address . "guqun@outlook.com")
+		      (user-full-name    . "Qun Gu")
+		      (mu4e-drafts-folder  . "/outlook/Drafts")
+		      (mu4e-sent-folder  . "/outlook/Sent")
+		      (mu4e-refile-folder  . "/outlook/Archive")
+		      (mu4e-trash-folder  . "/outlook/Deleted")
+		      (mu4e-maildir-shortcuts . 
+					      ((:maildir "/outlook/Inbox" :key ?i)
+					       (:maildir "/outlook/Sent" :key ?s)
+					       (:maildir "/outlook/Deleted" :key ?d)
+					       (:maildir "/outlook/Archive" :key ?a)
+					       (:maildir "/outlook/Drafts" :key ?r)
+					       (:maildir "/outlook/Edria" :key ?e)))
+		      )
+	      )
+	     )
+	    )
+
+      (setq mail-user-agent 'mu4e-user-agent)
+      (setq mu4e-get-mail-command "mbsync -a")
+      (setq mu4e-update-interval 300)             ;; update every 5 minutes
+      (setq mu4e-compose-signature
+	    (concat
+	     "Qun Gu\n"
+	     "Sent from Emacs"))
+;;      (setq mu4e-use-fancy-chars t)
     #+end_src
 *** mu4e-views
     #+begin_src elisp
@@ -1012,8 +1136,12 @@
     #+end_src
 *** mu4e-marker-icons
     #+begin_src elisp
-       (use-package mu4e-marker-icons
-	 :init (mu4e-marker-icons-mode 1))
+      ;; (use-package mu4e-marker-icons
+      ;;   :init (mu4e-marker-icons-mode 1))
+    #+end_src
+*** mu4e-org
+    #+begin_src elisp
+      (require 'mu4e-org)
     #+end_src
 *** smtpmail
     #+begin_src elisp
@@ -1022,3 +1150,4 @@
 	     smtpmail-smtp-service 587)
     #+end_src
    
+    

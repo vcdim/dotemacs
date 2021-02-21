@@ -3,8 +3,21 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(fixed-pitch ((t (:family "Fira Code" :height 160))))
+ '(org-block ((t (:inherit fixed-pitch))))
+ '(org-code ((t (:inherit (shadow fixed-pitch)))))
+ '(org-document-info ((t (:foreground "dark orange"))))
+ '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
  '(org-document-title ((t (:weight bold :height 1.5 :family "CMU Serif"))))
- '(variable-pitch ((t (:family "Calibri")))))
+ '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+ '(org-link ((t (:foreground "royal blue" :underline t))))
+ '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+ '(org-property-value ((t (:inherit fixed-pitch))) t)
+ '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+ '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+ '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+ '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+ '(variable-pitch ((t (:family "CMU Typewriter Text")))))
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -38,7 +51,7 @@
  '(org-latex-pdf-process
    '("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))
  '(package-selected-packages
-   '(doct mu4e-overview mu4e-marker-icons ivy-posframe mu4e-alert mu4e-views mu4e org-pretty-tags ivy-bibtex base16-theme kaolin-themes centaur-tabs elpy yasnippet-snippets yasnippet highlight-indent-guides highlight-indent-guide dashboard pdf-view-restore org-noter-pdftools org-pdftools ibuffer-vc all-the-icons-ibuffer dired-narrow dired-ranger dired-subtree dired-rainbow dired-open dired-avfs dired-filter dired-list dired-collapse dired-hacks-utils dired+ company-capf company-mode company company-lsp which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode org2blog org-superstar org-roam-server org-kanban org-fancy-priorities org-download lsp-ui lsp-python-ms lsp-ivy helpful exec-path-from-shell doom-themes doom-modeline dap-mode counsel cnfonts auctex all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-dired))
+   '(sublime-themes modus-themes no-littering auto-package-update calfw-org calfw ghub powerthesaurus ranger org-pomodoro org-mime doct mu4e-overview mu4e-marker-icons ivy-posframe mu4e-alert mu4e-views mu4e org-pretty-tags ivy-bibtex base16-theme kaolin-themes centaur-tabs elpy yasnippet-snippets yasnippet highlight-indent-guides highlight-indent-guide dashboard pdf-view-restore org-noter-pdftools org-pdftools ibuffer-vc all-the-icons-ibuffer dired-narrow dired-ranger dired-subtree dired-rainbow dired-open dired-avfs dired-filter dired-list dired-collapse dired-hacks-utils dired+ company-capf company-mode company company-lsp which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode org2blog org-superstar org-roam-server org-kanban org-fancy-priorities org-download lsp-ui lsp-python-ms lsp-ivy helpful exec-path-from-shell doom-themes doom-modeline dap-mode counsel cnfonts auctex all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-dired))
  '(pdf-view-midnight-colors (cons "#c5c8c6" "#1d1f21"))
  '(rustic-ansi-faces
    ["#1d1f21" "#cc6666" "#b5bd68" "#f0c674" "#81a2be" "#c9b4cf" "#8abeb7" "#c5c8c6"])
