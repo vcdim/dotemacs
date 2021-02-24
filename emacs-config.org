@@ -35,6 +35,10 @@
    #+begin_src elisp
     ;; (menu-bar-mode -1)
    #+end_src
+** DONE 设置白边
+   #+begin_src elisp
+   (set-fringe-mode 10)
+   #+end_src
 ** DONE 全屏显示
    #+begin_src elisp
      (toggle-frame-maximized)
@@ -43,16 +47,85 @@
    #+begin_src elisp
      (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
    #+end_src
+** 设置可视警告
+   #+begin_src elisp
+     ;; (setq visible-bell t)
+   #+end_src
 * 简单设置
 ** DONE 不需要备份文件
   #+begin_src elisp
      (setq make-backup-files nil)
   #+end_src
-** DONE 按键修改
-   #+begin_src elisp
-     (global-set-key (kbd "<home>") 'beginning-of-line)
-     (global-set-key (kbd "<end>") 'end-of-line)
-   #+end_src
+** DONE 全局快捷键
+*** general
+    #+begin_src elisp
+      (use-package general
+        :config
+        (general-define-key
+         "M-x" 'counsel-M-x
+         "C-s" 'counsel-grep-or-swiper)
+
+        ;; * Mode Keybindings
+        ;; `general-define-key' is comparable to `define-key' when :keymaps is specified
+        (general-define-key
+         ;; NOTE: keymaps specified with :keymaps must be quoted
+         :keymaps 'org-mode-map
+         "<home>" 'beginning-of-line
+         "<end>" 'end-of-line
+         "<escape>" 'keyboard-escape-quit
+         "C-M-j" 'counsel-switch
+         )
+        ;; `general-def' can be used instead for `define-key'-like syntax
+        (general-def org-mode-map
+                     "C-c C-q" 'counsel-org-tag
+                     )
+
+        ;; * Prefix Keybindings
+        ;; :prefix can be used to prevent redundant specification of prefix keys
+        (general-define-key
+         :prefix "C-c"
+         ;; bind "C-c a" to 'org-agenda
+         "a" 'org-agenda
+         "b" 'counsel-bookmark
+         "c" 'org-capture)
+        )
+    #+end_src
+**** 参考代码
+     #+begin_src elisp :tangle no
+       ;; for frequently used prefix keys, the user can create a custom definer with a
+       ;; default :prefix
+       ;; using a variable is not necessary, but it may be useful if you want to
+       ;; experiment with different prefix keys and aren't using `general-create-definer'
+       (defconst my-leader "C-c")
+
+       (general-create-definer my-leader-def
+				 ;; :prefix my-leader
+				 ;; or without a variable
+				 :prefix "C-c")
+
+       ;; ** Global Keybindings
+       (my-leader-def
+	"a" 'org-agenda
+	"b" 'counsel-bookmark
+	"c" 'org-capture)
+
+       ;; ** Mode Keybindings
+       (my-leader-def
+	:keymaps 'clojure-mode-map
+	;; bind "C-c C-l"
+	"C-l" 'cider-load-file
+	"C-z" 'cider-switch-to-repl-buffer)
+       `general-create-definer' creates wrappers around `general-def', so
+       ;; `define-key'-like syntax is also supported
+       (my-leader-def clojure-mode-map
+			"C-l" 'cider-load-file
+			"C-z" 'cider-switch-to-repl-buffer)
+
+       ;; * Settings
+       ;; change `auto-revert-interval' after autorevert has been loaded (`setq' will
+       ;; not work)
+       (general-setq auto-revert-interval 10)
+     #+end_src
 ** DONE 系统编码
    #+begin_src elisp
      (setenv "LANG" "en_US.UTF-8")
@@ -77,9 +150,23 @@
 *** doom-themes
     #+begin_src elisp
       (use-package doom-themes
-	:init
-	(load-theme 'doom-solarized-dark t)
-	)
+        :config
+        ;; Global settings (defaults)
+        (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+              doom-themes-enable-italic t) ; if nil, italics is universally disabled
+        (load-theme 'doom-gruvbox t)
+
+        ;; Enable flashing mode-line on errors
+        (doom-themes-visual-bell-config)
+
+        ;; Enable custom neotree theme (all-the-icons must be installed!)
+        (doom-themes-neotree-config)
+        ;; or for treemacs users
+        (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+        (doom-themes-treemacs-config)
+
+        ;; Corrects (and improves) org-mode's native fontification.
+        (doom-themes-org-config))
     #+end_src
 *** kaolin-themes
     #+begin_src elisp
@@ -99,26 +186,43 @@
 *** modus-themes
     #+begin_src elisp
       (use-package modus-themes
-	:ensure
-	:init
-	;; Add all your customizations prior to loading the themes
-	(setq modus-themes-slanted-constructs t
-	      modus-themes-bold-constructs nil)
+        :ensure
+        :init
+        ;; Add all your customizations prior to loading the themes
+        (setq modus-themes-slanted-constructs t
+              modus-themes-bold-constructs nil)
 
-	;; Load the theme files before enabling a theme
-	(modus-themes-load-themes)
-	:config
-	;; Load the theme of your choice:
-	:bind ("<f5>" . modus-themes-toggle))
+        ;; Load the theme files before enabling a theme
+        (modus-themes-load-themes)
+        :config
+        ;; Load the theme of your choice:
+        :bind ("<f5>" . modus-themes-toggle))
     #+end_src
 *** sublime-themes
     #+begin_src elisp
       (use-package sublime-themes)
     #+end_src
+** 打开行号
+   #+begin_src elisp
+     (column-number-mode)
+     (global-display-line-numbers-mode t)
+     (dolist
+	 (mode '(org-mode-hook
+		 term-mode-hook
+		 eshell-mode-hook
+		 treemacs-mode-hook
+		 ))
+       (add-hook mode
+		 (lambda () (display-line-numbers-mode 0))
+		 )
+       )
+   #+end_src
 ** all-the-icons
    #+begin_src elisp 
      (use-package all-the-icons
        :after cnfonts
+       :if (display-graphic-p)
+       :hook (dired-mode . all-the-icons-dired-mode)
        )
    #+end_src
 *** all-the-icons-ivy
@@ -145,8 +249,9 @@
 *** all-the-icons-dired
     #+begin_src elisp
       (use-package all-the-icons-dired
-	:init (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 	:after (all-the-icons)
+	:if (display-graphic-p)
+	:hook (dired-mode . all-the-icons-dired-mode)
 	)
     #+end_src
 ** doom-modeline
@@ -179,54 +284,29 @@
        (setq doom-modeline-display-default-persp-name nil)
        (setq doom-modeline-persp-icon t)
        (setq doom-modeline-lsp t)
-       ;; Whether display the GitHub notifications. It requires `ghub' package.
        (setq doom-modeline-github t)
-
-       ;; The interval of checking GitHub.
        (setq doom-modeline-github-interval (* 30 60))
-
        (setq doom-modeline-modal-icon t)
-
-       ;; Whether display the mu4e notifications. It requires `mu4e-alert' package.
        (setq doom-modeline-mu4e t)
-
-       ;; Whether display the gnus notifications.
        (setq doom-modeline-gnus t)
-
-       ;; Wheter gnus should automatically be updated and how often (set to 0 or smaller than 0 to disable)
        (setq doom-modeline-gnus-timer 2)
-
-       ;; Wheter groups should be excludede when gnus automatically being updated.
        (setq doom-modeline-gnus-excluded-groups '("dummy.group"))
-
-       ;; Whether display the IRC notifications. It requires `circe' or `erc' package.
        (setq doom-modeline-irc t)
-
-       ;; Function to stylize the irc buffer names.
        (setq doom-modeline-irc-stylize 'identity)
-
-       ;; Whether display the environment version.
        (setq doom-modeline-env-version t)
-       ;; Or for individual languages
        (setq doom-modeline-env-enable-python t)
        (setq doom-modeline-env-enable-ruby t)
        (setq doom-modeline-env-enable-perl t)
        (setq doom-modeline-env-enable-go t)
        (setq doom-modeline-env-enable-elixir t)
        (setq doom-modeline-env-enable-rust t)
-
-       ;; Change the executables to use for the language version string
        (setq doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
        (setq doom-modeline-env-ruby-executable "ruby")
        (setq doom-modeline-env-perl-executable "perl")
        (setq doom-modeline-env-go-executable "go")
        (setq doom-modeline-env-elixir-executable "iex")
        (setq doom-modeline-env-rust-executable "rustc")
-
-       ;; What to dispaly as the version while a new one is being loaded
        (setq doom-modeline-env-load-string "...")
-
-       ;; Hooks that run before/after the modeline version string is updated
        (setq doom-modeline-before-update-env-hook nil)
        (setq doom-modeline-after-update-env-hook nil)  
        )
@@ -237,7 +317,6 @@
      (use-package rainbow-delimiters
        :hook (prog-mode . rainbow-delimiters-mode))
    #+end_src
-
 ** dashboard
    #+begin_src elisp
      (use-package dashboard
@@ -376,52 +455,13 @@
 	     centaur-tabs-set-bar 'under
 	     x-underline-at-descent-line t)
        (centaur-tabs-headline-match)
-       ;; (setq centaur-tabs-gray-out-icons 'buffer)
-       ;; (centaur-tabs-enable-buffer-reordering)
-       ;; (setq centaur-tabs-adjust-buffer-order t)
+
+       (setq centaur-tabs-gray-out-icons 'buffer)
+       (centaur-tabs-enable-buffer-reordering)
+       (setq centaur-tabs-adjust-buffer-order t)
        (centaur-tabs-mode t)
        (setq uniquify-separator "/")
        (setq uniquify-buffer-name-style 'forward)
-       (defun centaur-tabs-buffer-groups ()
-	 "`centaur-tabs-buffer-groups' control buffers' group rules.
-
-      Group centaur-tabs with mode if buffer is derived from `eshell-mode' `elisp-mode' `dired-mode' `org-mode' `magit-mode'.
-      All buffer name start with * will group to \"Emacs\".
-      Other buffer group by `centaur-tabs-get-group-name' with project name."
-	 (list
-	  (cond
-	   ;; ((not (eq (file-remote-p (buffer-file-name)) nil))
-	   ;; "Remote")
-	   ((or (string-equal "*" (substring (buffer-name) 0 1))
-		(memq major-mode '(magit-process-mode
-				   magit-status-mode
-				   magit-diff-mode
-				   magit-log-mode
-				   magit-file-mode
-				   magit-blob-mode
-				   magit-blame-mode
-				   )))
-	    "Emacs")
-	   ((derived-mode-p 'prog-mode)
-	    "Editing")
-	   ((derived-mode-p 'dired-mode)
-	    "Dired")
-	   (((match-end )mq major-mode '(helpful-mode
-					 help-mode))
-	    "Help")
-	   ((memq major-mode '(org-mode
-			       org-agenda-clockreport-mode
-			       org-src-mode
-			       org-agenda-mode
-			       org-beamer-mode
-			       org-indent-mode
-			       org-bullets-mode
-			       org-cdlatex-mode
-			       org-agenda-log-mode
-			       diary-mode))
-	    "OrgMode")
-	   (t
-	    (centaur-tabs-get-group-name (current-buffer))))))
        :hook
        (dashboard-mode . centaur-tabs-local-mode)
        (term-mode . centaur-tabs-local-mode)
@@ -433,7 +473,8 @@
        ("C-<next>" . centaur-tabs-forward)
        ("C-c t s" . centaur-tabs-counsel-switch-group)
        ("C-c t p" . centaur-tabs-group-by-projectile-project)
-       ("C-c t g" . centaur-tabs-group-buffer-groups))
+       ("C-c t g" . centaur-tabs-group-buffer-groups)
+       )
    #+end_src
 ** ibuffer-vc
    #+begin_src elisp
@@ -494,14 +535,29 @@
    #+begin_src elisp
      (use-package ivy
        :diminish
-       :bind (("C-s" . swiper))
-       :config (ivy-mode 1))
+       :bind
+       (("C-s" . swiper)
+	:map ivy-minibuffer-map
+	("TAB" . ivy-alt-done)
+	("C-l" . ivy-alt-done)
+	("C-j" . ivy-next-line)
+	("C-k" . ivy-previous-line)
+	:map ivy-switch-buffer-map
+	("C-k" . ivy-previous-line)
+	("C-l" . ivy-done)
+	:map ivy-reverse-i-search-map
+	("C-k" . ivy-previous-line)
+	("C-d" . ivy-reverse-i-search-kill)
+	)
+       :config
+       (ivy-mode 1))
    #+end_src
 ** ivy-rich
    #+begin_src elisp
      (use-package ivy-rich
        :after (counsel ivy)
-       :init (ivy-rich-mode 1))
+       :init (ivy-rich-mode 1)
+       )
    #+end_src
 
 ** ivy-bibtex
@@ -565,13 +621,15 @@
 ** counsel
    #+begin_src elisp
      (use-package counsel
-       :bind (("M-x" . counsel-M-x)
-	      ("C-x b" . counsel-ibuffer)
-	      ("C-x C-f" . counsel-find-file)
-	      :map minibuffer-local-map
-	      ("C-r" . 'counsel-minibuffer-history))
+       :bind
+       (("M-x" . counsel-M-x)
+	("C-x b" . counsel-ibuffer)
+	("C-x C-f" . counsel-find-file)
+	:map minibuffer-local-map
+	("C-r" . 'counsel-minibuffer-history))
        ;; Don't start with ^
-       :config (setq ivy-initial-inputs-alist nil)
+       :config
+       (setq ivy-initial-inputs-alist nil)
        :init
        (setq counsel-find-file-ignore-regexp
 	     (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)")))
@@ -597,6 +655,27 @@
        ([remap describe-key] . helpful-key))
    #+end_src
 * 编程配置
+** 项目管理
+*** projectile
+    #+begin_src elisp
+      (use-package projectile
+	:diminish projectile
+	:config
+	(projectile-mode)
+	:bind-keymap
+	("C-c p" . projectile-command-map)
+	:init
+	(when (file-directory-p "~/projects")
+	  (setq projectile-project-search-path '("~/projects")))
+	(setq projectile-switch-project-action #'projectile-dired)
+	)
+    #+end_src
+*** counsel-projectile
+    #+begin_src elisp
+      (use-package counsel-projectile
+	:config
+	(counsel-projectile-mode))
+    #+end_src
 ** 代码补全
 *** lsp-mode
     #+begin_src elisp
@@ -698,18 +777,16 @@
 	(dap-ui-controls-mode 1))
     #+end_src
 ** 版本控制
-*** ghub
+*** magit
     #+begin_src elisp
-      ;; (use-package ghub)
-    #+end_src
-*** projectile
-    #+begin_src elisp
-      (use-package projectile
-	:init
-	(projectile-mode +1)
-	:bind (:map projectile-mode-map
-		    ("s-p" . projectile-command-map)
-		    ("C-c p" . projectile-command-map)))
+      (use-package magit
+	:commands
+	(magit-status magit-get-current-branch)
+	:custom
+	(magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
+	:bind
+	("C-x g" . magit-status)
+	)
     #+end_src
 ** 编程语言
 *** org
