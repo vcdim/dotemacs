@@ -1,3 +1,4 @@
+
 #+TITLE: Emacs Configuration
 #+STARTUP: overview
 #+PROPERTY: results silent
@@ -31,7 +32,7 @@
    #+begin_src elisp
     (tool-bar-mode -1)
    #+end_src
-** DEPRECATED 不显示菜单栏
+** CANCEL 不显示菜单栏
    #+begin_src elisp
     ;; (menu-bar-mode -1)
    #+end_src
@@ -132,7 +133,7 @@
      (setenv "LC_ALL" "en_US.UTF-8")
      (setenv "LC_CTYPE" "en_US.UTF-8")
    #+end_src
-** DEPRECATED 系统代理
+** CANCEL 系统代理
    #+begin_src elisp
      ;; (setq url-proxy-services '(("http" . "127.0.0.1:7890")
      ;; 			   ("https" . "127.0.0.1:7890")))
@@ -1000,12 +1001,12 @@
 ***** 待办事项状态
       #+begin_src elisp
 	(setq org-todo-keywords
-	      '((sequence "TODO" "NEXT" "|" "DONE" "DEPRECATED")))
+	      '((sequence "TODO" "NEXT" "|" "DONE" "CANCEL")))
 	(setq org-todo-keyword-faces
 	  '(("TODO" . (:foreground "red" :weight bold))
 	    ("NEXT" . "#E35DBF")
 	    ("DONE" . (:foreground "#1AA260" :weight bold))
-	    ("DEPRECATED" . (:foreground "#888888")))
+	    ("CANCEL" . (:foreground "#888888")))
 	  )
       #+end_src
 ***** 字体
