@@ -950,6 +950,7 @@
       #+begin_src elisp
 	(require 'org-tempo)
 	(add-to-list 'org-structure-template-alist '("el" . "src elisp"))
+	(add-to-list 'org-structure-template-alist '("py" . "src python"))
       #+end_src
     
 ***** 待办事项完成之后显示删除线
@@ -1027,6 +1028,22 @@
 	 '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
 	 '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
 	 '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+      #+end_src
+***** 记录时间戳
+      #+begin_src elisp
+	(setq org-agenda-start-with-log-mode t)
+	(setq org-log-done 'time)
+	(setq org-log-into-drawer t)
+      #+end_src
+***** 标签列表
+      #+begin_src elisp
+	(setq org-tag-alist
+	      '((:startgroup)
+		(:endgroup)
+		("outlook" . ?o)
+		("gmail" . ?g)
+		)
+	      )
       #+end_src
 *** python
 
