@@ -541,7 +541,7 @@
      (use-package ranger)
    #+end_src
 
-** visual-fill
+** visual-fill-column
    #+begin_src elisp
      (defun gq/org-mode-visual-fill ()
        (setq visual-fill-column-width 120
