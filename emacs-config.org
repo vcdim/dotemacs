@@ -1,7 +1,73 @@
 #+TITLE: Emacs Configuration
 #+STARTUP: overview
-#+PROPERTY: results silent
+#+PROPERTY: header-args:elisp :tangle ./init.el
 
+* 包管理器
+** package
+   #+begin_src elisp
+     (require 'package)
+   #+end_src
+   
+** 配置源
+
+*** 清华源
+    #+begin_src elisp :tangle no
+      ;; (setq package-archives
+      ;;       '(("mepla" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+      ;;         ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
+      ;;         ("elpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
+    #+end_src
+   
+*** 官方源
+    #+begin_src elisp
+      (setq package-archives
+	'(("melpa" . "https://melpa.org/packages/")
+	  ("org" . "https://orgmode.org/elpa/")
+	  ("gnu" . "https://elpa.gnu.org/packages/")))
+    #+end_src
+    
+** 刷新包
+   #+begin_src elisp
+     (unless package-archive-contents
+       (package-refresh-contents))
+   #+end_src
+
+** 导入 custom.el
+   #+begin_src elisp
+     (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+     (load custom-file)
+   #+end_src
+
+** 自动导出 init.el
+   #+begin_src elisp
+     (defun gq/org-babel-tangle-config ()
+       (when (string-equal (buffer-file-name)
+			   (expand-file-name "~/.emacs.d/emacs-config.org"))
+	 ;; Dynamic scoping to the rescue
+	 (let ((org-confirm-babel-evaluate nil))
+	   (org-babel-tangle))))
+
+     (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'gq/org-babel-tangle-config)))
+   #+end_src
+   
+** use-package
+   #+begin_src elisp
+     (package-initialize)
+     (unless (package-installed-p 'use-package)
+       (package-install 'use-package))
+     (require 'use-package)
+     (setq use-package-always-ensure t)
+   #+end_src
+   
+** quelpa
+   #+begin_src elisp
+     ;; (unless (package-installed-p 'quelpa)
+     ;;   (with-temp-buffer
+     ;;     (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+     ;;     (eval-buffer)
+     ;;     (quelpa-self-upgrade)))
+   #+end_src
+   
 * 启动性能
 ** 检测
    #+begin_src elisp
@@ -12,7 +78,7 @@
 			(time-subtract after-init-time before-init-time)))
 		gcs-done))
 
-     (add-hook 'emacs-startup-hook #'efs/display-startup-time)
+     (add-hook 'emacs-startup-hook 'efs/display-startup-time)
    #+end_src
 
 ** no-littering
@@ -553,25 +619,6 @@
        :hook (org-mode . gq/org-mode-visual-fill))
    #+end_src
 
-* 包管理器
-** use-package
-   #+begin_src elisp
-     (package-initialize)
-     (unless (package-installed-p 'use-package)
-       (package-install 'use-package))
-     (require 'use-package)
-     (setq use-package-always-ensure t)
-   #+end_src
-   
-** quelpa
-   #+begin_src elisp
-     ;; (unless (package-installed-p 'quelpa)
-     ;;   (with-temp-buffer
-     ;;     (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-     ;;     (eval-buffer)
-     ;;     (quelpa-self-upgrade)))
-   #+end_src
-   
 * 自动补全
 ** smex
    Smart M-x
@@ -851,6 +898,145 @@
 
 ** 编程语言
 *** org
+**** org
+***** 按键配置
+      #+begin_src elisp
+	(setq org-support-shift-select 1)
+      #+end_src
+
+***** 零宽空白字符
+      #+begin_src elisp
+	(defun insert-zero-width-space () (interactive) (insert-char #x200b))
+	(defun my-latex-filter-zws (text backend info)
+	  (when (org-export-derived-backend-p backend 'latex)
+	    (replace-regexp-in-string "\x200B" "{}" text)))
+	(global-set-key (kbd "C-*") 'insert-zero-width-space)
+      #+end_src
+
+***** 快捷键配置
+      #+begin_src elisp
+	(global-set-key (kbd "C-c l") 'org-store-link)
+	(global-set-key (kbd "C-c a") 'org-agenda)
+	(global-set-key (kbd "C-c c") 'org-capture)
+      #+end_src
+
+***** 快捷代码块
+      #+begin_src elisp
+	(require 'org-tempo)
+	(add-to-list 'org-structure-template-alist '("el" . "src elisp"))
+	(add-to-list 'org-structure-template-alist '("py" . "src python"))
+	(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+      #+end_src
+    
+***** 待办事项完成之后显示删除线
+      #+begin_src elisp
+	(defface org-checkbox-done-text
+	  '((t (:foreground "#71696A" :strike-through t)))
+	  "Face for the text part of a checked org-mode checkbox.")
+	(font-lock-add-keywords
+	 'org-mode
+	 `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+	    1 'org-checkbox-done-text prepend)) 'append)
+      #+end_src
+      
+***** 待办事项图标
+      #+begin_src elisp
+	(add-hook 'org-mode-hook (lambda ()
+				   "Beautify Org Checkbox Symbol"
+				   (push '("[ ]" . "☐") prettify-symbols-alist)
+				   (push '("[X]" . "☑") prettify-symbols-alist)
+				   (push '("[-]" . "❍") prettify-symbols-alist)
+				   (prettify-symbols-mode)))
+      #+end_src
+      
+***** 省略号自定义
+      #+begin_src elisp
+	(setq org-ellipsis " ↴ ")
+      #+end_src
+
+***** 源代码原生字体
+      #+begin_src elisp
+	(setq org-src-fontify-natively t)
+      #+end_src
+
+***** 隐藏标记符号
+      #+begin_src elisp
+	(setq org-hide-emphasis-markers t)
+      #+end_src
+
+***** 打开文件方式自定义
+      #+begin_src elisp
+	(setq org-file-apps
+	      '(("\\.pdf\\'" . (lambda (file link) (org-pdftools-open link)))
+		(directory . emacs)
+		(auto-mode . emacs)
+		("\\.mm\\'" . default)
+		("\\.x?html?\\'" . default)
+		("\\.pptx?\\'" . system)
+		("\\.docx?\\'" . system)
+		("\\.xlsx?\\'" . system)
+		("\\.png?\\'" . system)))
+      #+end_src
+
+***** 待办事项状态
+      #+begin_src elisp
+	(setq org-todo-keywords
+	      '((sequence "TODO" "NEXT" "|" "DONE" "CANCEL")))
+	(setq org-todo-keyword-faces
+	  '(("TODO" . (:foreground "red" :weight bold))
+	    ("NEXT" . "#E35DBF")
+	    ("DONE" . (:foreground "#1AA260" :weight bold))
+	    ("CANCEL" . (:foreground "#888888")))
+	  )
+      #+end_src
+
+***** 字体
+      #+begin_src elisp
+	(custom-theme-set-faces
+	 'user
+	 '(variable-pitch ((t (:family "CMU Typewriter Text"))))
+	 '(fixed-pitch ((t ( :family "Fira Code" :height 160))))
+	 '(org-block ((t (:inherit fixed-pitch))))
+	 '(org-code ((t (:inherit (shadow fixed-pitch)))))
+	 '(org-document-info ((t (:foreground "dark orange"))))
+	 '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+	 '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+	 '(org-link ((t (:foreground "royal blue" :underline t))))
+	 '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+	 '(org-property-value ((t (:inherit fixed-pitch))) t)
+	 '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+	 '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+	 '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+	 '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+      #+end_src
+
+***** 记录时间戳
+      #+begin_src elisp
+	(setq org-agenda-start-with-log-mode t)
+	(setq org-log-done 'time)
+	(setq org-log-into-drawer t)
+      #+end_src
+
+***** 标签列表
+      #+begin_src elisp
+	(setq org-tag-alist
+	      '((:startgroup)
+		(:endgroup)
+		("outlook" . ?o)
+		("gmail" . ?g)
+		)
+	      )
+      #+end_src
+
+**** org-babel
+     #+begin_src elisp
+       (org-babel-do-load-languages
+	'org-babel-load-languages
+	'((emacs-lisp . t)
+	  (python . t)))
+       (setq org-confirm-babel-evaluate nil)
+     #+end_src
+     
 **** org-pomodoro
      #+begin_src elisp
        (use-package org-pomodoro
@@ -1001,136 +1187,6 @@
      #+begin_src elisp
        (require 'org-protocol)
      #+end_src
-
-**** 其他配置
-***** 按键配置
-      #+begin_src elisp
-	(setq org-support-shift-select 1)
-      #+end_src
-
-***** 零宽空白字符
-      #+begin_src elisp
-	(defun insert-zero-width-space () (interactive) (insert-char #x200b))
-	(defun my-latex-filter-zws (text backend info)
-	  (when (org-export-derived-backend-p backend 'latex)
-	    (replace-regexp-in-string "\x200B" "{}" text)))
-	(global-set-key (kbd "C-*") 'insert-zero-width-space)
-      #+end_src
-
-***** 快捷键配置
-      #+begin_src elisp
-	(global-set-key (kbd "C-c l") 'org-store-link)
-	(global-set-key (kbd "C-c a") 'org-agenda)
-	(global-set-key (kbd "C-c c") 'org-capture)
-      #+end_src
-
-***** 快捷代码块
-      #+begin_src elisp
-	(require 'org-tempo)
-	(add-to-list 'org-structure-template-alist '("el" . "src elisp"))
-	(add-to-list 'org-structure-template-alist '("py" . "src python"))
-      #+end_src
-    
-***** 待办事项完成之后显示删除线
-      #+begin_src elisp
-	(defface org-checkbox-done-text
-	  '((t (:foreground "#71696A" :strike-through t)))
-	  "Face for the text part of a checked org-mode checkbox.")
-	(font-lock-add-keywords
-	 'org-mode
-	 `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
-	    1 'org-checkbox-done-text prepend)) 'append)
-      #+end_src
-      
-***** 待办事项图标
-      #+begin_src elisp
-	(add-hook 'org-mode-hook (lambda ()
-				   "Beautify Org Checkbox Symbol"
-				   (push '("[ ]" . "☐") prettify-symbols-alist)
-				   (push '("[X]" . "☑") prettify-symbols-alist)
-				   (push '("[-]" . "❍") prettify-symbols-alist)
-				   (prettify-symbols-mode)))
-      #+end_src
-      
-***** 省略号自定义
-      #+begin_src elisp
-	(setq org-ellipsis " ↴ ")
-      #+end_src
-
-***** 源代码原生字体
-      #+begin_src elisp
-	(setq org-src-fontify-natively t)
-      #+end_src
-
-***** 隐藏标记符号
-      #+begin_src elisp
-	(setq org-hide-emphasis-markers t)
-      #+end_src
-
-***** 打开文件方式自定义
-      #+begin_src elisp
-	(setq org-file-apps
-	      '(("\\.pdf\\'" . (lambda (file link) (org-pdftools-open link)))
-		(directory . emacs)
-		(auto-mode . emacs)
-		("\\.mm\\'" . default)
-		("\\.x?html?\\'" . default)
-		("\\.pptx?\\'" . system)
-		("\\.docx?\\'" . system)
-		("\\.xlsx?\\'" . system)
-		("\\.png?\\'" . system)))
-      #+end_src
-
-***** 待办事项状态
-      #+begin_src elisp
-	(setq org-todo-keywords
-	      '((sequence "TODO" "NEXT" "|" "DONE" "CANCEL")))
-	(setq org-todo-keyword-faces
-	  '(("TODO" . (:foreground "red" :weight bold))
-	    ("NEXT" . "#E35DBF")
-	    ("DONE" . (:foreground "#1AA260" :weight bold))
-	    ("CANCEL" . (:foreground "#888888")))
-	  )
-      #+end_src
-
-***** 字体
-      #+begin_src elisp
-	(custom-theme-set-faces
-	 'user
-	 '(variable-pitch ((t (:family "CMU Typewriter Text"))))
-	 '(fixed-pitch ((t ( :family "Fira Code" :height 160))))
-	 '(org-block ((t (:inherit fixed-pitch))))
-	 '(org-code ((t (:inherit (shadow fixed-pitch)))))
-	 '(org-document-info ((t (:foreground "dark orange"))))
-	 '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-	 '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
-	 '(org-link ((t (:foreground "royal blue" :underline t))))
-	 '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-	 '(org-property-value ((t (:inherit fixed-pitch))) t)
-	 '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-	 '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
-	 '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-	 '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
-      #+end_src
-
-***** 记录时间戳
-      #+begin_src elisp
-	(setq org-agenda-start-with-log-mode t)
-	(setq org-log-done 'time)
-	(setq org-log-into-drawer t)
-      #+end_src
-
-***** 标签列表
-      #+begin_src elisp
-	(setq org-tag-alist
-	      '((:startgroup)
-		(:endgroup)
-		("outlook" . ?o)
-		("gmail" . ?g)
-		)
-	      )
-      #+end_src
-
 *** python
 
 **** lsp-python-ms
