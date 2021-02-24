@@ -1,4 +1,3 @@
-
 #+TITLE: Emacs Configuration
 #+STARTUP: overview
 #+PROPERTY: results silent
@@ -15,48 +14,59 @@
 
      (add-hook 'emacs-startup-hook #'efs/display-startup-time)
    #+end_src
+
 ** no-littering
    #+begin_src elisp
      (use-package no-littering)
    #+end_src
+
 * 简化界面
 ** DONE 删除启动消息
    #+begin_src elisp
     (setq inhibit-startup-message t)
    #+end_src
+   
 ** DONE 不显示滚动条
    #+begin_src elisp
     (scroll-bar-mode -1)
    #+end_src
+
 ** DONE 不显示工具条
    #+begin_src elisp
     (tool-bar-mode -1)
    #+end_src
+
 ** CANCEL 不显示菜单栏
    #+begin_src elisp
     ;; (menu-bar-mode -1)
    #+end_src
+
 ** DONE 设置白边
    #+begin_src elisp
    (set-fringe-mode 10)
    #+end_src
+
 ** DONE 全屏显示
    #+begin_src elisp
      (toggle-frame-maximized)
    #+end_src
+
 ** DONE 设置透明度
    #+begin_src elisp
      (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
    #+end_src
+
 ** 设置可视警告
    #+begin_src elisp
      ;; (setq visible-bell t)
    #+end_src
+
 * 简单设置
 ** DONE 不需要备份文件
   #+begin_src elisp
      (setq make-backup-files nil)
   #+end_src
+
 ** DONE 全局快捷键
 *** general
     #+begin_src elisp
@@ -74,7 +84,7 @@
          "<home>" 'beginning-of-line
          "<end>" 'end-of-line
          "<escape>" 'keyboard-escape-quit
-         "C-M-j" 'counsel-switch
+         "C-M-j" 'counsel-switch-buffer
          )
         ;; `general-def' can be used instead for `define-key'-like syntax
         (general-def org-mode-map
@@ -91,6 +101,7 @@
          "c" 'org-capture)
         )
     #+end_src
+
 **** 参考代码
      #+begin_src elisp :tangle no
        ;; for frequently used prefix keys, the user can create a custom definer with a
@@ -127,17 +138,20 @@
        ;; not work)
        (general-setq auto-revert-interval 10)
      #+end_src
+
 ** DONE 系统编码
    #+begin_src elisp
      (setenv "LANG" "en_US.UTF-8")
      (setenv "LC_ALL" "en_US.UTF-8")
      (setenv "LC_CTYPE" "en_US.UTF-8")
    #+end_src
+
 ** CANCEL 系统代理
    #+begin_src elisp
      ;; (setq url-proxy-services '(("http" . "127.0.0.1:7890")
      ;; 			   ("https" . "127.0.0.1:7890")))
    #+end_src
+
 ** DONE 环境变量
 *** exec-path-from-shell
     #+begin_src elisp
@@ -146,6 +160,7 @@
 	(when (memq window-system '(mac ns x))
 	  (exec-path-from-shell-initialize)))
     #+end_src
+
 * 外观设置
 ** 主题
 *** doom-themes
@@ -155,7 +170,7 @@
         ;; Global settings (defaults)
         (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
               doom-themes-enable-italic t) ; if nil, italics is universally disabled
-        (load-theme 'doom-gruvbox t)
+        (load-theme 'doom-gruvbox-light t)
 
         ;; Enable flashing mode-line on errors
         (doom-themes-visual-bell-config)
@@ -169,6 +184,7 @@
         ;; Corrects (and improves) org-mode's native fontification.
         (doom-themes-org-config))
     #+end_src
+
 *** kaolin-themes
     #+begin_src elisp
      (use-package kaolin-themes
@@ -177,6 +193,7 @@
        ;;  (kaolin-treemacs-theme)
        )
     #+end_src
+
 *** base16-themes
     #+begin_src elisp
      (use-package base16-theme
@@ -184,6 +201,7 @@
        ;;  (load-theme 'base16-default-dark t)
        )
     #+end_src
+
 *** modus-themes
     #+begin_src elisp
       (use-package modus-themes
@@ -199,10 +217,12 @@
         ;; Load the theme of your choice:
         :bind ("<f5>" . modus-themes-toggle))
     #+end_src
+
 *** sublime-themes
     #+begin_src elisp
       (use-package sublime-themes)
     #+end_src
+
 ** 打开行号
    #+begin_src elisp
      (column-number-mode)
@@ -212,12 +232,14 @@
 		 term-mode-hook
 		 eshell-mode-hook
 		 treemacs-mode-hook
+		 org-agenda-mode-hook
 		 ))
        (add-hook mode
 		 (lambda () (display-line-numbers-mode 0))
 		 )
        )
    #+end_src
+
 ** all-the-icons
    #+begin_src elisp 
      (use-package all-the-icons
@@ -226,6 +248,7 @@
        :hook (dired-mode . all-the-icons-dired-mode)
        )
    #+end_src
+
 *** all-the-icons-ivy
     #+begin_src elisp
       (use-package all-the-icons-ivy
@@ -233,6 +256,7 @@
 	:after (all-the-icons ivy)
 	)
     #+end_src
+
 *** all-the-icons-ivy-rich
     #+begin_src elisp
       (use-package all-the-icons-ivy-rich
@@ -240,6 +264,7 @@
   	:after (all-the-icons ivy-rich)
 	)
     #+end_src
+
 *** all-the-icons-ibuffer
     #+begin_src elisp
       (use-package all-the-icons-ibuffer
@@ -247,6 +272,7 @@
 	 :after (all-the-icons ibuffer)
 	 )
     #+end_src
+
 *** all-the-icons-dired
     #+begin_src elisp
       (use-package all-the-icons-dired
@@ -255,6 +281,7 @@
 	:hook (dired-mode . all-the-icons-dired-mode)
 	)
     #+end_src
+
 ** doom-modeline
    #+begin_src elisp
      (use-package doom-modeline
@@ -318,6 +345,7 @@
      (use-package rainbow-delimiters
        :hook (prog-mode . rainbow-delimiters-mode))
    #+end_src
+
 ** dashboard
    #+begin_src elisp
      (use-package dashboard
@@ -438,11 +466,13 @@
      (use-package treemacs-projectile
        :after treemacs projectile)
    #+end_src
+
 ** treemacs-magit
    #+begin_src elisp
      (use-package treemacs-magit
        :after treemacs magit)
    #+end_src
+
 ** centaur-tabs
    #+begin_src elisp
      (use-package centaur-tabs
@@ -477,11 +507,13 @@
        ("C-c t g" . centaur-tabs-group-buffer-groups)
        )
    #+end_src
+
 ** ibuffer-vc
    #+begin_src elisp
      (global-set-key (kbd "C-x C-b") 'ibuffer)
      (use-package ibuffer-vc)
    #+end_src
+
 ** dired
    #+begin_src elisp
      (setq dired-guess-shell-alist-user '(("\\.pdf\\'" "open")
@@ -503,10 +535,24 @@
 		 ;; (dired-omit-mode 1)
 		 ))
    #+end_src
+
 ** ranger
    #+begin_src elisp
      (use-package ranger)
    #+end_src
+
+** visual-fill
+   #+begin_src elisp
+     (defun gq/org-mode-visual-fill ()
+       (setq visual-fill-column-width 120
+	     visual-fill-column-center-text t)
+       (visual-fill-column-mode 1))
+
+     (use-package visual-fill-column
+       :defer t
+       :hook (org-mode . gq/org-mode-visual-fill))
+   #+end_src
+
 * 包管理器
 ** use-package
    #+begin_src elisp
@@ -532,6 +578,7 @@
    #+begin_src elisp
      ;; (use-package smex)
    #+end_src
+
 ** ivy
    #+begin_src elisp
      (use-package ivy
@@ -553,6 +600,7 @@
        :config
        (ivy-mode 1))
    #+end_src
+
 ** ivy-rich
    #+begin_src elisp
      (use-package ivy-rich
@@ -619,6 +667,7 @@
        (ivy-posframe-mode 1)
        )
    #+end_src
+
 ** counsel
    #+begin_src elisp
      (use-package counsel
@@ -643,6 +692,7 @@
        :diminish
        :config (setq which-key-idle-delay 0))
    #+end_src
+
 ** helpful
    #+begin_src elisp
      (use-package helpful
@@ -655,6 +705,7 @@
        ([remap describe-variable] . counsel-describe-variable)
        ([remap describe-key] . helpful-key))
    #+end_src
+
 * 编程配置
 ** 项目管理
 *** projectile
@@ -671,12 +722,14 @@
 	(setq projectile-switch-project-action #'projectile-dired)
 	)
     #+end_src
+
 *** counsel-projectile
     #+begin_src elisp
       (use-package counsel-projectile
 	:config
 	(counsel-projectile-mode))
     #+end_src
+
 ** 代码补全
 *** lsp-mode
     #+begin_src elisp
@@ -735,27 +788,32 @@
 	:hook
 	(lsp-mode . lsp-ui-mode))
     #+end_src
+
 *** company
     #+begin_src elisp
       (use-package company)
       (add-hook 'after-init-hook 'global-company-mode)
     #+end_src
+
 *** company-lsp
     #+begin_src elisp
       (use-package company-lsp
 	:config
 	(push 'company-lsp company-backends))
     #+end_src
+
 *** yasnippet
     #+begin_src elisp
       (use-package yasnippet
 	:init
 	(yas-global-mode 1))
     #+end_src
+
 *** yasnippet-snippets
     #+begin_src elisp
       (use-package yasnippet-snippets)
     #+end_src
+
 ** 调试
 *** dap-mode
     #+begin_src elisp
@@ -777,6 +835,7 @@
 	(tooltip-mode 1)
 	(dap-ui-controls-mode 1))
     #+end_src
+
 ** 版本控制
 *** magit
     #+begin_src elisp
@@ -789,6 +848,7 @@
 	("C-x g" . magit-status)
 	)
     #+end_src
+
 ** 编程语言
 *** org
 **** org-pomodoro
@@ -797,12 +857,14 @@
 	 :commands org-pomodoro
 	 )
      #+end_src
+
 **** org-pretty-tags
      #+begin_src elisp
        (use-package org-pretty-tags
 	 :after orgmode
 	 )
      #+end_src
+
 **** org-capture
      #+begin_src elisp
        (setq org-capture-templates
@@ -819,6 +881,7 @@
 		"* TODO %^{待办事项} %^g\n  SCHEDULED: %T DEADLINE: %^T \n  :PROPERTIES:\n  LINK:%i %a\n  :END:\n  %?")
 	     ))
      #+end_src
+
 **** org2blog
      #+begin_src elisp
        (use-package org2blog
@@ -830,21 +893,25 @@
 		  :username "guqun")))
 	 )
      #+end_src
+
 **** org-download
      #+begin_src elisp
        (use-package org-download
 	 :commands org)
      #+end_src
+
 **** org-kanban
      #+begin_src elisp
        (use-package org-kanban
 	 :commands org-kanban)
      #+end_src
+
 **** org-superstar
      #+begin_src elisp
        (use-package org-superstar)
        (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
     #+end_src
+
 **** org-roam
      #+begin_src elisp
        (use-package org-roam
@@ -860,6 +927,7 @@
 		("C-c n I" . org-roam-insert-immediate))
 	       ))
      #+end_src
+
 **** org-roam-server
      #+begin_src elisp
        (use-package org-roam-server
@@ -877,6 +945,7 @@
 	       org-roam-server-network-label-truncate-length 60
 	       org-roam-server-network-label-wrap-length 20))
      #+end_src
+
 **** org-fancy-priorities
      #+begin_src elisp
        (use-package org-fancy-priorities
@@ -887,11 +956,13 @@
 	       '((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
 		 (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
      #+end_src
+
 **** org-pdftools
      #+begin_src elisp
        (use-package org-pdftools
 	 :hook (org-mode . org-pdftools-setup-link))
      #+end_src
+
 **** org-noter-pdftools
      #+begin_src elisp
        (use-package org-noter-pdftools
@@ -900,6 +971,7 @@
 	 (with-eval-after-load 'pdf-annot
 	   (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
      #+end_src
+
 **** org-super-agenda
      #+begin_src elisp
        (use-package org-super-agenda
@@ -917,21 +989,25 @@
 			      :order 1)))
 	 )
      #+end_src
+
 **** org-mime
      #+begin_src elisp
        (use-package org-mime
 	 :after org
 	 )
      #+end_src
+
 **** org-protocol
      #+begin_src elisp
        (require 'org-protocol)
      #+end_src
+
 **** 其他配置
 ***** 按键配置
       #+begin_src elisp
 	(setq org-support-shift-select 1)
       #+end_src
+
 ***** 零宽空白字符
       #+begin_src elisp
 	(defun insert-zero-width-space () (interactive) (insert-char #x200b))
@@ -940,12 +1016,14 @@
 	    (replace-regexp-in-string "\x200B" "{}" text)))
 	(global-set-key (kbd "C-*") 'insert-zero-width-space)
       #+end_src
+
 ***** 快捷键配置
       #+begin_src elisp
 	(global-set-key (kbd "C-c l") 'org-store-link)
 	(global-set-key (kbd "C-c a") 'org-agenda)
 	(global-set-key (kbd "C-c c") 'org-capture)
       #+end_src
+
 ***** 快捷代码块
       #+begin_src elisp
 	(require 'org-tempo)
@@ -978,14 +1056,17 @@
       #+begin_src elisp
 	(setq org-ellipsis " ↴ ")
       #+end_src
+
 ***** 源代码原生字体
       #+begin_src elisp
 	(setq org-src-fontify-natively t)
       #+end_src
+
 ***** 隐藏标记符号
       #+begin_src elisp
 	(setq org-hide-emphasis-markers t)
       #+end_src
+
 ***** 打开文件方式自定义
       #+begin_src elisp
 	(setq org-file-apps
@@ -999,6 +1080,7 @@
 		("\\.xlsx?\\'" . system)
 		("\\.png?\\'" . system)))
       #+end_src
+
 ***** 待办事项状态
       #+begin_src elisp
 	(setq org-todo-keywords
@@ -1010,6 +1092,7 @@
 	    ("CANCEL" . (:foreground "#888888")))
 	  )
       #+end_src
+
 ***** 字体
       #+begin_src elisp
 	(custom-theme-set-faces
@@ -1029,12 +1112,14 @@
 	 '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
 	 '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
       #+end_src
+
 ***** 记录时间戳
       #+begin_src elisp
 	(setq org-agenda-start-with-log-mode t)
 	(setq org-log-done 'time)
 	(setq org-log-into-drawer t)
       #+end_src
+
 ***** 标签列表
       #+begin_src elisp
 	(setq org-tag-alist
@@ -1045,6 +1130,7 @@
 		)
 	      )
       #+end_src
+
 *** python
 
 **** lsp-python-ms
@@ -1063,6 +1149,7 @@
      #+begin_src elisp
 	(require 'dap-python)
      #+end_src
+
 *** latex
 **** 编译器配置
      #+begin_src elisp
@@ -1073,11 +1160,13 @@
 	 'TeX-command-list
 	 '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))))
      #+end_src
+
 **** auctex
      #+begin_src elisp
      (use-package auctex
        :defer t)
      #+end_src
+
 ** 代码折叠
 *** hs-minor-mode
     #+begin_src elisp
@@ -1099,11 +1188,13 @@
      (global-set-key (kbd "C-\\") 'toggle-selective-display)
      (add-hook 'prog-mode-hook #'hs-minor-mode)
     #+end_src
+
 * 常用工具
 ** doc-view
    #+begin_src elisp
      (setq doc-view-resolution 200)
    #+end_src
+
 ** calfw
    #+begin_src elisp
      (use-package calfw
@@ -1111,10 +1202,12 @@
        (require 'calfw-org)
        (setq cfw:org-overwrite-default-keybinding t))
    #+end_src
+
 ** powerthesaurus
    #+begin_src elisp
      (use-package powerthesaurus)
    #+end_src
+
 ** pdf
 *** pdf-tools
     #+begin_src elisp
@@ -1126,6 +1219,7 @@
 	 :config (pdf-tools-install :no-query)
 	 )
     #+end_src
+
 *** pdf-view-restore
     #+begin_src elisp
        (use-package pdf-view-restore
@@ -1133,6 +1227,7 @@
 	 :config
 	 (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
     #+end_src
+
 ** email
 *** mu4e
     #+begin_src elisp
@@ -1194,6 +1289,7 @@
 	     "Sent from Emacs"))
 ;;      (setq mu4e-use-fancy-chars t)
     #+end_src
+
 *** mu4e-views
     #+begin_src elisp
        (use-package mu4e-views
@@ -1212,6 +1308,7 @@
 	 (setq mu4e-views-next-previous-message-behaviour 'stick-to-current-window) ;; when pressing n and p stay in the current window
 	 (setq mu4e-views-auto-view-selected-message t)) ;; automatically open messages when moving in the headers view
     #+end_src
+
 *** mu4e-alert
     #+begin_src elisp
        (use-package mu4e-alert
@@ -1229,15 +1326,18 @@
 	 (run-with-timer 0 60 'gjstein-refresh-mu4e-alert-mode-line)
 	 )
     #+end_src
+
 *** mu4e-marker-icons
     #+begin_src elisp
       ;; (use-package mu4e-marker-icons
       ;;   :init (mu4e-marker-icons-mode 1))
     #+end_src
+
 *** mu4e-org
     #+begin_src elisp
       (require 'mu4e-org)
     #+end_src
+
 *** smtpmail
     #+begin_src elisp
        (setq smtpmail-default-smtp-server "smtp.office365.com"
