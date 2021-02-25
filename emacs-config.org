@@ -1,3 +1,4 @@
+
 #+TITLE: Emacs Configuration
 #+STARTUP: overview
 #+PROPERTY: header-args:elisp :tangle ./init.el
@@ -26,11 +27,10 @@
      #+end_src
     
 *** 刷新包
-     #+begin_src elisp
+     #+begin_src elisp :tangle no
        (unless package-archive-contents
 	 (package-refresh-contents))
      #+end_src
-
 ** 导入 custom.el
    #+begin_src elisp
      (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -56,6 +56,7 @@
        (package-install 'use-package))
      (require 'use-package)
      (setq use-package-always-ensure t)
+     (setq use-package-verbose t)
    #+end_src
    
 ** quelpa
@@ -212,6 +213,16 @@
      (setenv "LC_CTYPE" "en_US.UTF-8")
    #+end_src
 
+** 删除到回收站
+   #+begin_src elisp
+     (use-package osx-trash
+       :config
+       (when (eq system-type 'darwin)
+	 (osx-trash-setup))
+       (setq delete-by-moving-to-trash t)
+       )
+   #+end_src
+
 ** 环境变量
 *** exec-path-from-shell
     #+begin_src elisp
@@ -298,6 +309,8 @@
 		 vterm-mode-hook
 		 treemacs-mode-hook
 		 org-agenda-mode-hook
+		 pdf-view-mode-hook
+		 dired-mode-hook
 		 ))
        (add-hook mode
 		 (lambda () (display-line-numbers-mode 0))
@@ -454,7 +467,7 @@
    
 ** highlight-indent-guides
    #+begin_src elisp
-     (use-package highlight-indent-guides
+     (use-package highlight-indent-guides 
        :config (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
    #+end_src
   
@@ -582,24 +595,34 @@
 
 ** dired
    #+begin_src elisp
-     (setq dired-guess-shell-alist-user '(("\\.pdf\\'" "open")
-					  ("\\.doc\\'" "open")
-					  ("\\.docx\\'" "open")
-					  ("\\.ppt\\'" "open")
-					  ("\\.pptx\\'" "open")
-					  ("\\.xls\\'" "open")))
-     (add-hook 'dired-load-hook
-	       (lambda ()
-		 (setq dired-x-hands-off-my-keys nil)
-		 (load "dired-x")
-		 ;; Set dired-x global variables here.  For example:
-		 ;; (setq dired-guess-shell-gnutar "gtar")
-		 ))
-     (add-hook 'dired-mode-hook
-	       (lambda ()
-		 ;; Set dired-x buffer-local variables here.  For example:
-		 ;; (dired-omit-mode 1)
-		 ))
+     (use-package dired
+       :ensure
+       nil
+       :commands
+       (dired dired-jump)
+       :custom
+       ((dired-listing-swithes "-agho --group-directories-first")
+        (counsel-dired-listing-swithes "-agho --group-directories-first"))
+       :config
+       (setq dired-guess-shell-alist-user '(("\\.pdf\\'" "open")
+					    ("\\.doc\\'" "open")
+					    ("\\.docx\\'" "open")
+					    ("\\.ppt\\'" "open")
+					    ("\\.pptx\\'" "open")
+					    ("\\.xls\\'" "open")))
+       (add-hook 'dired-load-hook
+		 (lambda ()
+		   (setq dired-x-hands-off-my-keys nil)
+		   (load "dired-x")
+		      ;; Set dired-x global variables here.  For example:
+		      ;; (setq dired-guess-shell-gnutar "gtar")
+		   ))
+       (add-hook 'dired-mode-hook
+		 (lambda ()
+		   ;; Set dired-x buffer-local variables here.  For example:
+		   ;; (dired-omit-mode 1)
+		   ))
+       )
    #+end_src
 
 ** dired-single
@@ -641,11 +664,6 @@
        )
    #+end_src
 
-** ranger
-   #+begin_src elisp
-     (use-package ranger)
-   #+end_src
-
 ** visual-fill-column
    #+begin_src elisp
      (defun gq/org-mode-visual-fill ()
@@ -656,6 +674,11 @@
      (use-package visual-fill-column
        :defer t
        :hook (org-mode . gq/org-mode-visual-fill))
+   #+end_src
+
+** CANCEL ranger
+   #+begin_src elisp :tangle no
+     (use-package ranger)
    #+end_src
 
 * 自动补全
@@ -810,7 +833,7 @@
     #+end_src
 
 *** counsel-projectile
-    #+begin_src elisp
+    #+begin_src elisp :tangle no
       (use-package counsel-projectile
 	:config
 	(counsel-projectile-mode))
@@ -938,6 +961,8 @@
 *** dap-mode
     #+begin_src elisp
       (use-package dap-mode
+	:commands
+	dap-debug
 	:bind
 	(("<f7>" . dap-step-in)
 	 ("<M-f7>" . dap-step-out)
@@ -1147,6 +1172,7 @@
 **** org2blog
      #+begin_src elisp
        (use-package org2blog
+	 :commands (org2blog-user-interface)
 	 :after org
 	 :config
 	 (setq org2blog/wp-blog-alist
@@ -1219,21 +1245,49 @@
 		 (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
      #+end_src
 
-**** org-pdftools
+**** org-noter, org-pdftools, org-noter-pdftools
      #+begin_src elisp
+       (use-package org-noter
+	 :config
+	 (require 'org-noter-pdftools))
+
        (use-package org-pdftools
 	 :hook (org-mode . org-pdftools-setup-link))
-     #+end_src
 
-**** org-noter-pdftools
-     #+begin_src elisp
        (use-package org-noter-pdftools
 	 :after org-noter
 	 :config
+	 ;; Add a function to ensure precise note is inserted
+	 (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
+	   (interactive "P")
+	   (org-noter--with-valid-session
+	    (let ((org-noter-insert-note-no-questions (if toggle-no-questions
+							  (not org-noter-insert-note-no-questions)
+							org-noter-insert-note-no-questions))
+		  (org-pdftools-use-isearch-link t)
+		  (org-pdftools-use-freestyle-annot t))
+	      (org-noter-insert-note (org-noter--get-precise-info)))))
+
+	 ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
+	 (defun org-noter-set-start-location (&optional arg)
+	   "When opening a session with this document, go to the current location.
+       With a prefix ARG, remove start location."
+	   (interactive "P")
+	   (org-noter--with-valid-session
+	    (let ((inhibit-read-only t)
+		  (ast (org-noter--parse-root))
+		  (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
+	      (with-current-buffer (org-noter--session-notes-buffer session)
+		(org-with-wide-buffer
+		 (goto-char (org-element-property :begin ast))
+		 (if arg
+		     (org-entry-delete nil org-noter-property-note-location)
+		   (org-entry-put nil org-noter-property-note-location
+				  (org-noter--pretty-print-location location))))))))
 	 (with-eval-after-load 'pdf-annot
 	   (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
-     #+end_src
 
+     #+end_src
 **** org-super-agenda
      #+begin_src elisp
        (use-package org-super-agenda
@@ -1249,6 +1303,8 @@
 		 (:priority<= "B"
 			      :scheduled future
 			      :order 1)))
+	 :after
+	 org
 	 )
      #+end_src
 
@@ -1267,14 +1323,17 @@
 
 **** lsp-python-ms
      #+begin_src elisp
-	(use-package lsp-python-ms
-	  :init (setq lsp-python-ms-auto-install-server t)
-	  :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
+	    (use-package lsp-python-ms
+	      :after
+	      lsp
+	      :init (setq lsp-python-ms-auto-install-server t)
+	      :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
      #+end_src
      
 **** pyenv-mode
      #+begin_src elisp
-	(use-package pyenv-mode)
+       (use-package pyenv-mode
+	 )
      #+end_src
      
 **** dap-python
@@ -1337,14 +1396,19 @@
 ** calfw
    #+begin_src elisp
      (use-package calfw
+       :commands
+       (cfw:open-org-calendar)
        :config
        (require 'calfw-org)
-       (setq cfw:org-overwrite-default-keybinding t))
+       (setq cfw:org-overwrite-default-keybinding t)
+       )
    #+end_src
 
 ** powerthesaurus
    #+begin_src elisp
-     (use-package powerthesaurus)
+     (use-package powerthesaurus
+       :commands
+       (powerthesaurus-lookup-word-at-point))
    #+end_src
 
 ** pdf
@@ -1483,7 +1547,6 @@
 	     smtpmail-smtp-server "smtp.office365.com"
 	     smtpmail-smtp-service 587)
     #+end_src
-
     
 ** vterm
    #+begin_src elisp

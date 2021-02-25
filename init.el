@@ -5,9 +5,6 @@
 	("org" . "https://orgmode.org/elpa/")
 	("gnu" . "https://elpa.gnu.org/packages/")))
 
-(unless package-archive-contents
-  (package-refresh-contents))
-
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
 
@@ -25,6 +22,7 @@
   (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t)
+(setq use-package-verbose t)
 
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
@@ -87,6 +85,13 @@
 (setenv "LC_ALL" "en_US.UTF-8")
 (setenv "LC_CTYPE" "en_US.UTF-8")
 
+(use-package osx-trash
+  :config
+  (when (eq system-type 'darwin)
+    (osx-trash-setup))
+  (setq delete-by-moving-to-trash t)
+  )
+
 (use-package exec-path-from-shell
   :config
   (when (memq window-system '(mac ns x))
@@ -144,6 +149,8 @@
 	    vterm-mode-hook
 	    treemacs-mode-hook
 	    org-agenda-mode-hook
+	    pdf-view-mode-hook
+	    dired-mode-hook
 	    ))
   (add-hook mode
 	    (lambda () (display-line-numbers-mode 0))
@@ -270,7 +277,7 @@
    )
   )
 
-(use-package highlight-indent-guides
+(use-package highlight-indent-guides 
   :config (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
 
 (use-package treemacs
@@ -380,24 +387,34 @@
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (use-package ibuffer-vc)
 
-(setq dired-guess-shell-alist-user '(("\\.pdf\\'" "open")
-				     ("\\.doc\\'" "open")
-				     ("\\.docx\\'" "open")
-				     ("\\.ppt\\'" "open")
-				     ("\\.pptx\\'" "open")
-				     ("\\.xls\\'" "open")))
-(add-hook 'dired-load-hook
-	  (lambda ()
-	    (setq dired-x-hands-off-my-keys nil)
-	    (load "dired-x")
-	    ;; Set dired-x global variables here.  For example:
-	    ;; (setq dired-guess-shell-gnutar "gtar")
-	    ))
-(add-hook 'dired-mode-hook
-	  (lambda ()
-	    ;; Set dired-x buffer-local variables here.  For example:
-	    ;; (dired-omit-mode 1)
-	    ))
+(use-package dired
+  :ensure
+  nil
+  :commands
+  (dired dired-jump)
+  :custom
+  ((dired-listing-swithes "-agho --group-directories-first")
+   (counsel-dired-listing-swithes "-agho --group-directories-first"))
+  :config
+  (setq dired-guess-shell-alist-user '(("\\.pdf\\'" "open")
+				       ("\\.doc\\'" "open")
+				       ("\\.docx\\'" "open")
+				       ("\\.ppt\\'" "open")
+				       ("\\.pptx\\'" "open")
+				       ("\\.xls\\'" "open")))
+  (add-hook 'dired-load-hook
+	    (lambda ()
+	      (setq dired-x-hands-off-my-keys nil)
+	      (load "dired-x")
+		 ;; Set dired-x global variables here.  For example:
+		 ;; (setq dired-guess-shell-gnutar "gtar")
+	      ))
+  (add-hook 'dired-mode-hook
+	    (lambda ()
+	      ;; Set dired-x buffer-local variables here.  For example:
+	      ;; (dired-omit-mode 1)
+	      ))
+  )
 
 (use-package dired-single
     :config
@@ -431,8 +448,6 @@ loaded."
   (define-key dired-mode-map "." #'dired-hide-dotfiles-mode)
   (add-hook 'dired-mode-hook #'my-dired-mode-hook)
   )
-
-(use-package ranger)
 
 (defun gq/org-mode-visual-fill ()
   (setq visual-fill-column-width 120
@@ -553,10 +568,6 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (setq projectile-switch-project-action #'projectile-dired)
   )
 
-(use-package counsel-projectile
-  :config
-  (counsel-projectile-mode))
-
 (defun gq/setup-lsp-mode ()
   (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
   (lsp-headerline-breadcrumb-mode)
@@ -646,6 +657,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (use-package yasnippet-snippets)
 
 (use-package dap-mode
+  :commands
+  dap-debug
   :bind
   (("<f7>" . dap-step-in)
    ("<M-f7>" . dap-step-out)
@@ -791,6 +804,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
       ))
 
 (use-package org2blog
+  :commands (org2blog-user-interface)
   :after org
   :config
   (setq org2blog/wp-blog-alist
@@ -844,12 +858,43 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 	'((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
 	  (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
 
+(use-package org-noter
+  :config
+  (require 'org-noter-pdftools))
+
 (use-package org-pdftools
   :hook (org-mode . org-pdftools-setup-link))
 
 (use-package org-noter-pdftools
   :after org-noter
   :config
+  ;; Add a function to ensure precise note is inserted
+  (defun org-noter-pdftools-insert-precise-note (&optional toggle-no-questions)
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((org-noter-insert-note-no-questions (if toggle-no-questions
+						   (not org-noter-insert-note-no-questions)
+						 org-noter-insert-note-no-questions))
+	   (org-pdftools-use-isearch-link t)
+	   (org-pdftools-use-freestyle-annot t))
+       (org-noter-insert-note (org-noter--get-precise-info)))))
+
+  ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
+  (defun org-noter-set-start-location (&optional arg)
+    "When opening a session with this document, go to the current location.
+With a prefix ARG, remove start location."
+    (interactive "P")
+    (org-noter--with-valid-session
+     (let ((inhibit-read-only t)
+	   (ast (org-noter--parse-root))
+	   (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
+       (with-current-buffer (org-noter--session-notes-buffer session)
+	 (org-with-wide-buffer
+	  (goto-char (org-element-property :begin ast))
+	  (if arg
+	      (org-entry-delete nil org-noter-property-note-location)
+	    (org-entry-put nil org-noter-property-note-location
+			   (org-noter--pretty-print-location location))))))))
   (with-eval-after-load 'pdf-annot
     (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 
@@ -866,6 +911,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 	  (:priority<= "B"
 		       :scheduled future
 		       :order 1)))
+  :after
+  org
   )
 
 (use-package org-mime
@@ -875,10 +922,13 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (require 'org-protocol)
 
 (use-package lsp-python-ms
+  :after
+  lsp
   :init (setq lsp-python-ms-auto-install-server t)
   :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
 
-(use-package pyenv-mode)
+(use-package pyenv-mode
+  )
 
 (require 'dap-python)
 
@@ -918,11 +968,16 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (setq doc-view-resolution 200)
 
 (use-package calfw
+  :commands
+  (cfw:open-org-calendar)
   :config
   (require 'calfw-org)
-  (setq cfw:org-overwrite-default-keybinding t))
+  (setq cfw:org-overwrite-default-keybinding t)
+  )
 
-(use-package powerthesaurus)
+(use-package powerthesaurus
+  :commands
+  (powerthesaurus-lookup-word-at-point))
 
 (use-package pdf-tools
   :defer t
