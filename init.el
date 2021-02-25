@@ -1,9 +1,9 @@
 (require 'package)
 
 (setq package-archives
-  '(("melpa" . "https://melpa.org/packages/")
-    ("org" . "https://orgmode.org/elpa/")
-    ("gnu" . "https://elpa.gnu.org/packages/")))
+      '(("melpa" . "https://melpa.org/packages/")
+	("org" . "https://orgmode.org/elpa/")
+	("gnu" . "https://elpa.gnu.org/packages/")))
 
 (unless package-archive-contents
   (package-refresh-contents))
@@ -26,12 +26,6 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-;; (unless (package-installed-p 'quelpa)
-;;   (with-temp-buffer
-;;     (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-;;     (eval-buffer)
-;;     (quelpa-self-upgrade)))
-
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
 	   (format "%.2f seconds"
@@ -49,15 +43,11 @@
 
 (tool-bar-mode -1)
 
-;; (menu-bar-mode -1)
-
 (set-fringe-mode 10)
 
 (toggle-frame-maximized)
 
 (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
-
-;; (setq visible-bell t)
 
 (setq make-backup-files nil)
 
@@ -76,11 +66,12 @@
    "<end>" 'end-of-line
    "<escape>" 'keyboard-escape-quit
    "C-M-j" 'counsel-switch-buffer
+   "C-x b" 'counsel-switch-buffer
    )
   ;; `general-def' can be used instead for `define-key'-like syntax
   (general-def org-mode-map
-               "C-c C-q" 'counsel-org-tag
-               )
+	       "C-c C-q" 'counsel-org-tag
+	       )
 
   ;; * Prefix Keybindings
   ;; :prefix can be used to prevent redundant specification of prefix keys
@@ -96,9 +87,6 @@
 (setenv "LC_ALL" "en_US.UTF-8")
 (setenv "LC_CTYPE" "en_US.UTF-8")
 
-;; (setq url-proxy-services '(("http" . "127.0.0.1:7890")
-;; 			   ("https" . "127.0.0.1:7890")))
-
 (use-package exec-path-from-shell
   :config
   (when (memq window-system '(mac ns x))
@@ -109,7 +97,7 @@
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-gruvbox-light t)
+  (load-theme 'doom-solarized-light t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -139,13 +127,11 @@
   :init
   ;; Add all your customizations prior to loading the themes
   (setq modus-themes-slanted-constructs t
-        modus-themes-bold-constructs nil)
+	modus-themes-bold-constructs nil)
 
   ;; Load the theme files before enabling a theme
   (modus-themes-load-themes)
-  :config
-  ;; Load the theme of your choice:
-  :bind ("<f5>" . modus-themes-toggle))
+  )
 
 (use-package sublime-themes)
 
@@ -276,6 +262,7 @@
   (setq cnfonts-personal-fontnames '(("Iosevka Comfy")
 				     ()
 				     ()))
+  (setq use-default-font-for-symbols nil)
   :bind
   (("C-=" . cnfonts-increase-fontsize)
    ("C--" . cnfonts-decrease-fontsize)
@@ -360,8 +347,8 @@
 (use-package centaur-tabs
   :load-path "~/.emacs.d/other/centaur-tabs"
   :config
-  (setq centaur-tabs-style "bar"
-	centaur-tabs-height 32
+  (setq centaur-tabs-style "wave"
+	centaur-tabs-height 40
 	centaur-tabs-set-icons t
 	centaur-tabs-set-modified-marker t
 	centaur-tabs-show-navigation-buttons t
@@ -410,6 +397,39 @@
 	    ;; Set dired-x buffer-local variables here.  For example:
 	    ;; (dired-omit-mode 1)
 	    ))
+
+(use-package dired-single
+    :config
+    (defun my-dired-init ()
+      "Bunch of stuff to run for dired, either immediately or when it's
+loaded."
+      ;; <add other stuff here>
+      (define-key dired-mode-map [remap dired-find-file]
+	'dired-single-buffer)
+      (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
+	'dired-single-buffer-mouse)
+      (define-key dired-mode-map [remap dired-up-directory]
+	'dired-single-up-directory))
+
+    ;; if dired's already loaded, then the keymap will be bound
+    (if (boundp 'dired-mode-map)
+	;; we're good to go; just add our bindings
+	(my-dired-init)
+      ;; it's not loaded yet, so add our bindings to the load-hook
+      (add-hook 'dired-load-hook 'my-dired-init))
+    )
+
+(use-package dired-hide-dotfiles
+  :config
+  (defun my-dired-mode-hook ()
+    "My `dired' mode hook."
+    ;; To hide dot-files by default
+    (dired-hide-dotfiles-mode))
+
+  ;; To toggle hiding
+  (define-key dired-mode-map "." #'dired-hide-dotfiles-mode)
+  (add-hook 'dired-mode-hook #'my-dired-mode-hook)
+  )
 
 (use-package ranger)
 
@@ -536,10 +556,17 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :config
   (counsel-projectile-mode))
 
+(defun gq/setup-lsp-mode ()
+  (setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+  (lsp-headerline-breadcrumb-mode)
+  (lsp-enable-which-key-integration)
+  )
 (use-package lsp-mode
-  :commands (lsp lsp-deferred)
-  :hook ((python-mode . lsp)
-	 (lsp-mode . lsp-enable-which-key-integration))
+  :commands
+  (lsp lsp-deferred)
+  :hook
+  ((python-mode . lsp)
+   (lsp-mode . gq/setup-lsp-mode))
   :init (setq lsp-keymap-prefix "C-c l"))
 
 (use-package lsp-ivy
@@ -585,12 +612,31 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :hook
   (lsp-mode . lsp-ui-mode))
 
-(use-package company)
-(add-hook 'after-init-hook 'global-company-mode)
+(use-package lsp-treemacs
+  :after
+  lsp
+  )
 
-(use-package company-lsp
-  :config
-  (push 'company-lsp company-backends))
+(use-package company
+  :after
+  lsp-mode
+  :hook
+  (prog-mode . company-mode)
+  :bind
+  (:map company-active-map
+	("<tab>" . company-complete-selection)
+	)
+  (:map lsp-mode-map
+	("<tab>" . company-indent-or-complete-common)
+	)
+  :custom
+  (company-minimum-prefix-length 1)
+  (company-idle-delay 0.0)
+  )
+
+(use-package company-box
+  :hook
+  (company-mode . company-box-mode))
 
 (use-package yasnippet
   :init
@@ -675,7 +721,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 	("\\.png?\\'" . system)))
 
 (setq org-todo-keywords
-      '((sequence "TODO" "NEXT" "|" "DONE" "CANCEL")))
+      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)" "CANCEL(c)")))
 (setq org-todo-keyword-faces
   '(("TODO" . (:foreground "red" :weight bold))
     ("NEXT" . "#E35DBF")
@@ -685,12 +731,14 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (custom-theme-set-faces
  'user
- '(variable-pitch ((t (:family "CMU Typewriter Text"))))
- '(fixed-pitch ((t ( :family "Fira Code" :height 160))))
+ '(variable-pitch ((t (:family "CMU Sans Serif"))))
+ '(fixed-pitch ((t (:family "Fira Code" :height 160))))
  '(org-block ((t (:inherit fixed-pitch))))
  '(org-code ((t (:inherit (shadow fixed-pitch)))))
  '(org-document-info ((t (:foreground "dark orange"))))
- '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+ '(org-block-begin-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
+ '(org-block-end-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
+ ;; '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
  '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
  '(org-link ((t (:foreground "royal blue" :underline t))))
  '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
@@ -698,7 +746,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
  '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
- '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+ '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+ )
 
 (setq org-agenda-start-with-log-mode t)
 (setq org-log-done 'time)
@@ -734,7 +783,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 	 "* TODO %?\n SCHEDULED: %^T\n")
 	("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
 	 "* TODO %?\n SCHEDULED: %^T \n %i\n  %a")
-	("j" "Journal" entry (file+datetree "~/SynologyDrive/org/journal.org")
+	("d" "Diary" entry (file+datetree "~/SynologyDrive/org/diary.org")
 	 "* %?\nEntered on %U\n  %i")
 	("m" "Email" entry (file+headline "~/SynologyDrive/org/todo.org" "Email")
 	 "* TODO %^{待办事项} %^g\n  SCHEDULED: %T DEADLINE: %^T \n  :PROPERTIES:\n  LINK:%i %a\n  :END:\n  %?")
@@ -859,6 +908,11 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (global-set-key (kbd "C-+") 'toggle-hiding)
 (global-set-key (kbd "C-\\") 'toggle-selective-display)
 (add-hook 'prog-mode-hook #'hs-minor-mode)
+
+(use-package evil-nerd-commenter
+  :bind
+  ("M-/" . evilnc-comment-or-uncomment-lines)
+  )
 
 (setq doc-view-resolution 200)
 

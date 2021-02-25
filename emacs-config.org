@@ -9,28 +9,27 @@
    #+end_src
    
 ** 配置源
-
-*** 清华源
-    #+begin_src elisp :tangle no
-      ;; (setq package-archives
-      ;;       '(("mepla" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-      ;;         ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
-      ;;         ("elpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
-    #+end_src
+*** CANCEL 清华源
+     #+begin_src elisp :tangle no
+       (setq package-archives
+	     '(("mepla" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+	       ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
+	       ("elpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
+     #+end_src
    
 *** 官方源
-    #+begin_src elisp
-      (setq package-archives
-	'(("melpa" . "https://melpa.org/packages/")
-	  ("org" . "https://orgmode.org/elpa/")
-	  ("gnu" . "https://elpa.gnu.org/packages/")))
-    #+end_src
+     #+begin_src elisp
+       (setq package-archives
+	     '(("melpa" . "https://melpa.org/packages/")
+	       ("org" . "https://orgmode.org/elpa/")
+	       ("gnu" . "https://elpa.gnu.org/packages/")))
+     #+end_src
     
-** 刷新包
-   #+begin_src elisp
-     (unless package-archive-contents
-       (package-refresh-contents))
-   #+end_src
+*** 刷新包
+     #+begin_src elisp
+       (unless package-archive-contents
+	 (package-refresh-contents))
+     #+end_src
 
 ** 导入 custom.el
    #+begin_src elisp
@@ -60,12 +59,12 @@
    #+end_src
    
 ** quelpa
-   #+begin_src elisp
-     ;; (unless (package-installed-p 'quelpa)
-     ;;   (with-temp-buffer
-     ;;     (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-     ;;     (eval-buffer)
-     ;;     (quelpa-self-upgrade)))
+   #+begin_src elisp :tangle no
+     (unless (package-installed-p 'quelpa)
+       (with-temp-buffer
+	 (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+	 (eval-buffer)
+	 (quelpa-self-upgrade)))
    #+end_src
    
 * 启动性能
@@ -87,85 +86,86 @@
    #+end_src
 
 * 简化界面
-** DONE 删除启动消息
+** 删除启动消息
    #+begin_src elisp
     (setq inhibit-startup-message t)
    #+end_src
    
-** DONE 不显示滚动条
+** 不显示滚动条
    #+begin_src elisp
     (scroll-bar-mode -1)
    #+end_src
 
-** DONE 不显示工具条
+** 不显示工具条
    #+begin_src elisp
     (tool-bar-mode -1)
    #+end_src
 
-** CANCEL 不显示菜单栏
-   #+begin_src elisp
-    ;; (menu-bar-mode -1)
-   #+end_src
-
-** DONE 设置白边
+** 设置白边
    #+begin_src elisp
    (set-fringe-mode 10)
    #+end_src
 
-** DONE 全屏显示
+** 全屏显示
    #+begin_src elisp
      (toggle-frame-maximized)
    #+end_src
 
-** DONE 设置透明度
+** 设置透明度
    #+begin_src elisp
      (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
    #+end_src
 
-** 设置可视警告
-   #+begin_src elisp
-     ;; (setq visible-bell t)
+** CANCEL 不显示菜单栏
+   #+begin_src elisp :tangle no
+     (menu-bar-mode -1)
+   #+end_src
+
+** CANCEL 设置可视警告
+   #+begin_src elisp :tangle no
+     (setq visible-bell t)
    #+end_src
 
 * 简单设置
-** DONE 不需要备份文件
+** 不需要备份文件
   #+begin_src elisp
      (setq make-backup-files nil)
   #+end_src
 
-** DONE 全局快捷键
+** 全局快捷键
 *** general
     #+begin_src elisp
       (use-package general
-        :config
-        (general-define-key
-         "M-x" 'counsel-M-x
-         "C-s" 'counsel-grep-or-swiper)
+	:config
+	(general-define-key
+	 "M-x" 'counsel-M-x
+	 "C-s" 'counsel-grep-or-swiper)
 
-        ;; * Mode Keybindings
-        ;; `general-define-key' is comparable to `define-key' when :keymaps is specified
-        (general-define-key
-         ;; NOTE: keymaps specified with :keymaps must be quoted
-         :keymaps 'org-mode-map
-         "<home>" 'beginning-of-line
-         "<end>" 'end-of-line
-         "<escape>" 'keyboard-escape-quit
-         "C-M-j" 'counsel-switch-buffer
-         )
-        ;; `general-def' can be used instead for `define-key'-like syntax
-        (general-def org-mode-map
-                     "C-c C-q" 'counsel-org-tag
-                     )
+	;; * Mode Keybindings
+	;; `general-define-key' is comparable to `define-key' when :keymaps is specified
+	(general-define-key
+	 ;; NOTE: keymaps specified with :keymaps must be quoted
+	 :keymaps 'org-mode-map
+	 "<home>" 'beginning-of-line
+	 "<end>" 'end-of-line
+	 "<escape>" 'keyboard-escape-quit
+	 "C-M-j" 'counsel-switch-buffer
+	 "C-x b" 'counsel-switch-buffer
+	 )
+	;; `general-def' can be used instead for `define-key'-like syntax
+	(general-def org-mode-map
+		     "C-c C-q" 'counsel-org-tag
+		     )
 
-        ;; * Prefix Keybindings
-        ;; :prefix can be used to prevent redundant specification of prefix keys
-        (general-define-key
-         :prefix "C-c"
-         ;; bind "C-c a" to 'org-agenda
-         "a" 'org-agenda
-         "b" 'counsel-bookmark
-         "c" 'org-capture)
-        )
+	;; * Prefix Keybindings
+	;; :prefix can be used to prevent redundant specification of prefix keys
+	(general-define-key
+	 :prefix "C-c"
+	 ;; bind "C-c a" to 'org-agenda
+	 "a" 'org-agenda
+	 "b" 'counsel-bookmark
+	 "c" 'org-capture)
+	)
     #+end_src
 
 **** 参考代码
@@ -205,20 +205,14 @@
        (general-setq auto-revert-interval 10)
      #+end_src
 
-** DONE 系统编码
+** 系统编码
    #+begin_src elisp
      (setenv "LANG" "en_US.UTF-8")
      (setenv "LC_ALL" "en_US.UTF-8")
      (setenv "LC_CTYPE" "en_US.UTF-8")
    #+end_src
 
-** CANCEL 系统代理
-   #+begin_src elisp
-     ;; (setq url-proxy-services '(("http" . "127.0.0.1:7890")
-     ;; 			   ("https" . "127.0.0.1:7890")))
-   #+end_src
-
-** DONE 环境变量
+** 环境变量
 *** exec-path-from-shell
     #+begin_src elisp
       (use-package exec-path-from-shell
@@ -226,6 +220,12 @@
 	(when (memq window-system '(mac ns x))
 	  (exec-path-from-shell-initialize)))
     #+end_src
+
+** CANCEL 系统代理
+   #+begin_src elisp :tangle no
+     (setq url-proxy-services '(("http" . "127.0.0.1:7890")
+				("https" . "127.0.0.1:7890")))
+   #+end_src
 
 * 外观设置
 ** 主题
@@ -236,7 +236,7 @@
         ;; Global settings (defaults)
         (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
               doom-themes-enable-italic t) ; if nil, italics is universally disabled
-        (load-theme 'doom-gruvbox-light t)
+        (load-theme 'doom-solarized-light t)
 
         ;; Enable flashing mode-line on errors
         (doom-themes-visual-bell-config)
@@ -271,17 +271,15 @@
 *** modus-themes
     #+begin_src elisp
       (use-package modus-themes
-        :ensure
-        :init
-        ;; Add all your customizations prior to loading the themes
-        (setq modus-themes-slanted-constructs t
-              modus-themes-bold-constructs nil)
+	:ensure
+	:init
+	;; Add all your customizations prior to loading the themes
+	(setq modus-themes-slanted-constructs t
+	      modus-themes-bold-constructs nil)
 
-        ;; Load the theme files before enabling a theme
-        (modus-themes-load-themes)
-        :config
-        ;; Load the theme of your choice:
-        :bind ("<f5>" . modus-themes-toggle))
+	;; Load the theme files before enabling a theme
+	(modus-themes-load-themes)
+	)
     #+end_src
 
 *** sublime-themes
@@ -445,6 +443,7 @@
        (setq cnfonts-personal-fontnames '(("Iosevka Comfy")
 					  ()
 					  ()))
+       (setq use-default-font-for-symbols nil)
        :bind
        (("C-=" . cnfonts-increase-fontsize)
 	("C--" . cnfonts-decrease-fontsize)
@@ -544,8 +543,8 @@
      (use-package centaur-tabs
        :load-path "~/.emacs.d/other/centaur-tabs"
        :config
-       (setq centaur-tabs-style "bar"
-	     centaur-tabs-height 32
+       (setq centaur-tabs-style "wave"
+	     centaur-tabs-height 40
 	     centaur-tabs-set-icons t
 	     centaur-tabs-set-modified-marker t
 	     centaur-tabs-show-navigation-buttons t
@@ -600,6 +599,45 @@
 		 ;; Set dired-x buffer-local variables here.  For example:
 		 ;; (dired-omit-mode 1)
 		 ))
+   #+end_src
+
+** dired-single
+   #+begin_src elisp
+       (use-package dired-single
+	 :config
+	 (defun my-dired-init ()
+	   "Bunch of stuff to run for dired, either immediately or when it's
+     loaded."
+	   ;; <add other stuff here>
+	   (define-key dired-mode-map [remap dired-find-file]
+	     'dired-single-buffer)
+	   (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
+	     'dired-single-buffer-mouse)
+	   (define-key dired-mode-map [remap dired-up-directory]
+	     'dired-single-up-directory))
+
+	 ;; if dired's already loaded, then the keymap will be bound
+	 (if (boundp 'dired-mode-map)
+	     ;; we're good to go; just add our bindings
+	     (my-dired-init)
+	   ;; it's not loaded yet, so add our bindings to the load-hook
+	   (add-hook 'dired-load-hook 'my-dired-init))
+	 )
+   #+end_src
+   
+** dired-hide-dotfiles
+   #+begin_src elisp
+     (use-package dired-hide-dotfiles
+       :config
+       (defun my-dired-mode-hook ()
+	 "My `dired' mode hook."
+	 ;; To hide dot-files by default
+	 (dired-hide-dotfiles-mode))
+
+       ;; To toggle hiding
+       (define-key dired-mode-map "." #'dired-hide-dotfiles-mode)
+       (add-hook 'dired-mode-hook #'my-dired-mode-hook)
+       )
    #+end_src
 
 ** ranger
@@ -753,7 +791,7 @@
        ([remap describe-key] . helpful-key))
    #+end_src
 
-* 编程配置
+* 编程
 ** 项目管理
 *** projectile
     #+begin_src elisp
@@ -777,13 +815,20 @@
 	(counsel-projectile-mode))
     #+end_src
 
-** 代码补全
+** 补全
 *** lsp-mode
     #+begin_src elisp
+      (defun gq/setup-lsp-mode ()
+	(setq lsp-headerline-breadcrumb-segments '(path-up-to-project file symbols))
+	(lsp-headerline-breadcrumb-mode)
+	(lsp-enable-which-key-integration)
+	)
       (use-package lsp-mode
-	:commands (lsp lsp-deferred)
-	:hook ((python-mode . lsp)
-	       (lsp-mode . lsp-enable-which-key-integration))
+	:commands
+	(lsp lsp-deferred)
+	:hook
+	((python-mode . lsp)
+	 (lsp-mode . gq/setup-lsp-mode))
 	:init (setq lsp-keymap-prefix "C-c l"))
     #+end_src
 
@@ -835,20 +880,41 @@
 	:hook
 	(lsp-mode . lsp-ui-mode))
     #+end_src
+    
+*** lsp-treemacs
+    #+begin_src elisp
+      (use-package lsp-treemacs
+	:after
+	lsp
+	)
+    #+end_src
 
 *** company
     #+begin_src elisp
-      (use-package company)
-      (add-hook 'after-init-hook 'global-company-mode)
+      (use-package company
+	:after
+	lsp-mode
+	:hook
+	(prog-mode . company-mode)
+	:bind
+	(:map company-active-map
+	      ("<tab>" . company-complete-selection)
+	      )
+	(:map lsp-mode-map
+	      ("<tab>" . company-indent-or-complete-common)
+	      )
+	:custom
+	(company-minimum-prefix-length 1)
+	(company-idle-delay 0.0)
+	)
     #+end_src
 
-*** company-lsp
+*** company-box
     #+begin_src elisp
-      (use-package company-lsp
-	:config
-	(push 'company-lsp company-backends))
+      (use-package company-box
+	:hook
+	(company-mode . company-box-mode))
     #+end_src
-
 *** yasnippet
     #+begin_src elisp
       (use-package yasnippet
@@ -861,6 +927,12 @@
       (use-package yasnippet-snippets)
     #+end_src
 
+*** CANCEL company-lsp
+    #+begin_src elisp :tangle no
+      (use-package company-lsp
+	:config
+	(push 'company-lsp company-backends))
+    #+end_src
 ** 调试
 *** dap-mode
     #+begin_src elisp
@@ -896,7 +968,7 @@
 	)
     #+end_src
 
-** 编程语言
+** 语言
 *** org
 **** org
 ***** 按键配置
@@ -981,7 +1053,7 @@
 ***** 待办事项状态
       #+begin_src elisp
 	(setq org-todo-keywords
-	      '((sequence "TODO" "NEXT" "|" "DONE" "CANCEL")))
+	      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)" "CANCEL(c)")))
 	(setq org-todo-keyword-faces
 	  '(("TODO" . (:foreground "red" :weight bold))
 	    ("NEXT" . "#E35DBF")
@@ -994,12 +1066,14 @@
       #+begin_src elisp
 	(custom-theme-set-faces
 	 'user
-	 '(variable-pitch ((t (:family "CMU Typewriter Text"))))
-	 '(fixed-pitch ((t ( :family "Fira Code" :height 160))))
+	 '(variable-pitch ((t (:family "CMU Sans Serif"))))
+	 '(fixed-pitch ((t (:family "Fira Code" :height 160))))
 	 '(org-block ((t (:inherit fixed-pitch))))
 	 '(org-code ((t (:inherit (shadow fixed-pitch)))))
 	 '(org-document-info ((t (:foreground "dark orange"))))
-	 '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+	 '(org-block-begin-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
+	 '(org-block-end-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
+	 ;; '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
 	 '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
 	 '(org-link ((t (:foreground "royal blue" :underline t))))
 	 '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
@@ -1007,7 +1081,8 @@
 	 '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
 	 '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
 	 '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-	 '(org-verbatim ((t (:inherit (shadow fixed-pitch))))))
+	 '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+	 )
       #+end_src
 
 ***** 记录时间戳
@@ -1061,7 +1136,7 @@
 		"* TODO %?\n SCHEDULED: %^T\n")
 	       ("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
 		"* TODO %?\n SCHEDULED: %^T \n %i\n  %a")
-	       ("j" "Journal" entry (file+datetree "~/SynologyDrive/org/journal.org")
+	       ("d" "Diary" entry (file+datetree "~/SynologyDrive/org/diary.org")
 		"* %?\nEntered on %U\n  %i")
 	       ("m" "Email" entry (file+headline "~/SynologyDrive/org/todo.org" "Email")
 		"* TODO %^{待办事项} %^g\n  SCHEDULED: %T DEADLINE: %^T \n  :PROPERTIES:\n  LINK:%i %a\n  :END:\n  %?")
@@ -1223,7 +1298,7 @@
        :defer t)
      #+end_src
 
-** 代码折叠
+** 折叠
 *** hs-minor-mode
     #+begin_src elisp
      (defun toggle-selective-display (column)
@@ -1244,7 +1319,14 @@
      (global-set-key (kbd "C-\\") 'toggle-selective-display)
      (add-hook 'prog-mode-hook #'hs-minor-mode)
     #+end_src
-
+** 注释
+*** evil-nerd-commenter
+    #+begin_src elisp
+      (use-package evil-nerd-commenter
+	:bind
+	("M-/" . evilnc-comment-or-uncomment-lines)
+	)
+    #+end_src
 * 常用工具
 ** doc-view
    #+begin_src elisp
