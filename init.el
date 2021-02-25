@@ -141,6 +141,7 @@
     (mode '(org-mode-hook
 	    term-mode-hook
 	    eshell-mode-hook
+	    vterm-mode-hook
 	    treemacs-mode-hook
 	    org-agenda-mode-hook
 	    ))
@@ -1033,3 +1034,5 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (setq smtpmail-default-smtp-server "smtp.office365.com"
       smtpmail-smtp-server "smtp.office365.com"
       smtpmail-smtp-service 587)
+
+(use-package vterm)
