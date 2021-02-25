@@ -139,7 +139,9 @@
 	:config
 	(general-define-key
 	 "M-x" 'counsel-M-x
-	 "C-s" 'counsel-grep-or-swiper)
+	 "C-s" 'counsel-grep-or-swiper
+	 "C-x b" 'counsel-switch-buffer
+	 )
 
 	;; * Mode Keybindings
 	;; `general-define-key' is comparable to `define-key' when :keymaps is specified
@@ -150,7 +152,6 @@
 	 "<end>" 'end-of-line
 	 "<escape>" 'keyboard-escape-quit
 	 "C-M-j" 'counsel-switch-buffer
-	 "C-x b" 'counsel-switch-buffer
 	 )
 	;; `general-def' can be used instead for `define-key'-like syntax
 	(general-def org-mode-map
@@ -1088,7 +1089,7 @@
       #+end_src
 
 ***** 字体
-      #+begin_src elisp
+      #+begin_src elisp :tangle no
 	(custom-theme-set-faces
 	 'user
 	 '(variable-pitch ((t (:family "CMU Sans Serif"))))
@@ -1161,7 +1162,7 @@
 		"* TODO %?\n SCHEDULED: %^T\n")
 	       ("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
 		"* TODO %?\n SCHEDULED: %^T \n %i\n  %a")
-	       ("d" "Diary" entry (file+datetree "~/SynologyDrive/org/diary.org")
+	       ("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
 		"* %?\nEntered on %U\n  %i")
 	       ("m" "Email" entry (file+headline "~/SynologyDrive/org/todo.org" "Email")
 		"* TODO %^{待办事项} %^g\n  SCHEDULED: %T DEADLINE: %^T \n  :PROPERTIES:\n  LINK:%i %a\n  :END:\n  %?")
@@ -1549,6 +1550,7 @@
     
 ** vterm
    #+begin_src elisp
-     (use-package vterm)
+     (use-package vterm
+       :commands
+       vterm)
    #+end_src
- 

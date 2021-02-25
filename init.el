@@ -53,7 +53,9 @@
   :config
   (general-define-key
    "M-x" 'counsel-M-x
-   "C-s" 'counsel-grep-or-swiper)
+   "C-s" 'counsel-grep-or-swiper
+   "C-x b" 'counsel-switch-buffer
+   )
 
   ;; * Mode Keybindings
   ;; `general-define-key' is comparable to `define-key' when :keymaps is specified
@@ -64,7 +66,6 @@
    "<end>" 'end-of-line
    "<escape>" 'keyboard-escape-quit
    "C-M-j" 'counsel-switch-buffer
-   "C-x b" 'counsel-switch-buffer
    )
   ;; `general-def' can be used instead for `define-key'-like syntax
   (general-def org-mode-map
@@ -743,26 +744,6 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
     ("CANCEL" . (:foreground "#888888")))
   )
 
-(custom-theme-set-faces
- 'user
- '(variable-pitch ((t (:family "CMU Sans Serif"))))
- '(fixed-pitch ((t (:family "Fira Code" :height 160))))
- '(org-block ((t (:inherit fixed-pitch))))
- '(org-code ((t (:inherit (shadow fixed-pitch)))))
- '(org-document-info ((t (:foreground "dark orange"))))
- '(org-block-begin-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
- '(org-block-end-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
- ;; '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
- '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
- '(org-link ((t (:foreground "royal blue" :underline t))))
- '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
- '(org-property-value ((t (:inherit fixed-pitch))) t)
- '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
- '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
- '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
- '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
- )
-
 (setq org-agenda-start-with-log-mode t)
 (setq org-log-done 'time)
 (setq org-log-into-drawer t)
@@ -797,7 +778,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 	 "* TODO %?\n SCHEDULED: %^T\n")
 	("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
 	 "* TODO %?\n SCHEDULED: %^T \n %i\n  %a")
-	("d" "Diary" entry (file+datetree "~/SynologyDrive/org/diary.org")
+	("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
 	 "* %?\nEntered on %U\n  %i")
 	("m" "Email" entry (file+headline "~/SynologyDrive/org/todo.org" "Email")
 	 "* TODO %^{待办事项} %^g\n  SCHEDULED: %T DEADLINE: %^T \n  :PROPERTIES:\n  LINK:%i %a\n  :END:\n  %?")
@@ -1090,4 +1071,6 @@ With a prefix ARG, remove start location."
       smtpmail-smtp-server "smtp.office365.com"
       smtpmail-smtp-service 587)
 
-(use-package vterm)
+(use-package vterm
+  :commands
+  vterm)
