@@ -1,4 +1,3 @@
-
 #+TITLE: Emacs Configuration
 #+STARTUP: overview
 #+PROPERTY: header-args:elisp :tangle ./init.el
