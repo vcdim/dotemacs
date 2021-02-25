@@ -2,15 +2,15 @@
 
 (setq package-archives
       '(("melpa" . "https://melpa.org/packages/")
-	("org" . "https://orgmode.org/elpa/")
-	("gnu" . "https://elpa.gnu.org/packages/")))
+        ("org" . "https://orgmode.org/elpa/")
+        ("gnu" . "https://elpa.gnu.org/packages/")))
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (load custom-file)
 
 (defun gq/org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
-		      (expand-file-name "~/.emacs.d/emacs-config.org"))
+                      (expand-file-name "~/.emacs.d/emacs-config.org"))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
@@ -26,10 +26,10 @@
 
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
-	   (format "%.2f seconds"
-		   (float-time
-		   (time-subtract after-init-time before-init-time)))
-	   gcs-done))
+           (format "%.2f seconds"
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))
+           gcs-done))
 
 (add-hook 'emacs-startup-hook 'efs/display-startup-time)
 
@@ -69,8 +69,8 @@
    )
   ;; `general-def' can be used instead for `define-key'-like syntax
   (general-def org-mode-map
-	       "C-c C-q" 'counsel-org-tag
-	       )
+    "C-c C-q" 'counsel-org-tag
+    )
 
   ;; * Prefix Keybindings
   ;; :prefix can be used to prevent redundant specification of prefix keys
@@ -133,7 +133,7 @@
   :init
   ;; Add all your customizations prior to loading the themes
   (setq modus-themes-slanted-constructs t
-	modus-themes-bold-constructs nil)
+        modus-themes-bold-constructs nil)
 
   ;; Load the theme files before enabling a theme
   (modus-themes-load-themes)
@@ -145,17 +145,17 @@
 (global-display-line-numbers-mode t)
 (dolist
     (mode '(org-mode-hook
-	    term-mode-hook
-	    eshell-mode-hook
-	    vterm-mode-hook
-	    treemacs-mode-hook
-	    org-agenda-mode-hook
-	    pdf-view-mode-hook
-	    dired-mode-hook
-	    ))
+            term-mode-hook
+            eshell-mode-hook
+            vterm-mode-hook
+            treemacs-mode-hook
+            org-agenda-mode-hook
+            pdf-view-mode-hook
+            dired-mode-hook
+            ))
   (add-hook mode
-	    (lambda () (display-line-numbers-mode 0))
-	    )
+            (lambda () (display-line-numbers-mode 0))
+            )
   )
 
 (use-package all-the-icons
@@ -175,9 +175,9 @@
   )
 
 (use-package all-the-icons-ibuffer
-   :init (all-the-icons-ibuffer-mode 1)
-   :after (all-the-icons ibuffer)
-   )
+  :init (all-the-icons-ibuffer-mode 1)
+  :after (all-the-icons ibuffer)
+  )
 
 (use-package all-the-icons-dired
   :after (all-the-icons)
@@ -252,10 +252,10 @@
   (setq dashboard-center-content t)
   (setq dashboard-set-footer nil)
   (setq dashboard-items '((recents  . 5)
-			  (bookmarks . 5)
-			  (projects . 5)
-			  (agenda . 5)
-			  (registers . 5)))
+                          (bookmarks . 5)
+                          (projects . 5)
+                          (agenda . 5)
+                          (registers . 5)))
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-set-navigator t)
@@ -267,10 +267,10 @@
   (cnfonts-enable)
   (cnfonts-set-spacemacs-fallback-fonts)
   (setq cnfonts-profiles
-	'("program" "org-mode" "read-book"))
+        '("program" "org-mode" "read-book"))
   (setq cnfonts-personal-fontnames '(("Iosevka Comfy")
-				     ()
-				     ()))
+                                     ()
+                                     ()))
   (setq use-default-font-for-symbols nil)
   :bind
   (("C-=" . cnfonts-increase-fontsize)
@@ -284,68 +284,68 @@
 (use-package treemacs
   :defer t
   :init (with-eval-after-load 'winum
-	  (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+          (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
   :config
   (progn
     (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
-	  treemacs-deferred-git-apply-delay      0.5
-	  treemacs-directory-name-transformer    #'identity
-	  treemacs-display-in-side-window        t
-	  treemacs-eldoc-display                 t
-	  treemacs-file-event-delay              5000
-	  treemacs-file-extension-regex          treemacs-last-period-regex-value
-	  treemacs-file-follow-delay             0.2
-	  treemacs-file-name-transformer         #'identity
-	  treemacs-follow-after-init             t
-	  treemacs-git-command-pipe              ""
-	  treemacs-goto-tag-strategy             'refetch-index
-	  treemacs-indentation                   2
-	  treemacs-indentation-string            " "
-	  treemacs-is-never-other-window         nil
-	  treemacs-max-git-entries               5000
-	  treemacs-missing-project-action        'ask
-	  treemacs-move-forward-on-expand        nil
-	  treemacs-no-png-images                 nil
-	  treemacs-no-delete-other-windows       t
-	  treemacs-project-follow-cleanup        nil
-	  treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-	  treemacs-position                      'left
-	  treemacs-read-string-input             'from-child-frame
-	  treemacs-recenter-distance             0.1
-	  treemacs-recenter-after-file-follow    nil
-	  treemacs-recenter-after-tag-follow     nil
-	  treemacs-recenter-after-project-jump   'always
-	  treemacs-recenter-after-project-expand 'on-distance
-	  treemacs-show-cursor                   nil
-	  treemacs-show-hidden-files             nil
-	  treemacs-silent-filewatch              nil
-	  treemacs-silent-refresh                nil
-	  treemacs-sorting                       'alphabetic-asc
-	  treemacs-space-between-root-nodes      t
-	  treemacs-tag-follow-cleanup            t
-	  treemacs-tag-follow-delay              1.5
-	  treemacs-user-mode-line-format         nil
-	  treemacs-user-header-line-format       nil
-	  treemacs-width                         35
-	  treemacs-workspace-switch-cleanup      nil)
+          treemacs-deferred-git-apply-delay      0.5
+          treemacs-directory-name-transformer    #'identity
+          treemacs-display-in-side-window        t
+          treemacs-eldoc-display                 t
+          treemacs-file-event-delay              5000
+          treemacs-file-extension-regex          treemacs-last-period-regex-value
+          treemacs-file-follow-delay             0.2
+          treemacs-file-name-transformer         #'identity
+          treemacs-follow-after-init             t
+          treemacs-git-command-pipe              ""
+          treemacs-goto-tag-strategy             'refetch-index
+          treemacs-indentation                   2
+          treemacs-indentation-string            " "
+          treemacs-is-never-other-window         nil
+          treemacs-max-git-entries               5000
+          treemacs-missing-project-action        'ask
+          treemacs-move-forward-on-expand        nil
+          treemacs-no-png-images                 nil
+          treemacs-no-delete-other-windows       t
+          treemacs-project-follow-cleanup        nil
+          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                      'left
+          treemacs-read-string-input             'from-child-frame
+          treemacs-recenter-distance             0.1
+          treemacs-recenter-after-file-follow    nil
+          treemacs-recenter-after-tag-follow     nil
+          treemacs-recenter-after-project-jump   'always
+          treemacs-recenter-after-project-expand 'on-distance
+          treemacs-show-cursor                   nil
+          treemacs-show-hidden-files             nil
+          treemacs-silent-filewatch              nil
+          treemacs-silent-refresh                nil
+          treemacs-sorting                       'alphabetic-asc
+          treemacs-space-between-root-nodes      t
+          treemacs-tag-follow-cleanup            t
+          treemacs-tag-follow-delay              1.5
+          treemacs-user-mode-line-format         nil
+          treemacs-user-header-line-format       nil
+          treemacs-width                         35
+          treemacs-workspace-switch-cleanup      nil)
     (treemacs-resize-icons 18)
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
     (treemacs-fringe-indicator-mode t)
     (pcase (cons (not (null (executable-find "git")))
-		 (not (null treemacs-python-executable)))
+                 (not (null treemacs-python-executable)))
       (`(t . t)
        (treemacs-git-mode 'deferred))
       (`(t . _)
        (treemacs-git-mode 'simple))))
   :bind
   (:map global-map
-	("M-0"       . treemacs-select-window)
-	("C-x t 1"   . treemacs-delete-other-windows)
-	("C-x t t"   . treemacs)
-	("C-x t B"   . treemacs-bookmark)
-	("C-x t C-t" . treemacs-find-file)
-	("C-x t M-t" . treemacs-find-tag)))
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
 
 (use-package treemacs-projectile
   :after treemacs projectile)
@@ -357,12 +357,12 @@
   :load-path "~/.emacs.d/other/centaur-tabs"
   :config
   (setq centaur-tabs-style "wave"
-	centaur-tabs-height 40
-	centaur-tabs-set-icons t
-	centaur-tabs-set-modified-marker t
-	centaur-tabs-show-navigation-buttons t
-	centaur-tabs-set-bar 'under
-	x-underline-at-descent-line t)
+        centaur-tabs-height 40
+        centaur-tabs-set-icons t
+        centaur-tabs-set-modified-marker t
+        centaur-tabs-show-navigation-buttons t
+        centaur-tabs-set-bar 'under
+        x-underline-at-descent-line t)
   (centaur-tabs-headline-match)
 
   (setq centaur-tabs-gray-out-icons 'buffer)
@@ -398,45 +398,45 @@
    (counsel-dired-listing-swithes "-agho --group-directories-first"))
   :config
   (setq dired-guess-shell-alist-user '(("\\.pdf\\'" "open")
-				       ("\\.doc\\'" "open")
-				       ("\\.docx\\'" "open")
-				       ("\\.ppt\\'" "open")
-				       ("\\.pptx\\'" "open")
-				       ("\\.xls\\'" "open")))
+                                       ("\\.doc\\'" "open")
+                                       ("\\.docx\\'" "open")
+                                       ("\\.ppt\\'" "open")
+                                       ("\\.pptx\\'" "open")
+                                       ("\\.xls\\'" "open")))
   (add-hook 'dired-load-hook
-	    (lambda ()
-	      (setq dired-x-hands-off-my-keys nil)
-	      (load "dired-x")
-		 ;; Set dired-x global variables here.  For example:
-		 ;; (setq dired-guess-shell-gnutar "gtar")
-	      ))
+            (lambda ()
+              (setq dired-x-hands-off-my-keys nil)
+              (load "dired-x")
+              ;; Set dired-x global variables here.  For example:
+              ;; (setq dired-guess-shell-gnutar "gtar")
+              ))
   (add-hook 'dired-mode-hook
-	    (lambda ()
-	      ;; Set dired-x buffer-local variables here.  For example:
-	      ;; (dired-omit-mode 1)
-	      ))
+            (lambda ()
+              ;; Set dired-x buffer-local variables here.  For example:
+              ;; (dired-omit-mode 1)
+              ))
   )
 
 (use-package dired-single
-    :config
-    (defun my-dired-init ()
-      "Bunch of stuff to run for dired, either immediately or when it's
+  :config
+  (defun my-dired-init ()
+    "Bunch of stuff to run for dired, either immediately or when it's
 loaded."
-      ;; <add other stuff here>
-      (define-key dired-mode-map [remap dired-find-file]
-	'dired-single-buffer)
-      (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
-	'dired-single-buffer-mouse)
-      (define-key dired-mode-map [remap dired-up-directory]
-	'dired-single-up-directory))
+    ;; <add other stuff here>
+    (define-key dired-mode-map [remap dired-find-file]
+      'dired-single-buffer)
+    (define-key dired-mode-map [remap dired-mouse-find-file-other-window]
+      'dired-single-buffer-mouse)
+    (define-key dired-mode-map [remap dired-up-directory]
+      'dired-single-up-directory))
 
-    ;; if dired's already loaded, then the keymap will be bound
-    (if (boundp 'dired-mode-map)
-	;; we're good to go; just add our bindings
-	(my-dired-init)
-      ;; it's not loaded yet, so add our bindings to the load-hook
-      (add-hook 'dired-load-hook 'my-dired-init))
-    )
+  ;; if dired's already loaded, then the keymap will be bound
+  (if (boundp 'dired-mode-map)
+      ;; we're good to go; just add our bindings
+      (my-dired-init)
+    ;; it's not loaded yet, so add our bindings to the load-hook
+    (add-hook 'dired-load-hook 'my-dired-init))
+  )
 
 (use-package dired-hide-dotfiles
   :config
@@ -452,7 +452,7 @@ loaded."
 
 (defun gq/org-mode-visual-fill ()
   (setq visual-fill-column-width 120
-	visual-fill-column-center-text t)
+        visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
 (use-package visual-fill-column
@@ -488,28 +488,28 @@ loaded."
 (use-package ivy-bibtex
   :init
   (setq ivy-re-builders-alist
-	'((ivy-bibtex . ivy--regex-ignore-order)
-	  (t . ivy--regex-plus)))
+        '((ivy-bibtex . ivy--regex-ignore-order)
+          (t . ivy--regex-plus)))
   (setq bibtex-completion-bibliography
-	'("~/SynologyDrive/Library/bib/mybib.bib"))
+        '("~/SynologyDrive/Library/bib/mybib.bib"))
   (setq bibtex-completion-library-path
-	'("~/SynologyDrive/Library/pdf"))
+        '("~/SynologyDrive/Library/pdf"))
   (setq bibtex-completion-pdf-field "File")
   (setq bibtex-completion-notes-path "~/SynologyDrive/Library/notes")
   (setq bibtex-completion-display-formats
-    '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
-      (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
-      (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-      (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-      (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
+        '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
+          (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+          (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+          (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+          (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
   (setq bibtex-completion-pdf-symbol "⌘")
   (setq bibtex-completion-notes-symbol "✎")
   (setq bibtex-completion-pdf-extension '(".pdf" ".djvu"))
   (setq bibtex-completion-format-citation-functions
-	'((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
-	  (latex-mode    . bibtex-completion-format-citation-cite)
-	  (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
-	  (default       . bibtex-completion-format-citation-default)))  
+        '((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
+          (latex-mode    . bibtex-completion-format-citation-cite)
+          (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+          (default       . bibtex-completion-format-citation-default)))  
   (defun ivy-bibtex-my-publications (&optional arg)
     "Search BibTeX entries authored by “Jane Doe”.
 
@@ -519,10 +519,10 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
       (bibtex-completion-clear-cache))
     (bibtex-completion-init)
     (ivy-read "BibTeX Items: "
-	      (bibtex-completion-candidates)
-	      :initial-input "Jane Doe"
-	      :caller 'ivy-bibtex
-	      :action ivy-bibtex-default-action))
+              (bibtex-completion-candidates)
+              :initial-input "Jane Doe"
+              :caller 'ivy-bibtex
+              :action ivy-bibtex-default-action))
 
   ;; Bind this search function to Ctrl-x p:
   :bind (("C-x p" . ivy-bibtex-my-publications))
@@ -540,7 +540,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (setq ivy-initial-inputs-alist nil)
   :init
   (setq counsel-find-file-ignore-regexp
-	(concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)")))
+        (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)")))
 
 (use-package which-key
   :init (which-key-mode)
@@ -610,18 +610,18 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (defun ladicle/toggle-lsp-ui-doc ()
     (interactive)
     (if lsp-ui-doc-mode
-	(progn
-	  (lsp-ui-doc-mode -1)
-	  (lsp-ui-doc--hide-frame))
+        (progn
+          (lsp-ui-doc-mode -1)
+          (lsp-ui-doc--hide-frame))
       (lsp-ui-doc-mode 1)))
   :bind
   (:map lsp-mode-map
-	("C-c C-r" . lsp-ui-peek-find-references)
-	("C-c C-j" . lsp-ui-peek-find-definitions)
-	("C-c i" . lsp-ui-peek-find-definitions)
-	("C-c m" . lsp-ui-imenu)
-	("C-c s" . lsp-ui-sideline-mode)
-	("C-c d"   . ladicle/toggle-lsp-ui-doc))
+        ("C-c C-r" . lsp-ui-peek-find-references)
+        ("C-c C-j" . lsp-ui-peek-find-definitions)
+        ("C-c i" . lsp-ui-peek-find-definitions)
+        ("C-c m" . lsp-ui-imenu)
+        ("C-c s" . lsp-ui-sideline-mode)
+        ("C-c d"   . ladicle/toggle-lsp-ui-doc))
   :hook
   (lsp-mode . lsp-ui-mode))
 
@@ -637,11 +637,11 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (prog-mode . company-mode)
   :bind
   (:map company-active-map
-	("<tab>" . company-complete-selection)
-	)
+        ("<tab>" . company-complete-selection)
+        )
   (:map lsp-mode-map
-	("<tab>" . company-indent-or-complete-common)
-	)
+        ("<tab>" . company-indent-or-complete-common)
+        )
   :custom
   (company-minimum-prefix-length 1)
   (company-idle-delay 0.0)
@@ -712,11 +712,11 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
     1 'org-checkbox-done-text prepend)) 'append)
 
 (add-hook 'org-mode-hook (lambda ()
-			   "Beautify Org Checkbox Symbol"
-			   (push '("[ ]" . "☐") prettify-symbols-alist)
-			   (push '("[X]" . "☑") prettify-symbols-alist)
-			   (push '("[-]" . "❍") prettify-symbols-alist)
-			   (prettify-symbols-mode)))
+                           "Beautify Org Checkbox Symbol"
+                           (push '("[ ]" . "☐") prettify-symbols-alist)
+                           (push '("[X]" . "☑") prettify-symbols-alist)
+                           (push '("[-]" . "❍") prettify-symbols-alist)
+                           (prettify-symbols-mode)))
 
 (setq org-ellipsis " ↴ ")
 
@@ -726,23 +726,23 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (setq org-file-apps
       '(("\\.pdf\\'" . (lambda (file link) (org-pdftools-open link)))
-	(directory . emacs)
-	(auto-mode . emacs)
-	("\\.mm\\'" . default)
-	("\\.x?html?\\'" . default)
-	("\\.pptx?\\'" . system)
-	("\\.docx?\\'" . system)
-	("\\.xlsx?\\'" . system)
-	("\\.png?\\'" . system)))
+        (directory . emacs)
+        (auto-mode . emacs)
+        ("\\.mm\\'" . default)
+        ("\\.x?html?\\'" . default)
+        ("\\.pptx?\\'" . system)
+        ("\\.docx?\\'" . system)
+        ("\\.xlsx?\\'" . system)
+        ("\\.png?\\'" . system)))
 
 (setq org-todo-keywords
       '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)" "CANCEL(c)")))
 (setq org-todo-keyword-faces
-  '(("TODO" . (:foreground "red" :weight bold))
-    ("NEXT" . "#E35DBF")
-    ("DONE" . (:foreground "#1AA260" :weight bold))
-    ("CANCEL" . (:foreground "#888888")))
-  )
+      '(("TODO" . (:foreground "red" :weight bold))
+        ("NEXT" . "#E35DBF")
+        ("DONE" . (:foreground "#1AA260" :weight bold))
+        ("CANCEL" . (:foreground "#888888")))
+      )
 
 (setq org-agenda-start-with-log-mode t)
 (setq org-log-done 'time)
@@ -750,10 +750,10 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (setq org-tag-alist
       '((:startgroup)
-	(:endgroup)
-	("outlook" . ?o)
-	("gmail" . ?g)
-	)
+        (:endgroup)
+        ("outlook" . ?o)
+        ("gmail" . ?g)
+        )
       )
 
 (org-babel-do-load-languages
@@ -772,26 +772,26 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (setq org-capture-templates
       '(
-	("n" "Next" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
-	 "* TODO %?\n SCHEDULED: %T \n %i\n  %a")
-	("t" "Todo" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
-	 "* TODO %?\n SCHEDULED: %^T\n")
-	("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
-	 "* TODO %?\n SCHEDULED: %^T \n %i\n  %a")
-	("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
-	 "* %?\nEntered on %U\n  %i")
-	("m" "Email" entry (file+headline "~/SynologyDrive/org/todo.org" "Email")
-	 "* TODO %^{待办事项} %^g\n  SCHEDULED: %T DEADLINE: %^T \n  :PROPERTIES:\n  LINK:%i %a\n  :END:\n  %?")
-      ))
+        ("n" "Next" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
+         "* TODO %?\n SCHEDULED: %T \n %i\n  %a")
+        ("t" "Todo" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
+         "* TODO %?\n SCHEDULED: %^T\n")
+        ("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
+         "* TODO %?\n SCHEDULED: %^T \n %i\n  %a")
+        ("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
+         "* %?\nEntered on %U\n  %i")
+        ("m" "Email" entry (file+headline "~/SynologyDrive/org/todo.org" "Email")
+         "* TODO %^{待办事项} %^g\n  SCHEDULED: %T DEADLINE: %^T \n  :PROPERTIES:\n  LINK:%i %a\n  :END:\n  %?")
+        ))
 
 (use-package org2blog
   :commands (org2blog-user-interface)
   :after org
   :config
   (setq org2blog/wp-blog-alist
-	'(("myblog"
-	   :url "http://galoisgu.com/wordpress/xmlrpc.php"
-	   :username "guqun")))
+        '(("myblog"
+           :url "http://galoisgu.com/wordpress/xmlrpc.php"
+           :username "guqun")))
   )
 
 (use-package org-download
@@ -808,36 +808,36 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :custom (org-roam-directory "~/SynologyDrive/org/roam/")
   :bind
   (:map org-roam-mode-map
-	(("C-c n l" . org-roam)
-	 ("C-c n f" . org-roam-find-file)
-	 ("C-c n g" . org-roam-graph))
-	:map org-mode-map
-	(("C-c n i" . org-roam-insert)
-	 ("C-c n I" . org-roam-insert-immediate))
-	))
+        (("C-c n l" . org-roam)
+         ("C-c n f" . org-roam-find-file)
+         ("C-c n g" . org-roam-graph))
+        :map org-mode-map
+        (("C-c n i" . org-roam-insert)
+         ("C-c n I" . org-roam-insert-immediate))
+        ))
 
 (use-package org-roam-server
   :after org-roam
   :config
   (setq org-roam-server-host "127.0.0.1"
-	org-roam-server-port 8080
-	org-roam-server-authenticate nil
-	org-roam-server-export-inline-images t
-	org-roam-server-serve-files nil
-	org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
-	org-roam-server-network-poll t
-	org-roam-server-network-arrows nil
-	org-roam-server-network-label-truncate t
-	org-roam-server-network-label-truncate-length 60
-	org-roam-server-network-label-wrap-length 20))
+        org-roam-server-port 8080
+        org-roam-server-authenticate nil
+        org-roam-server-export-inline-images t
+        org-roam-server-serve-files nil
+        org-roam-server-served-file-extensions '("pdf" "mp4" "ogv")
+        org-roam-server-network-poll t
+        org-roam-server-network-arrows nil
+        org-roam-server-network-label-truncate t
+        org-roam-server-network-label-truncate-length 60
+        org-roam-server-network-label-wrap-length 20))
 
 (use-package org-fancy-priorities
   :hook
   (org-mode . org-fancy-priorities-mode)
   :config
   (setq org-fancy-priorities-list
-	'((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
-	  (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
+        '((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
+          (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
 
 (use-package org-noter
   :config
@@ -854,10 +854,10 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
     (interactive "P")
     (org-noter--with-valid-session
      (let ((org-noter-insert-note-no-questions (if toggle-no-questions
-						   (not org-noter-insert-note-no-questions)
-						 org-noter-insert-note-no-questions))
-	   (org-pdftools-use-isearch-link t)
-	   (org-pdftools-use-freestyle-annot t))
+                                                   (not org-noter-insert-note-no-questions)
+                                                 org-noter-insert-note-no-questions))
+           (org-pdftools-use-isearch-link t)
+           (org-pdftools-use-freestyle-annot t))
        (org-noter-insert-note (org-noter--get-precise-info)))))
 
   ;; fix https://github.com/weirdNox/org-noter/pull/93/commits/f8349ae7575e599f375de1be6be2d0d5de4e6cbf
@@ -867,31 +867,31 @@ With a prefix ARG, remove start location."
     (interactive "P")
     (org-noter--with-valid-session
      (let ((inhibit-read-only t)
-	   (ast (org-noter--parse-root))
-	   (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
+           (ast (org-noter--parse-root))
+           (location (org-noter--doc-approx-location (when (called-interactively-p 'any) 'interactive))))
        (with-current-buffer (org-noter--session-notes-buffer session)
-	 (org-with-wide-buffer
-	  (goto-char (org-element-property :begin ast))
-	  (if arg
-	      (org-entry-delete nil org-noter-property-note-location)
-	    (org-entry-put nil org-noter-property-note-location
-			   (org-noter--pretty-print-location location))))))))
+         (org-with-wide-buffer
+          (goto-char (org-element-property :begin ast))
+          (if arg
+              (org-entry-delete nil org-noter-property-note-location)
+            (org-entry-put nil org-noter-property-note-location
+                           (org-noter--pretty-print-location location))))))))
   (with-eval-after-load 'pdf-annot
     (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 
 (use-package org-super-agenda
   :config
   (setq org-super-agenda-groups
-	'((:name "Next Items"
-		 :time-grid t
-		 :tag ("NEXT" "outbox"))
-	  (:name "Important"
-		 :priority "A")
-	  (:name "Quick Picks"
-		 :effort< "0:30")
-	  (:priority<= "B"
-		       :scheduled future
-		       :order 1)))
+        '((:name "Next Items"
+                 :time-grid t
+                 :tag ("NEXT" "outbox"))
+          (:name "Important"
+                 :priority "A")
+          (:name "Quick Picks"
+                 :effort< "0:30")
+          (:priority<= "B"
+                       :scheduled future
+                       :order 1)))
   :after
   org
   )
@@ -928,14 +928,14 @@ With a prefix ARG, remove start location."
   (set-selective-display
    (or column
        (unless selective-display
-	 (1+ (current-column))))))
+         (1+ (current-column))))))
 (defun toggle-hiding (column)
   (interactive "P")
   (if hs-minor-mode
       (if (condition-case nil
-	      (hs-toggle-hiding)
-	    (error t))
-	  (hs-show-all))
+              (hs-toggle-hiding)
+            (error t))
+          (hs-show-all))
     (toggle-selective-display column)))
 (global-set-key (kbd "C-+") 'toggle-hiding)
 (global-set-key (kbd "C-\\") 'toggle-selective-display)
@@ -974,72 +974,72 @@ With a prefix ARG, remove start location."
   (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
 
 (add-to-list 'load-path "/usr/local/Cellar/mu/1.4.14/share/emacs/site-lisp/mu/mu4e")
-      (require 'mu4e)
-      (setq mu4e-change-filenames-when-moving t)
-      (setq mu4e-contexts
-	    (list
-	     ;; Gmail account
-	     (make-mu4e-context
-	      :name "gmail"
-	      :vars '((mu4e-maildir . "~/.mail/gmail/")
-		      (user-mail-address . "davidguqun@gmail.com")
-		      (user-full-name    . "Qun Gu")
-		      (mu4e-drafts-folder  . "/gmail/[Gmail]/Drafts")
-		      (mu4e-sent-folder  . "/gmail/[Gmail]/Sent Mail")
-		      (mu4e-refile-folder  . "/gmail/[Gmail]/All Mail")
-		      (mu4e-trash-folder  . "/gmail/[Gmail]/Trash")
-		      (mu4e-maildir-shortcuts . 
-					      ((:maildir "/gmail/Inbox" :key ?i)
-					       (:maildir "/gmail/[Gmail]/Sent Mail" :key ?s)
-					       (:maildir "/gmail/[Gmail]/Trash" :key ?d)
-					       (:maildir "/gmail/[Gmail]/All Mail" :key ?a)
-					       (:maildir "/gmail/[Gmail]/Drafts" :key ?r)
-					       (:maildir "/gmail/Edria" :key ?e)
-					       )
-					      )		
-		      )
-	      )
+(require 'mu4e)
+(setq mu4e-change-filenames-when-moving t)
+(setq mu4e-contexts
+      (list
+       ;; Gmail account
+       (make-mu4e-context
+        :name "gmail"
+        :vars '((mu4e-maildir . "~/.mail/gmail/")
+                (user-mail-address . "davidguqun@gmail.com")
+                (user-full-name    . "Qun Gu")
+                (mu4e-drafts-folder  . "/gmail/[Gmail]/Drafts")
+                (mu4e-sent-folder  . "/gmail/[Gmail]/Sent Mail")
+                (mu4e-refile-folder  . "/gmail/[Gmail]/All Mail")
+                (mu4e-trash-folder  . "/gmail/[Gmail]/Trash")
+                (mu4e-maildir-shortcuts . 
+                                        ((:maildir "/gmail/Inbox" :key ?i)
+                                         (:maildir "/gmail/[Gmail]/Sent Mail" :key ?s)
+                                         (:maildir "/gmail/[Gmail]/Trash" :key ?d)
+                                         (:maildir "/gmail/[Gmail]/All Mail" :key ?a)
+                                         (:maildir "/gmail/[Gmail]/Drafts" :key ?r)
+                                         (:maildir "/gmail/Edria" :key ?e)
+                                         )
+                                        )		
+                )
+        )
 
-	     ;; Outlook account
-	     (make-mu4e-context
-	      :name "outlook"
-	      :vars '((mu4e-maildir . "~/.mail/outlook/")
-		      (user-mail-address . "guqun@outlook.com")
-		      (user-full-name    . "Qun Gu")
-		      (mu4e-drafts-folder  . "/outlook/Drafts")
-		      (mu4e-sent-folder  . "/outlook/Sent")
-		      (mu4e-refile-folder  . "/outlook/Archive")
-		      (mu4e-trash-folder  . "/outlook/Deleted")
-		      (mu4e-maildir-shortcuts . 
-					      ((:maildir "/outlook/Inbox" :key ?i)
-					       (:maildir "/outlook/Sent" :key ?s)
-					       (:maildir "/outlook/Deleted" :key ?d)
-					       (:maildir "/outlook/Archive" :key ?a)
-					       (:maildir "/outlook/Drafts" :key ?r)
-					       (:maildir "/outlook/Edria" :key ?e)))
-		      )
-	      )
-	     )
-	    )
+       ;; Outlook account
+       (make-mu4e-context
+        :name "outlook"
+        :vars '((mu4e-maildir . "~/.mail/outlook/")
+                (user-mail-address . "guqun@outlook.com")
+                (user-full-name    . "Qun Gu")
+                (mu4e-drafts-folder  . "/outlook/Drafts")
+                (mu4e-sent-folder  . "/outlook/Sent")
+                (mu4e-refile-folder  . "/outlook/Archive")
+                (mu4e-trash-folder  . "/outlook/Deleted")
+                (mu4e-maildir-shortcuts . 
+                                        ((:maildir "/outlook/Inbox" :key ?i)
+                                         (:maildir "/outlook/Sent" :key ?s)
+                                         (:maildir "/outlook/Deleted" :key ?d)
+                                         (:maildir "/outlook/Archive" :key ?a)
+                                         (:maildir "/outlook/Drafts" :key ?r)
+                                         (:maildir "/outlook/Edria" :key ?e)))
+                )
+        )
+       )
+      )
 
-      (setq mail-user-agent 'mu4e-user-agent)
-      (setq mu4e-get-mail-command "mbsync -a")
-      (setq mu4e-update-interval 300)             ;; update every 5 minutes
-      (setq mu4e-compose-signature
-	    (concat
-	     "Qun Gu\n"
-	     "Sent from Emacs"))
+(setq mail-user-agent 'mu4e-user-agent)
+(setq mu4e-get-mail-command "mbsync -a")
+(setq mu4e-update-interval 300)             ;; update every 5 minutes
+(setq mu4e-compose-signature
+      (concat
+       "Qun Gu\n"
+       "Sent from Emacs"))
 ;;      (setq mu4e-use-fancy-chars t)
 
 (use-package mu4e-views
   :after mu4e
   :defer nil
   :bind (:map mu4e-headers-mode-map
-	    ("v" . mu4e-views-mu4e-select-view-msg-method) ;; select viewing method
-	    ("M-n" . mu4e-views-cursor-msg-view-window-down) ;; from headers window scroll the email view
-	    ("M-p" . mu4e-views-cursor-msg-view-window-up) ;; from headers window scroll the email view
-	    ("f" . mu4e-views-toggle-auto-view-selected-message) ;; toggle opening messages automatically when moving in the headers view
-	    )
+              ("v" . mu4e-views-mu4e-select-view-msg-method) ;; select viewing method
+              ("M-n" . mu4e-views-cursor-msg-view-window-down) ;; from headers window scroll the email view
+              ("M-p" . mu4e-views-cursor-msg-view-window-up) ;; from headers window scroll the email view
+              ("f" . mu4e-views-toggle-auto-view-selected-message) ;; toggle opening messages automatically when moving in the headers view
+              )
   :config
   (setq mu4e-views-completion-method 'ivy) ;; use ivy for completion
   (setq mu4e-views-default-view-method "html") ;; make xwidgets default
@@ -1051,8 +1051,8 @@ With a prefix ARG, remove start location."
   :after mu4e
   :init
   (setq mu4e-alert-interesting-mail-query
-     "flag:unread maildir:/Inbox"
-     )
+        "flag:unread maildir:/Inbox"
+        )
   (mu4e-alert-enable-mode-line-display)
   (defun gjstein-refresh-mu4e-alert-mode-line ()
     (interactive)
