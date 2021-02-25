@@ -76,7 +76,6 @@
   ;; :prefix can be used to prevent redundant specification of prefix keys
   (general-define-key
    :prefix "C-c"
-   ;; bind "C-c a" to 'org-agenda
    "a" 'org-agenda
    "b" 'counsel-bookmark
    "c" 'org-capture)
@@ -152,11 +151,14 @@
             org-agenda-mode-hook
             pdf-view-mode-hook
             dired-mode-hook
+            xwidget-webkit-mode-hook
             ))
   (add-hook mode
             (lambda () (display-line-numbers-mode 0))
             )
   )
+
+(set-default 'truncate-lines t)
 
 (use-package all-the-icons
   :after cnfonts
@@ -688,6 +690,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (setq org-support-shift-select 1)
 
+(add-hook 'org-mode-hook 'org-indent-mode)
+
 (defun insert-zero-width-space () (interactive) (insert-char #x200b))
 (defun my-latex-filter-zws (text backend info)
   (when (org-export-derived-backend-p backend 'latex)
@@ -772,17 +776,22 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (setq org-capture-templates
       '(
-        ("n" "Next" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
-         "* TODO %?\n SCHEDULED: %T \n %i\n  %a")
-        ("t" "Todo" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
-         "* TODO %?\n SCHEDULED: %^T\n")
-        ("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/todo.org" "Inbox")
-         "* TODO %?\n SCHEDULED: %^T \n %i\n  %a")
-        ("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
-         "* %?\nEntered on %U\n  %i")
+        ("n" "Next" entry (file+headline "~/SynologyDrive/org/todo.org" "Tasks")
+         "* NEXT %?\nSCHEDULED: %T\n\nReference: %a\n")
+        ("t" "Todo" entry (file+headline "~/SynologyDrive/org/todo.org" "Tasks")
+         "* TODO %?\nSCHEDULED: %^T\n")
+        ("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/todo.org" "Tasks")
+         "* TODO %?\nSCHEDULED: %^T\n\nReference: %a\n")
         ("m" "Email" entry (file+headline "~/SynologyDrive/org/todo.org" "Email")
-         "* TODO %^{待办事项} %^g\n  SCHEDULED: %T DEADLINE: %^T \n  :PROPERTIES:\n  LINK:%i %a\n  :END:\n  %?")
+         "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
+        ("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
+         "* %?\nEntered on %U\n%i")
         ))
+
+(setq org-refile-targets '((nil :maxlevel . 9)
+                             (("~/SynologyDrive/org/archive/email.org"
+                               "~/SynologyDrive/org/archive/tasks.org") :maxlevel . 1)))
+(advice-add 'org-refile :after 'org-save-all-org-buffers)
 
 (use-package org2blog
   :commands (org2blog-user-interface)
