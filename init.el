@@ -24,6 +24,18 @@
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 
+(unless (package-installed-p 'quelpa)
+  (with-temp-buffer
+    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
+    (eval-buffer)
+    (quelpa-self-upgrade)))
+
+(quelpa
+ '(quelpa-use-package
+   :fetcher git
+   :url "https://github.com/quelpa/quelpa-use-package.git"))
+(require 'quelpa-use-package)
+
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
@@ -65,7 +77,6 @@
    "<home>" 'beginning-of-line
    "<end>" 'end-of-line
    "<escape>" 'keyboard-escape-quit
-   "C-M-j" 'counsel-switch-buffer
    )
   ;; `general-def' can be used instead for `define-key'-like syntax
   (general-def org-mode-map
@@ -152,6 +163,7 @@
             pdf-view-mode-hook
             dired-mode-hook
             xwidget-webkit-mode-hook
+            mu4e-headers-mode-hook
             ))
   (add-hook mode
             (lambda () (display-line-numbers-mode 0))
@@ -279,6 +291,13 @@
    ("C--" . cnfonts-decrease-fontsize)
    )
   )
+
+(use-package emojify
+  :hook (after-init . global-emojify-mode))
+
+(use-package company-emoji
+  :config
+  (add-to-list 'company-backends 'company-emoji))
 
 (use-package highlight-indent-guides 
   :config (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
@@ -776,21 +795,21 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (setq org-capture-templates
       '(
-        ("n" "Next" entry (file+headline "~/SynologyDrive/org/todo.org" "Tasks")
+        ("n" "Next" entry (file+headline "~/SynologyDrive/org/inbox.org" "Tasks")
          "* NEXT %?\nSCHEDULED: %T\n\nReference: %a\n")
-        ("t" "Todo" entry (file+headline "~/SynologyDrive/org/todo.org" "Tasks")
-         "* TODO %?\nSCHEDULED: %^T\n")
-        ("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/todo.org" "Tasks")
-         "* TODO %?\nSCHEDULED: %^T\n\nReference: %a\n")
-        ("m" "Email" entry (file+headline "~/SynologyDrive/org/todo.org" "Email")
+        ("t" "Todo" entry (file+headline "~/SynologyDrive/org/inbox.org" "Tasks")
+         "* TODO %?\n")
+        ("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/inbox.org" "Tasks")
+         "* TODO %?\nReference: %a\n")
+        ("m" "Email" entry (file+headline "~/SynologyDrive/org/inbox.org" "Email")
          "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
         ("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
          "* %?\nEntered on %U\n%i")
         ))
 
 (setq org-refile-targets '((nil :maxlevel . 9)
-                             (("~/SynologyDrive/org/archive/email.org"
-                               "~/SynologyDrive/org/archive/tasks.org") :maxlevel . 1)))
+                           (("~/SynologyDrive/org/archive/email.org"
+                             "~/SynologyDrive/org/archive/tasks.org") :maxlevel . 1)))
 (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
 (use-package org2blog
@@ -809,8 +828,18 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (use-package org-kanban
   :commands org-kanban)
 
-(use-package org-superstar)
-(add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+(use-package org-superstar
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
+  ;; This is usually the default, but keep in mind it must be nil
+  (setq org-hide-leading-stars nil)
+  ;; This line is necessary.
+  (setq org-superstar-leading-bullet ?\s)
+  ;; If you use Org Indent you also need to add this, otherwise the
+  ;; above has no effect while Indent is enabled.
+  (setq org-indent-mode-turns-on-hiding-stars nil)
+  (setq org-superstar-remove-leading-stars t)
+  (setq org-superstar-item-bullet-alist '((45 . 8226) (43 . 9999) (42 . 9758)))
 
 (use-package org-roam
   :hook (after-init . org-roam-mode)
@@ -846,7 +875,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :config
   (setq org-fancy-priorities-list
         '((?A . "❗")(?B . "⬆")(?C . "⬇")(?D . "☕")
-          (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "Important"))))
+          (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "important"))))
 
 (use-package org-noter
   :config
@@ -982,6 +1011,8 @@ With a prefix ARG, remove start location."
   :config
   (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
 
+(use-package zotxt)
+
 (add-to-list 'load-path "/usr/local/Cellar/mu/1.4.14/share/emacs/site-lisp/mu/mu4e")
 (require 'mu4e)
 (setq mu4e-change-filenames-when-moving t)
@@ -1038,6 +1069,7 @@ With a prefix ARG, remove start location."
       (concat
        "Qun Gu\n"
        "Sent from Emacs"))
+(setq mu4e-headers-precise-alignment t)
 ;;      (setq mu4e-use-fancy-chars t)
 
 (use-package mu4e-views
@@ -1075,6 +1107,32 @@ With a prefix ARG, remove start location."
 ;;   :init (mu4e-marker-icons-mode 1))
 
 (require 'mu4e-org)
+
+(use-package mu4e-thread-folding
+  :quelpa
+  (mu4e-thread-folding
+   :fetcher
+   github
+   :repo
+   "rougier/mu4e-thread-folding"
+   )
+  :config
+  (add-to-list 'mu4e-header-info-custom
+               '(:empty . (:name "Qun Gu"
+                                 :shortname "GQ"
+                                 :function (lambda (msg) "  "))))
+  (setq mu4e-headers-fields '((:empty         .    2)
+                              (:human-date    .   12)
+                              (:flags         .    6)
+                              (:mailing-list  .   10)
+                              (:from          .   22)
+                              (:subject       .   nil)))
+  (define-key mu4e-headers-mode-map (kbd "<tab>")     'mu4e-headers-toggle-at-point)
+  (define-key mu4e-headers-mode-map (kbd "<left>")    'mu4e-headers-fold-at-point)
+  (define-key mu4e-headers-mode-map (kbd "<S-left>")  'mu4e-headers-fold-all)
+  (define-key mu4e-headers-mode-map (kbd "<right>")   'mu4e-headers-unfold-at-point)
+  (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
+  )
 
 (setq smtpmail-default-smtp-server "smtp.office365.com"
       smtpmail-smtp-server "smtp.office365.com"
