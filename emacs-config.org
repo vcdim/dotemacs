@@ -711,9 +711,10 @@
 #+end_src
 
 * 自动补全
-** smex
+** CANCEL smex
+CLOSED: [2021-02-26 Fri 21:26]
 Smart M-x
-#+begin_src elisp
+#+begin_src elisp :tangle no
   ;; (use-package smex)
 #+end_src
 
@@ -742,8 +743,10 @@ Smart M-x
 ** ivy-rich
 #+begin_src elisp
   (use-package ivy-rich
-    :after (counsel ivy)
-    :init (ivy-rich-mode 1)
+    :after
+    (counsel ivy)
+    :init
+    (ivy-rich-mode 1)
     )
 #+end_src
 
@@ -794,41 +797,45 @@ Smart M-x
 #+end_src
 
 ** ivy-posframe
-#+begin_src 
-     (use-package ivy-posframe
-       :init
-       (setq ivy-posframe-display-functions-alist
-	   '((swiper          . ivy-display-function-fallback)
-	     (complete-symbol . ivy-posframe-display-at-point)
-	     (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
-	     (t               . ivy-posframe-display)))
-       (ivy-posframe-mode 1)
-       )
+#+begin_src elisp 
+  (use-package ivy-posframe
+    :init
+    (setq ivy-posframe-display-functions-alist
+          '((swiper          . ivy-display-function-fallback)
+            (complete-symbol . ivy-posframe-display-at-point)
+            (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
+            (t               . ivy-posframe-display)))
+    (ivy-posframe-mode 1)
+    )
 #+end_src
 
 ** counsel
 #+begin_src elisp
-  (use-package counsel
-    :bind
-    (("M-x" . counsel-M-x)
-     ("C-x b" . counsel-ibuffer)
-     ("C-x C-f" . counsel-find-file)
-     :map minibuffer-local-map
-     ("C-r" . 'counsel-minibuffer-history))
-    ;; Don't start with ^
-    :config
-    (setq ivy-initial-inputs-alist nil)
-    :init
-    (setq counsel-find-file-ignore-regexp
-          (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)")))
+    (use-package counsel
+      :bind
+      (("M-x" . counsel-M-x)
+       ("C-x b" . counsel-ibuffer)
+       ("C-x C-f" . counsel-find-file)
+       :map minibuffer-local-map
+       ("C-r" . 'counsel-minibuffer-history))
+      ;; Don't start with ^
+      :config
+      (setq ivy-initial-inputs-alist nil)
+      :init
+      (setq counsel-find-file-ignore-regexp
+            (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)"))
+      )
 #+end_src
    
 ** which-key
 #+begin_src elisp
   (use-package which-key
-    :init (which-key-mode)
+    :init
+    (which-key-mode)
     :diminish
-    :config (setq which-key-idle-delay 0))
+    :config
+    (setq which-key-idle-delay 0)
+    )
 #+end_src
 
 ** helpful
@@ -841,7 +848,8 @@ Smart M-x
     ([remap describe-function] . counsel-describe-function)
     ([remap describe-command] . helpful-command)
     ([remap describe-variable] . counsel-describe-variable)
-    ([remap describe-key] . helpful-key))
+    ([remap describe-key] . helpful-key)
+    )
 #+end_src
 
 * 编程配置
@@ -861,7 +869,7 @@ Smart M-x
     )
 #+end_src
 
-*** counsel-projectile
+*** CANCEL counsel-projectile
 #+begin_src elisp :tangle no
   (use-package counsel-projectile
     :config
@@ -1260,6 +1268,7 @@ Smart M-x
     (setq org-indent-mode-turns-on-hiding-stars nil)
     (setq org-superstar-remove-leading-stars t)
     (setq org-superstar-item-bullet-alist '((45 . 8226) (43 . 9999) (42 . 9758)))
+    )
 #+end_src
 
 **** org-roam

@@ -480,8 +480,6 @@ loaded."
   :defer t
   :hook (org-mode . gq/org-mode-visual-fill))
 
-;; (use-package smex)
-
 (use-package ivy
   :diminish
   :bind
@@ -502,8 +500,10 @@ loaded."
   (ivy-mode 1))
 
 (use-package ivy-rich
-  :after (counsel ivy)
-  :init (ivy-rich-mode 1)
+  :after
+  (counsel ivy)
+  :init
+  (ivy-rich-mode 1)
   )
 
 (use-package ivy-bibtex
@@ -549,6 +549,16 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :bind (("C-x p" . ivy-bibtex-my-publications))
   )
 
+(use-package ivy-posframe
+  :init
+  (setq ivy-posframe-display-functions-alist
+        '((swiper          . ivy-display-function-fallback)
+          (complete-symbol . ivy-posframe-display-at-point)
+          (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
+          (t               . ivy-posframe-display)))
+  (ivy-posframe-mode 1)
+  )
+
 (use-package counsel
   :bind
   (("M-x" . counsel-M-x)
@@ -561,12 +571,16 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (setq ivy-initial-inputs-alist nil)
   :init
   (setq counsel-find-file-ignore-regexp
-        (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)")))
+        (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)"))
+  )
 
 (use-package which-key
-  :init (which-key-mode)
+  :init
+  (which-key-mode)
   :diminish
-  :config (setq which-key-idle-delay 0))
+  :config
+  (setq which-key-idle-delay 0)
+  )
 
 (use-package helpful
   :custom
@@ -576,7 +590,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   ([remap describe-function] . counsel-describe-function)
   ([remap describe-command] . helpful-command)
   ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
+  ([remap describe-key] . helpful-key)
+  )
 
 (use-package projectile
   :diminish projectile
@@ -840,6 +855,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (setq org-indent-mode-turns-on-hiding-stars nil)
   (setq org-superstar-remove-leading-stars t)
   (setq org-superstar-item-bullet-alist '((45 . 8226) (43 . 9999) (42 . 9758)))
+  )
 
 (use-package org-roam
   :hook (after-init . org-roam-mode)
