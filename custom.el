@@ -16,7 +16,7 @@
  '(highlight-indent-guides-method 'character)
  '(highlight-indent-guides-responsive 'stack)
  '(org-agenda-files
-   '("~/SynologyDrive/org/inbox.org" "~/SynologyDrive/org/habits.org" "~/SynologyDrive/org/birthdays.org"))
+   '("~/SynologyDrive/org/gcal.org" "~/SynologyDrive/org/inbox.org" "~/SynologyDrive/org/habits.org" "~/SynologyDrive/org/birthdays.org"))
  '(org-export-backends '(beamer html latex))
  '(org-file-apps
    '((directory . emacs)
@@ -32,5 +32,9 @@
    '("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))
  '(org-trello-current-prefix-keybinding "C-c o")
  '(package-selected-packages
-   '(zotxt mu4e-thread-folding quelpa-use-package company-emoji emojify osx-trash dired vterm evil-nerd-commenter company-box dired-hide-dotfiles counsel-projectile general sublime-themes modus-themes no-littering auto-package-update calfw-org calfw ghub powerthesaurus ranger org-pomodoro org-mime doct mu4e-overview mu4e-marker-icons ivy-posframe mu4e-alert mu4e-views mu4e org-pretty-tags ivy-bibtex base16-theme kaolin-themes centaur-tabs elpy yasnippet-snippets yasnippet highlight-indent-guides highlight-indent-guide dashboard pdf-view-restore org-noter-pdftools org-pdftools ibuffer-vc all-the-icons-ibuffer dired-narrow dired-ranger dired-subtree dired-rainbow dired-open dired-avfs dired-filter dired-list dired-collapse dired-hacks-utils dired+ company-capf company-mode company company-lsp which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode org2blog org-superstar org-roam-server org-kanban org-fancy-priorities org-download lsp-ui lsp-python-ms lsp-ivy helpful exec-path-from-shell doom-themes doom-modeline dap-mode counsel cnfonts auctex all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-dired))
+   '(lsp-origami origami org-gcal dash-at-point zotxt mu4e-thread-folding quelpa-use-package company-emoji emojify osx-trash dired vterm evil-nerd-commenter company-box dired-hide-dotfiles counsel-projectile general sublime-themes modus-themes no-littering auto-package-update calfw-org calfw ghub powerthesaurus ranger org-pomodoro org-mime doct mu4e-overview mu4e-marker-icons ivy-posframe mu4e-alert mu4e-views mu4e org-pretty-tags ivy-bibtex base16-theme kaolin-themes centaur-tabs elpy yasnippet-snippets yasnippet highlight-indent-guides highlight-indent-guide dashboard pdf-view-restore org-noter-pdftools org-pdftools ibuffer-vc all-the-icons-ibuffer dired-narrow dired-ranger dired-subtree dired-rainbow dired-open dired-avfs dired-filter dired-list dired-collapse dired-hacks-utils dired+ company-capf company-mode company company-lsp which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode org2blog org-superstar org-roam-server org-kanban org-fancy-priorities org-download lsp-ui lsp-python-ms lsp-ivy helpful exec-path-from-shell doom-themes doom-modeline dap-mode counsel cnfonts auctex all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-dired))
+ '(pos-tip-background-color "#E5E6DE")
+ '(pos-tip-foreground-color "#4b5254")
+ '(rustic-ansi-faces
+   ["#FDF6E3" "#dc322f" "#859900" "#b58900" "#268bd2" "#d33682" "#2aa198" "#556b72"])
  '(send-mail-function 'smtpmail-send-it))

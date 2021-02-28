@@ -108,12 +108,14 @@
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 
+(server-start)
+
 (use-package doom-themes
   :config
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-solarized-light t)
+  (load-theme 'doom-monokai-pro t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -283,7 +285,7 @@
   (setq cnfonts-profiles
         '("program" "org-mode" "read-book"))
   (setq cnfonts-personal-fontnames '(("Iosevka Comfy")
-                                     ()
+                                     ("Noto Sans SC")
                                      ()))
   (setq use-default-font-for-symbols nil)
   :bind
@@ -549,16 +551,6 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :bind (("C-x p" . ivy-bibtex-my-publications))
   )
 
-(use-package ivy-posframe
-  :init
-  (setq ivy-posframe-display-functions-alist
-        '((swiper          . ivy-display-function-fallback)
-          (complete-symbol . ivy-posframe-display-at-point)
-          (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
-          (t               . ivy-posframe-display)))
-  (ivy-posframe-mode 1)
-  )
-
 (use-package counsel
   :bind
   (("M-x" . counsel-M-x)
@@ -820,6 +812,10 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
          "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
         ("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
          "* %?\nEntered on %U\n%i")
+        ("p" "org-protocol" entry (file "~/SynologyDrive/org/inbox.org")
+         "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
+        ("l" "org-protocol link" entry (file "~/SynologyDrive/org/inbox.org")
+         "* [[%:link][%:description]] \nCaptured On: %U")
         ))
 
 (setq org-refile-targets '((nil :maxlevel . 9)
@@ -956,6 +952,14 @@ With a prefix ARG, remove start location."
 
 (require 'org-protocol)
 
+(use-package org-gcal
+  :config
+  (setq org-gcal-client-id "300647363607-0oii2qr3crbgfl50av1jmcb00pbgttrv.apps.googleusercontent.com"
+        org-gcal-client-secret "qmXjpjRB1MFmPnfc_xDqfGH4"
+        org-gcal-fetch-file-alist '(("davidguqun@gmail.com" .  "~/SynologyDrive/org/gcal.org")
+                                    ))
+  )
+
 (use-package lsp-python-ms
   :after
   lsp
@@ -1052,7 +1056,10 @@ With a prefix ARG, remove start location."
                                          (:maildir "/gmail/[Gmail]/Drafts" :key ?r)
                                          (:maildir "/gmail/Edria" :key ?e)
                                          )
-                                        )		
+                                        )
+                (smtpmail-smtp-user . "davidguqun@gmail.com")
+                (smtpmail-smtp-server . "smtp.gmail.com")
+                (smtpmail-smtp-service . 587)
                 )
         )
 
@@ -1073,6 +1080,8 @@ With a prefix ARG, remove start location."
                                          (:maildir "/outlook/Archive" :key ?a)
                                          (:maildir "/outlook/Drafts" :key ?r)
                                          (:maildir "/outlook/Edria" :key ?e)))
+                (smtpmail-smtp-server . "smtp.office365.com")
+                (smtpmail-smtp-service . 587)
                 )
         )
        )
@@ -1150,10 +1159,11 @@ With a prefix ARG, remove start location."
   (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
   )
 
-(setq smtpmail-default-smtp-server "smtp.office365.com"
-      smtpmail-smtp-server "smtp.office365.com"
-      smtpmail-smtp-service 587)
-
 (use-package vterm
   :commands
   vterm)
+
+(use-package dash-at-point
+  :config
+  (add-to-list 'dash-at-point-mode-alist'(python-mode . "python"))
+  )

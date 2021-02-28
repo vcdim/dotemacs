@@ -1,4 +1,3 @@
-
 #+TITLE: Emacs Configuration
 #+STARTUP: overview
 #+PROPERTY: header-args:elisp :tangle ./init.el
@@ -240,7 +239,10 @@
     (when (memq window-system '(mac ns x))
       (exec-path-from-shell-initialize)))
 #+end_src
-
+** 启动服务
+#+begin_src elisp
+  (server-start)
+#+end_src
 ** CANCEL 系统代理
 #+begin_src elisp :tangle no
   (setq url-proxy-services '(("http" . "127.0.0.1:7890")
@@ -256,7 +258,7 @@
     ;; Global settings (defaults)
     (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
           doom-themes-enable-italic t) ; if nil, italics is universally disabled
-    (load-theme 'doom-solarized-light t)
+    (load-theme 'doom-monokai-pro t)
 
     ;; Enable flashing mode-line on errors
     (doom-themes-visual-bell-config)
@@ -471,7 +473,7 @@
     (setq cnfonts-profiles
           '("program" "org-mode" "read-book"))
     (setq cnfonts-personal-fontnames '(("Iosevka Comfy")
-                                       ()
+                                       ("Noto Sans SC")
                                        ()))
     (setq use-default-font-for-symbols nil)
     :bind
@@ -797,7 +799,7 @@ Smart M-x
 #+end_src
 
 ** ivy-posframe
-#+begin_src elisp 
+#+begin_src elisp :tangle no
   (use-package ivy-posframe
     :init
     (setq ivy-posframe-display-functions-alist
@@ -1203,6 +1205,7 @@ Smart M-x
 | =%T=         | Time stamp as above, with date and time |
 | =%^{prompt}= | prompt & replace                        |
 | =%?=         | cursor position after completion        |
+| =%c=         | current kill ring head                  |
 |------------+-----------------------------------------|
 
 #+begin_src elisp
@@ -1218,9 +1221,12 @@ Smart M-x
            "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
           ("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
            "* %?\nEntered on %U\n%i")
+          ("p" "org-protocol" entry (file "~/SynologyDrive/org/inbox.org")
+           "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
+          ("l" "org-protocol link" entry (file "~/SynologyDrive/org/inbox.org")
+           "* [[%:link][%:description]] \nCaptured On: %U")
           ))
 #+end_src
-
 **** org-refile
 #+begin_src elisp
   (setq org-refile-targets '((nil :maxlevel . 9)
@@ -1391,6 +1397,16 @@ Smart M-x
   (require 'org-protocol)
 #+end_src
 
+**** org-gcal
+#+begin_src elisp
+  (use-package org-gcal
+    :config
+    (setq org-gcal-client-id "300647363607-0oii2qr3crbgfl50av1jmcb00pbgttrv.apps.googleusercontent.com"
+          org-gcal-client-secret "qmXjpjRB1MFmPnfc_xDqfGH4"
+          org-gcal-fetch-file-alist '(("davidguqun@gmail.com" .  "~/SynologyDrive/org/gcal.org")
+                                      ))
+    )
+#+end_src
 *** python
 
 **** lsp-python-ms
@@ -1536,7 +1552,10 @@ Smart M-x
                                            (:maildir "/gmail/[Gmail]/Drafts" :key ?r)
                                            (:maildir "/gmail/Edria" :key ?e)
                                            )
-                                          )		
+                                          )
+                  (smtpmail-smtp-user . "davidguqun@gmail.com")
+                  (smtpmail-smtp-server . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 587)
                   )
           )
 
@@ -1557,6 +1576,8 @@ Smart M-x
                                            (:maildir "/outlook/Archive" :key ?a)
                                            (:maildir "/outlook/Drafts" :key ?r)
                                            (:maildir "/outlook/Edria" :key ?e)))
+                  (smtpmail-smtp-server . "smtp.office365.com")
+                  (smtpmail-smtp-service . 587)
                   )
           )
          )
@@ -1650,16 +1671,18 @@ Smart M-x
     )
 #+end_src
 
-*** smtpmail
-#+begin_src elisp
-  (setq smtpmail-default-smtp-server "smtp.office365.com"
-        smtpmail-smtp-server "smtp.office365.com"
-        smtpmail-smtp-service 587)
-#+end_src
     
 ** vterm
 #+begin_src elisp
   (use-package vterm
     :commands
     vterm)
+#+end_src
+
+** dash
+#+begin_src elisp
+  (use-package dash-at-point
+    :config
+    (add-to-list 'dash-at-point-mode-alist'(python-mode . "python"))
+    )
 #+end_src
