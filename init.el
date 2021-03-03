@@ -125,30 +125,6 @@
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
-(use-package kaolin-themes
-  :config
-  ;;  (load-theme 'kaolin-dark t)
-  ;;  (kaolin-treemacs-theme)
-  )
-
-(use-package base16-theme
-  :config
-  ;;  (load-theme 'base16-default-dark t)
-  )
-
-(use-package modus-themes
-  :ensure
-  :init
-  ;; Add all your customizations prior to loading the themes
-  (setq modus-themes-slanted-constructs t
-        modus-themes-bold-constructs nil)
-
-  ;; Load the theme files before enabling a theme
-  (modus-themes-load-themes)
-  )
-
-(use-package sublime-themes)
-
 (column-number-mode)
 (global-display-line-numbers-mode t)
 (dolist
@@ -294,6 +270,7 @@
   :hook (after-init . global-emojify-mode))
 
 (use-package company-emoji
+  :after company
   :config
   (add-to-list 'company-backends 'company-emoji))
 

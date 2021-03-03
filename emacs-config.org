@@ -279,7 +279,7 @@
 #+end_src
 
 *** kaolin-themes
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package kaolin-themes
     :config
     ;;  (load-theme 'kaolin-dark t)
@@ -288,7 +288,7 @@
 #+end_src
 
 *** base16-themes
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package base16-theme
     :config
     ;;  (load-theme 'base16-default-dark t)
@@ -296,10 +296,9 @@
 #+end_src
 
 *** modus-themes
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package modus-themes
-    :ensure
-    :init
+    :config
     ;; Add all your customizations prior to loading the themes
     (setq modus-themes-slanted-constructs t
           modus-themes-bold-constructs nil)
@@ -310,7 +309,7 @@
 #+end_src
 
 *** sublime-themes
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (use-package sublime-themes)
 #+end_src
 
@@ -497,6 +496,7 @@
 ** company-emoji
 #+begin_src elisp
   (use-package company-emoji
+    :after company
     :config
     (add-to-list 'company-backends 'company-emoji))
 #+end_src
