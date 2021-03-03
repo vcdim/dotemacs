@@ -24,12 +24,6 @@
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 
-(unless (package-installed-p 'quelpa)
-  (with-temp-buffer
-    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-    (eval-buffer)
-    (quelpa-self-upgrade)))
-
 (quelpa
  '(quelpa-use-package
    :fetcher git
@@ -58,6 +52,8 @@
 (toggle-frame-maximized)
 
 (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
+
+(display-battery-mode t)
 
 (setq make-backup-files nil)
 
@@ -752,6 +748,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (setq org-src-fontify-natively t)
 
+(setq org-src-tab-acts-natively t)
+
 (setq org-hide-emphasis-markers t)
 
 (setq org-file-apps
@@ -854,17 +852,27 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   )
 
 (use-package org-roam
-  :hook (after-init . org-roam-mode)
-  :custom (org-roam-directory "~/SynologyDrive/org/roam/")
+  :hook
+  (after-init . org-roam-mode)
+  :custom
+  (org-roam-directory "~/SynologyDrive/org/roam/")
+  (org-roam-dailies-directory "~/SynologyDrive/org/daily/")
+
+  (setq org-roam-dailies-capture-templates
+        '(("d" "default" entry
+       #'org-roam-capture--get-point
+       "* %?"
+       :file-name "daily/%<%Y-%m-%d>"
+       :head "#+title: %<%Y-%m-%d>\n\n")))
   :bind
   (:map org-roam-mode-map
-        (("C-c n l" . org-roam)
-         ("C-c n f" . org-roam-find-file)
-         ("C-c n g" . org-roam-graph))
-        :map org-mode-map
-        (("C-c n i" . org-roam-insert)
-         ("C-c n I" . org-roam-insert-immediate))
-        ))
+   (("C-c n l" . org-roam)
+    ("C-c n f" . org-roam-find-file)
+    ("C-c n g" . org-roam-graph))
+   :map org-mode-map
+   (("C-c n i" . org-roam-insert)
+    ("C-c n I" . org-roam-insert-immediate))
+   ))
 
 (use-package org-roam-server
   :after org-roam
@@ -952,12 +960,30 @@ With a prefix ARG, remove start location."
 
 (require 'org-protocol)
 
+(require 'json)
+(defun get-gcal-config-value (key)
+  "Return the value of the json file gcal_secret for key"
+  (cdr (assoc key (json-read-file "~/.emacs.d/gcal-secret.json")))
+  )
 (use-package org-gcal
   :config
-  (setq org-gcal-client-id "300647363607-0oii2qr3crbgfl50av1jmcb00pbgttrv.apps.googleusercontent.com"
-        org-gcal-client-secret "qmXjpjRB1MFmPnfc_xDqfGH4"
+  (setq org-gcal-client-id (get-gcal-config-value 'org-gcal-client-id)
+        org-gcal-client-secret (get-gcal-config-value 'org-gcal-client-secret)
         org-gcal-fetch-file-alist '(("davidguqun@gmail.com" .  "~/SynologyDrive/org/gcal.org")
                                     ))
+  )
+
+(use-package org-journal
+  :init
+  (setq org-journal-prefix-key "C-c j ")
+  :config
+  (setq org-journal-file-type 'monthly)
+  (setq org-journal-file-format "%Y-%m.org")
+  (setq org-journal-dir "~/SynologyDrive/org/journal/")
+  (setq org-journal-date-format "%A, %d %B %Y")
+  (setq org-agenda-file-regexp "\\`\\\([^.].*\\.org\\\|[0-9]\\\{8\\\}\\\(\\.gpg\\\)?\\\)\\'")
+  (add-to-list 'org-agenda-files org-journal-dir)
+  (setq org-journal-enable-agenda-integration t)
   )
 
 (use-package lsp-python-ms
@@ -978,8 +1004,9 @@ With a prefix ARG, remove start location."
     'TeX-command-list
     '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))))
 
-(use-package auctex
-  :defer t)
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq-default TeX-master nil)
 
 (defun toggle-selective-display (column)
   (interactive "P")
@@ -1132,6 +1159,11 @@ With a prefix ARG, remove start location."
 ;;   :init (mu4e-marker-icons-mode 1))
 
 (require 'mu4e-org)
+
+(use-package mu4e-maildirs-extension
+  :config
+  (mu4e-maildirs-extension)
+  )
 
 (use-package mu4e-thread-folding
   :quelpa

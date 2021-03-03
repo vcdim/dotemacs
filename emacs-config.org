@@ -60,7 +60,7 @@
 #+end_src
    
 ** quelpa
-#+begin_src elisp
+#+begin_src elisp :tangle no
   (unless (package-installed-p 'quelpa)
     (with-temp-buffer
       (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
@@ -124,6 +124,11 @@
 ** 设置透明度
 #+begin_src elisp
   (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
+#+end_src
+
+** 显示电池用量
+#+begin_src elisp
+  (display-battery-mode t)
 #+end_src
 
 ** CANCEL 不显示菜单栏
@@ -1103,6 +1108,10 @@ Smart M-x
   (setq org-src-fontify-natively t)
 #+end_src
 
+***** Tab 按键行为
+#+begin_src elisp
+  (setq org-src-tab-acts-natively t)
+#+end_src
 ***** 隐藏标记符号
 #+begin_src elisp
   (setq org-hide-emphasis-markers t)
@@ -1280,17 +1289,27 @@ Smart M-x
 **** org-roam
 #+begin_src elisp
   (use-package org-roam
-    :hook (after-init . org-roam-mode)
-    :custom (org-roam-directory "~/SynologyDrive/org/roam/")
+    :hook
+    (after-init . org-roam-mode)
+    :custom
+    (org-roam-directory "~/SynologyDrive/org/roam/")
+    (org-roam-dailies-directory "~/SynologyDrive/org/daily/")
+
+    (setq org-roam-dailies-capture-templates
+          '(("d" "default" entry
+         #'org-roam-capture--get-point
+         "* %?"
+         :file-name "daily/%<%Y-%m-%d>"
+         :head "#+title: %<%Y-%m-%d>\n\n")))
     :bind
     (:map org-roam-mode-map
-          (("C-c n l" . org-roam)
-           ("C-c n f" . org-roam-find-file)
-           ("C-c n g" . org-roam-graph))
-          :map org-mode-map
-          (("C-c n i" . org-roam-insert)
-           ("C-c n I" . org-roam-insert-immediate))
-          ))
+     (("C-c n l" . org-roam)
+      ("C-c n f" . org-roam-find-file)
+      ("C-c n g" . org-roam-graph))
+     :map org-mode-map
+     (("C-c n i" . org-roam-insert)
+      ("C-c n I" . org-roam-insert-immediate))
+     ))
 #+end_src
 
 **** org-roam-server
@@ -1399,14 +1418,35 @@ Smart M-x
 
 **** org-gcal
 #+begin_src elisp
+  (require 'json)
+  (defun get-gcal-config-value (key)
+    "Return the value of the json file gcal_secret for key"
+    (cdr (assoc key (json-read-file "~/.emacs.d/gcal-secret.json")))
+    )
   (use-package org-gcal
     :config
-    (setq org-gcal-client-id "300647363607-0oii2qr3crbgfl50av1jmcb00pbgttrv.apps.googleusercontent.com"
-          org-gcal-client-secret "qmXjpjRB1MFmPnfc_xDqfGH4"
+    (setq org-gcal-client-id (get-gcal-config-value 'org-gcal-client-id)
+          org-gcal-client-secret (get-gcal-config-value 'org-gcal-client-secret)
           org-gcal-fetch-file-alist '(("davidguqun@gmail.com" .  "~/SynologyDrive/org/gcal.org")
                                       ))
     )
 #+end_src
+**** org-journal
+#+begin_src elisp
+  (use-package org-journal
+    :init
+    (setq org-journal-prefix-key "C-c j ")
+    :config
+    (setq org-journal-file-type 'monthly)
+    (setq org-journal-file-format "%Y-%m.org")
+    (setq org-journal-dir "~/SynologyDrive/org/journal/")
+    (setq org-journal-date-format "%A, %d %B %Y")
+    (setq org-agenda-file-regexp "\\`\\\([^.].*\\.org\\\|[0-9]\\\{8\\\}\\\(\\.gpg\\\)?\\\)\\'")
+    (add-to-list 'org-agenda-files org-journal-dir)
+    (setq org-journal-enable-agenda-integration t)
+    )
+#+end_src
+
 *** python
 
 **** lsp-python-ms
@@ -1442,8 +1482,9 @@ Smart M-x
 
 **** auctex
 #+begin_src elisp
-  (use-package auctex
-    :defer t)
+  (setq TeX-auto-save t)
+  (setq TeX-parse-self t)
+  (setq-default TeX-master nil)
 #+end_src
 
 ** 折叠
@@ -1476,7 +1517,6 @@ Smart M-x
     ("M-/" . evilnc-comment-or-uncomment-lines)
     )
 #+end_src
-
 * 常用工具
 ** doc-view
 #+begin_src elisp
@@ -1642,6 +1682,13 @@ Smart M-x
   (require 'mu4e-org)
 #+end_src
 
+*** mu4e-maildirs-extension
+#+begin_src elisp
+  (use-package mu4e-maildirs-extension
+    :config
+    (mu4e-maildirs-extension)
+    )
+#+end_src
 *** mu4e-thread-folding
 #+begin_src elisp
   (use-package mu4e-thread-folding
@@ -1670,7 +1717,6 @@ Smart M-x
     (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
     )
 #+end_src
-
     
 ** vterm
 #+begin_src elisp
