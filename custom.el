@@ -11,7 +11,6 @@
  ;; If there is more than one, they won't work right.
  '(ansi-color-faces-vector
    [default default default italic underline success warning error])
- '(centaur-tabs-mode t nil (centaur-tabs))
  '(highlight-indent-guides-delay 0)
  '(highlight-indent-guides-method 'character)
  '(highlight-indent-guides-responsive 'stack)
@@ -30,9 +29,8 @@
      ("\\.png?\\'" . system)))
  '(org-latex-pdf-process
    '("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))
- '(org-trello-current-prefix-keybinding "C-c o")
  '(package-selected-packages
-   '(org-journal company-auctex mu4e-maildirs-extension lsp-origami origami org-gcal dash-at-point zotxt mu4e-thread-folding quelpa-use-package company-emoji emojify osx-trash dired vterm evil-nerd-commenter company-box dired-hide-dotfiles counsel-projectile general sublime-themes modus-themes no-littering auto-package-update calfw-org calfw ghub powerthesaurus ranger org-pomodoro org-mime doct mu4e-overview mu4e-marker-icons ivy-posframe mu4e-alert mu4e-views mu4e org-pretty-tags ivy-bibtex base16-theme kaolin-themes centaur-tabs elpy yasnippet-snippets yasnippet highlight-indent-guides highlight-indent-guide dashboard pdf-view-restore org-noter-pdftools org-pdftools ibuffer-vc all-the-icons-ibuffer dired-narrow dired-ranger dired-subtree dired-rainbow dired-open dired-avfs dired-filter dired-list dired-collapse dired-hacks-utils dired+ company-capf company-mode company company-lsp which-key use-package treemacs-projectile treemacs-magit treemacs-icons-dired smex rainbow-delimiters pyenv-mode org2blog org-superstar org-roam-server org-kanban org-fancy-priorities org-download lsp-ui lsp-python-ms lsp-ivy helpful exec-path-from-shell doom-themes doom-modeline dap-mode counsel cnfonts auctex all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-dired))
+   '(dired emacs-color-themes zotxt yasnippet-snippets which-key vterm visual-fill-column treemacs-projectile treemacs-magit treemacs-icons-dired sublime-themes smex ranger rainbow-delimiters quelpa-use-package pyenv-mode powerthesaurus pdf-view-restore osx-trash org2blog org-trello org-superstar org-super-agenda org-roam-server org-pretty-tags org-pomodoro org-noter-pdftools org-mime org-kanban org-journal org-gcal org-fancy-priorities org-download no-littering mu4e-views mu4e-thread-folding mu4e-overview mu4e-marker-icons mu4e-maildirs-extension mu4e-alert modus-themes memoize lsp-ui lsp-python-ms lsp-origami lsp-ivy kaolin-themes ivy-posframe ivy-bibtex ibuffer-vc highlight-indent-guides helpful ghub general exec-path-from-shell evil-nerd-commenter emojify elpy doom-themes doom-modeline doct dired-single dired-hide-dotfiles dayone dashboard dash-at-point dap-mode counsel-projectile company-lsp company-emoji company-box company-auctex cnfonts centaur-tabs calfw-org calfw base16-theme auto-package-update all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-ibuffer all-the-icons-dired))
  '(pos-tip-background-color "#E5E6DE")
  '(pos-tip-foreground-color "#4b5254")
  '(rustic-ansi-faces

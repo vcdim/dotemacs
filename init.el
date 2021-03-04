@@ -24,12 +24,6 @@
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 
-(quelpa
- '(quelpa-use-package
-   :fetcher git
-   :url "https://github.com/quelpa/quelpa-use-package.git"))
-(require 'quelpa-use-package)
-
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
@@ -54,6 +48,8 @@
 (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
 
 (display-battery-mode t)
+
+(menu-bar-mode -1)
 
 (setq make-backup-files nil)
 
@@ -93,6 +89,7 @@
 (setenv "LC_CTYPE" "en_US.UTF-8")
 
 (use-package osx-trash
+  :defer t
   :config
   (when (eq system-type 'darwin)
     (osx-trash-setup))
@@ -147,24 +144,30 @@
 (set-default 'truncate-lines t)
 
 (use-package all-the-icons
-  :after cnfonts
-  :if (display-graphic-p)
-  :hook (dired-mode . all-the-icons-dired-mode)
+  :after
+  cnfonts
+  :if
+  (display-graphic-p)
+  :hook
+  (dired-mode . all-the-icons-dired-mode)
   )
 
 (use-package all-the-icons-ivy
-  :init (add-hook 'after-init-hook 'all-the-icons-ivy-setup)
-  :after (all-the-icons ivy)
+  :after
+  (all-the-icons ivy)
+  :hook
+  (after-init . all-the-icons-ivy-setup)
   )
 
 (use-package all-the-icons-ivy-rich
-  :init (all-the-icons-ivy-rich-mode 1)
   :after (all-the-icons ivy-rich)
+  :config (all-the-icons-ivy-rich-mode 1)
   )
 
 (use-package all-the-icons-ibuffer
-  :init (all-the-icons-ibuffer-mode 1)
+  :defer t
   :after (all-the-icons ibuffer)
+  :config (all-the-icons-ibuffer-mode 1)
   )
 
 (use-package all-the-icons-dired
@@ -267,6 +270,7 @@
   )
 
 (use-package emojify
+  :defer t
   :hook (after-init . global-emojify-mode))
 
 (use-package company-emoji
@@ -274,8 +278,11 @@
   :config
   (add-to-list 'company-backends 'company-emoji))
 
-(use-package highlight-indent-guides 
-  :config (add-hook 'prog-mode-hook 'highlight-indent-guides-mode))
+(use-package highlight-indent-guides
+  :defer t
+  :hook
+  (prog-mode . highlight-indent-guides-mode)
+  )
 
 (use-package treemacs
   :defer t
@@ -344,21 +351,26 @@
         ("C-x t M-t" . treemacs-find-tag)))
 
 (use-package treemacs-projectile
-  :after treemacs projectile)
+  :after
+  (treemacs projectile)
+  )
 
 (use-package treemacs-magit
-  :after treemacs magit)
+  :after
+  (treemacs magit)
+  )
 
 (use-package centaur-tabs
+  :defer t
   :load-path "~/.emacs.d/other/centaur-tabs"
   :config
   (setq centaur-tabs-style "wave"
-        centaur-tabs-height 40
-        centaur-tabs-set-icons t
-        centaur-tabs-set-modified-marker t
-        centaur-tabs-show-navigation-buttons t
-        centaur-tabs-set-bar 'under
-        x-underline-at-descent-line t)
+	centaur-tabs-height 40
+	centaur-tabs-set-icons t
+	centaur-tabs-set-modified-marker t
+	centaur-tabs-show-navigation-buttons t
+	centaur-tabs-set-bar 'under
+	x-underline-at-descent-line t)
   (centaur-tabs-headline-match)
 
   (setq centaur-tabs-gray-out-icons 'buffer)
@@ -381,39 +393,38 @@
   ("C-c t g" . centaur-tabs-group-buffer-groups)
   )
 
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-(use-package ibuffer-vc)
+(use-package ibuffer-vc
+  :defer t)
 
 (use-package dired
   :ensure
-  nil
+  nil                                        ;; dired mode is not on melpa
+  :defer t
   :commands
   (dired dired-jump)
   :custom
   ((dired-listing-swithes "-agho --group-directories-first")
    (counsel-dired-listing-swithes "-agho --group-directories-first"))
   :config
-  (setq dired-guess-shell-alist-user '(("\\.pdf\\'" "open")
-                                       ("\\.doc\\'" "open")
-                                       ("\\.docx\\'" "open")
-                                       ("\\.ppt\\'" "open")
-                                       ("\\.pptx\\'" "open")
-                                       ("\\.xls\\'" "open")))
-  (add-hook 'dired-load-hook
-            (lambda ()
-              (setq dired-x-hands-off-my-keys nil)
-              (load "dired-x")
-              ;; Set dired-x global variables here.  For example:
-              ;; (setq dired-guess-shell-gnutar "gtar")
-              ))
-  (add-hook 'dired-mode-hook
-            (lambda ()
-              ;; Set dired-x buffer-local variables here.  For example:
-              ;; (dired-omit-mode 1)
-              ))
+  (setq dired-guess-shell-alist-user
+	'(("\\.pdf\\'" "open")
+	  ("\\.doc\\'" "open")
+	  ("\\.docx\\'" "open")
+	  ("\\.ppt\\'" "open")
+	  ("\\.pptx\\'" "open")
+	  ("\\.xls\\'" "open")
+	  ("\\.xlsx\\'" "open")))
+  (when (string= system-type "darwin")       
+    (setq dired-use-ls-dired nil))
+  ;; :hook
+  ;; (dired-load . (lambda ()
+  ;; 		  (setq dired-x-hands-off-my-keys nil)
+  ;; 		  (load "dired-x")))
   )
 
 (use-package dired-single
+  :after dired
+  :defer t
   :config
   (defun my-dired-init ()
     "Bunch of stuff to run for dired, either immediately or when it's
@@ -435,6 +446,7 @@ loaded."
   )
 
 (use-package dired-hide-dotfiles
+  :defer t
   :config
   (defun my-dired-mode-hook ()
     "My `dired' mode hook."
@@ -443,7 +455,8 @@ loaded."
 
   ;; To toggle hiding
   (define-key dired-mode-map "." #'dired-hide-dotfiles-mode)
-  (add-hook 'dired-mode-hook #'my-dired-mode-hook)
+  :hook
+  (dired-mode . my-dired-mode-hook)
   )
 
 (defun gq/org-mode-visual-fill ()
@@ -475,37 +488,40 @@ loaded."
   (ivy-mode 1))
 
 (use-package ivy-rich
+  :defer t
   :after
   (counsel ivy)
-  :init
+  :config
   (ivy-rich-mode 1)
   )
 
 (use-package ivy-bibtex
-  :init
+  :defer t
+  :after ivy
+  :config
   (setq ivy-re-builders-alist
-        '((ivy-bibtex . ivy--regex-ignore-order)
-          (t . ivy--regex-plus)))
+	'((ivy-bibtex . ivy--regex-ignore-order)
+	  (t . ivy--regex-plus)))
   (setq bibtex-completion-bibliography
-        '("~/SynologyDrive/Library/bib/mybib.bib"))
+	'("~/SynologyDrive/Library/bib/mybib.bib"))
   (setq bibtex-completion-library-path
-        '("~/SynologyDrive/Library/pdf"))
+	'("~/SynologyDrive/Library/pdf"))
   (setq bibtex-completion-pdf-field "File")
   (setq bibtex-completion-notes-path "~/SynologyDrive/Library/notes")
   (setq bibtex-completion-display-formats
-        '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
-          (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
-          (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-          (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-          (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
+	'((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
+	  (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+	  (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	  (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+	  (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
   (setq bibtex-completion-pdf-symbol "⌘")
   (setq bibtex-completion-notes-symbol "✎")
   (setq bibtex-completion-pdf-extension '(".pdf" ".djvu"))
   (setq bibtex-completion-format-citation-functions
-        '((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
-          (latex-mode    . bibtex-completion-format-citation-cite)
-          (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
-          (default       . bibtex-completion-format-citation-default)))  
+	'((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
+	  (latex-mode    . bibtex-completion-format-citation-cite)
+	  (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+	  (default       . bibtex-completion-format-citation-default)))  
   (defun ivy-bibtex-my-publications (&optional arg)
     "Search BibTeX entries authored by “Jane Doe”.
 
@@ -515,10 +531,10 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
       (bibtex-completion-clear-cache))
     (bibtex-completion-init)
     (ivy-read "BibTeX Items: "
-              (bibtex-completion-candidates)
-              :initial-input "Jane Doe"
-              :caller 'ivy-bibtex
-              :action ivy-bibtex-default-action))
+	      (bibtex-completion-candidates)
+	      :initial-input "Jane Doe"
+	      :caller 'ivy-bibtex
+	      :action ivy-bibtex-default-action))
 
   ;; Bind this search function to Ctrl-x p:
   :bind (("C-x p" . ivy-bibtex-my-publications))
@@ -527,27 +543,26 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (use-package counsel
   :bind
   (("M-x" . counsel-M-x)
-   ("C-x b" . counsel-ibuffer)
    ("C-x C-f" . counsel-find-file)
    :map minibuffer-local-map
    ("C-r" . 'counsel-minibuffer-history))
   ;; Don't start with ^
   :config
   (setq ivy-initial-inputs-alist nil)
-  :init
   (setq counsel-find-file-ignore-regexp
-        (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)"))
+	(concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)"))
   )
 
 (use-package which-key
-  :init
-  (which-key-mode)
+  :defer t
   :diminish
   :config
+  (which-key-mode)
   (setq which-key-idle-delay 0)
   )
 
 (use-package helpful
+  :defer t
   :custom
   (counsel-describe-function-function #'helpful-callable)
   (counsel-describe-variable-function #'helpful-variable)
@@ -559,15 +574,15 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   )
 
 (use-package projectile
-  :diminish projectile
+  :diminish
+  projectile
   :config
   (projectile-mode)
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :init
   (when (file-directory-p "~/projects")
     (setq projectile-project-search-path '("~/projects")))
   (setq projectile-switch-project-action #'projectile-dired)
+  :bind-keymap
+  ("C-c p" . projectile-command-map)
   )
 
 (defun gq/setup-lsp-mode ()
@@ -581,12 +596,19 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :hook
   ((python-mode . lsp)
    (lsp-mode . gq/setup-lsp-mode))
-  :init (setq lsp-keymap-prefix "C-c l"))
+  :config
+  (setq lsp-keymap-prefix "C-c l"))
 
 (use-package lsp-ivy
-  :commands lsp-ivy-workspace-symbol)
+  :defer
+  t
+  :commands
+  lsp-ivy-workspace-symbol
+  )
 
 (use-package lsp-ui
+  :defer
+  t
   :custom
   (lsp-ui-imenu-enable t)
 
@@ -611,22 +633,24 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (defun ladicle/toggle-lsp-ui-doc ()
     (interactive)
     (if lsp-ui-doc-mode
-        (progn
-          (lsp-ui-doc-mode -1)
-          (lsp-ui-doc--hide-frame))
+	(progn
+	  (lsp-ui-doc-mode -1)
+	  (lsp-ui-doc--hide-frame))
       (lsp-ui-doc-mode 1)))
   :bind
   (:map lsp-mode-map
-        ("C-c C-r" . lsp-ui-peek-find-references)
-        ("C-c C-j" . lsp-ui-peek-find-definitions)
-        ("C-c i" . lsp-ui-peek-find-definitions)
-        ("C-c m" . lsp-ui-imenu)
-        ("C-c s" . lsp-ui-sideline-mode)
-        ("C-c d"   . ladicle/toggle-lsp-ui-doc))
+	("C-c C-r" . lsp-ui-peek-find-references)
+	("C-c C-j" . lsp-ui-peek-find-definitions)
+	("C-c i" . lsp-ui-peek-find-definitions)
+	("C-c m" . lsp-ui-imenu)
+	("C-c s" . lsp-ui-sideline-mode)
+	("C-c d"   . ladicle/toggle-lsp-ui-doc))
   :hook
   (lsp-mode . lsp-ui-mode))
 
 (use-package lsp-treemacs
+  :defer
+  t
   :after
   lsp
   )
@@ -649,16 +673,24 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   )
 
 (use-package company-box
+  :defer
+  t
   :hook
   (company-mode . company-box-mode))
 
 (use-package yasnippet
-  :init
+  :defer
+  t
+  :config
   (yas-global-mode 1))
 
-(use-package yasnippet-snippets)
+(use-package yasnippet-snippets
+  :defer
+  t
+  )
 
 (use-package dap-mode
+  :defer t
   :commands
   dap-debug
   :bind
@@ -671,12 +703,14 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   ((python-mode . dap-mode)
    (python-mode . dap-ui-mode))
   :config
-  (require 'dap-python)  
+  ;; (require 'dap-python)  
   (setq dap-auto-configure-features '(sessions breakpoints locals controls tooltip repl))
-  (dap-ui-mode 1)
-  (dap-tooltip-mode 1)
-  (tooltip-mode 1)
-  (dap-ui-controls-mode 1))
+  ;; (dap-ui-mode 1)
+  ;; (dap-tooltip-mode 1)
+  ;; (tooltip-mode 1)
+  ;; (dap-ui-controls-mode 1)
+  ;; )
+  )
 
 (use-package magit
   :commands
@@ -687,92 +721,107 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   ("C-x g" . magit-status)
   )
 
-(setq org-support-shift-select 1)
+(defun gq/org-mode-setup ()
+  (org-indent-mode)
+  (visual-line-mode 1)
 
-(add-hook 'org-mode-hook 'org-indent-mode)
+  ;; 待办事项图标
+  (lambda ()
+    "Beautify Org Checkbox Symbol"
+    (push '("[ ]" . "☐") prettify-symbols-alist)
+    (push '("[X]" . "☑") prettify-symbols-alist)
+    (push '("[-]" . "❍") prettify-symbols-alist)
+    (prettify-symbols-mode))
+  )
+(use-package org
+  :ensure nil
+  :defer t
+  :hook
+  (org-mode . gq/org-mode-setup)
+  :config
+  (with-eval-after-load 'org
+    (setq org-support-shift-select 1)     ;; 用 shift 进行选择
 
-(defun insert-zero-width-space () (interactive) (insert-char #x200b))
-(defun my-latex-filter-zws (text backend info)
-  (when (org-export-derived-backend-p backend 'latex)
-    (replace-regexp-in-string "\x200B" "{}" text)))
-(global-set-key (kbd "C-*") 'insert-zero-width-space)
 
-(global-set-key (kbd "C-c l") 'org-store-link)
-(global-set-key (kbd "C-c a") 'org-agenda)
-(global-set-key (kbd "C-c c") 'org-capture)
+    ;; 定义零宽字符与它的快捷键
+    (defun insert-zero-width-space () (interactive) (insert-char #x200b))
+    (defun my-latex-filter-zws (text backend info)
+      (when (org-export-derived-backend-p backend 'latex)
+        (replace-regexp-in-string "\x200B" "{}" text)))
+    (global-set-key (kbd "C-*") 'insert-zero-width-space)
 
-(require 'org-tempo)
-(add-to-list 'org-structure-template-alist '("el" . "src elisp"))
-(add-to-list 'org-structure-template-alist '("py" . "src python"))
-(add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+    ;; 快捷代码块
+    (require 'org-tempo)
+    (add-to-list 'org-structure-template-alist '("el" . "src elisp"))
+    (add-to-list 'org-structure-template-alist '("py" . "src python"))
+    (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 
-(defface org-checkbox-done-text
-  '((t (:foreground "#71696A" :strike-through t)))
-  "Face for the text part of a checked org-mode checkbox.")
-(font-lock-add-keywords
- 'org-mode
- `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
-    1 'org-checkbox-done-text prepend)) 'append)
+    ;; 待办事项完成之后显示删除线
+    (defface org-checkbox-done-text
+      '((t (:foreground "#71696A" :strike-through t)))
+      "Face for the text part of a checked org-mode checkbox.")
+    (font-lock-add-keywords
+     'org-mode
+     `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+        1 'org-checkbox-done-text prepend)) 'append)
 
-(add-hook 'org-mode-hook (lambda ()
-                           "Beautify Org Checkbox Symbol"
-                           (push '("[ ]" . "☐") prettify-symbols-alist)
-                           (push '("[X]" . "☑") prettify-symbols-alist)
-                           (push '("[-]" . "❍") prettify-symbols-alist)
-                           (prettify-symbols-mode)))
+    ;; 省略号自定义
+    (setq org-ellipsis " ↴ ")
+    ;; 源代码原生字体
+    (setq org-src-fontify-natively t)
+    ;; Tab 按键行为
+    (setq org-src-tab-acts-natively t)
+    ;; 隐藏标记符号
+    (setq org-hide-emphasis-markers t)
+    ;; 打开文件方式自定义
+    (setq org-file-apps
+          '(("\\.pdf\\'" . (lambda (file link) (org-pdftools-open link)))
+            (directory . emacs)
+            (auto-mode . emacs)
+            ("\\.mm\\'" . default)
+            ("\\.x?html?\\'" . default)
+            ("\\.pptx?\\'" . system)
+            ("\\.docx?\\'" . system)
+            ("\\.xlsx?\\'" . system)
+            ("\\.png?\\'" . system)))
+    ;; 待办事项状态
+    (setq org-todo-keywords
+          '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)" "CANCEL(c)")))
+    (setq org-todo-keyword-faces
+          '(("TODO" . (:foreground "red" :weight bold))
+            ("NEXT" . "#E35DBF")
+            ("DONE" . (:foreground "#1AA260" :weight bold))
+            ("CANCEL" . (:foreground "#888888")))
+          )
+    ;; 记录时间戳
+    (setq org-agenda-start-with-log-mode t)
+    (setq org-log-done 'time)
+    (setq org-log-into-drawer t)
+    ;; 标签预定义
+    (setq org-tag-alist
+          '((:startgroup)
+            (:endgroup)
+            ("outlook" . ?o)
+            ("gmail" . ?g)
+            )
+          )
+    )
+  )
 
-(setq org-ellipsis " ↴ ")
-
-(setq org-src-fontify-natively t)
-
-(setq org-src-tab-acts-natively t)
-
-(setq org-hide-emphasis-markers t)
-
-(setq org-file-apps
-      '(("\\.pdf\\'" . (lambda (file link) (org-pdftools-open link)))
-        (directory . emacs)
-        (auto-mode . emacs)
-        ("\\.mm\\'" . default)
-        ("\\.x?html?\\'" . default)
-        ("\\.pptx?\\'" . system)
-        ("\\.docx?\\'" . system)
-        ("\\.xlsx?\\'" . system)
-        ("\\.png?\\'" . system)))
-
-(setq org-todo-keywords
-      '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)" "CANCEL(c)")))
-(setq org-todo-keyword-faces
-      '(("TODO" . (:foreground "red" :weight bold))
-        ("NEXT" . "#E35DBF")
-        ("DONE" . (:foreground "#1AA260" :weight bold))
-        ("CANCEL" . (:foreground "#888888")))
-      )
-
-(setq org-agenda-start-with-log-mode t)
-(setq org-log-done 'time)
-(setq org-log-into-drawer t)
-
-(setq org-tag-alist
-      '((:startgroup)
-        (:endgroup)
-        ("outlook" . ?o)
-        ("gmail" . ?g)
-        )
-      )
-
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((emacs-lisp . t)
-   (python . t)))
-(setq org-confirm-babel-evaluate nil)
+(with-eval-after-load 'org
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)))
+  (setq org-confirm-babel-evaluate nil)
+  )
 
 (use-package org-pomodoro
   :commands org-pomodoro
   )
 
 (use-package org-pretty-tags
-  :after orgmode
+  :defer t
   )
 
 (setq org-capture-templates
@@ -800,7 +849,6 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (use-package org2blog
   :commands (org2blog-user-interface)
-  :after org
   :config
   (setq org2blog/wp-blog-alist
         '(("myblog"
@@ -809,14 +857,16 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   )
 
 (use-package org-download
-  :commands org)
+  :defer t)
 
 (use-package org-kanban
   :commands org-kanban)
 
 (use-package org-superstar
+  :defer t
+  :hook
+  (org-mode . org-superstar-mode)
   :config
-  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1)))
   ;; This is usually the default, but keep in mind it must be nil
   (setq org-hide-leading-stars nil)
   ;; This line is necessary.
@@ -829,29 +879,30 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   )
 
 (use-package org-roam
-  :hook
-  (after-init . org-roam-mode)
+  :commands
+  (org-roam org-roam-find-file org-roam-graph)
   :custom
   (org-roam-directory "~/SynologyDrive/org/roam/")
   (org-roam-dailies-directory "~/SynologyDrive/org/daily/")
 
   (setq org-roam-dailies-capture-templates
         '(("d" "default" entry
-       #'org-roam-capture--get-point
-       "* %?"
-       :file-name "daily/%<%Y-%m-%d>"
-       :head "#+title: %<%Y-%m-%d>\n\n")))
+           #'org-roam-capture--get-point
+           "* %?"
+           :file-name "daily/%<%Y-%m-%d>"
+           :head "#+title: %<%Y-%m-%d>\n\n")))
   :bind
   (:map org-roam-mode-map
-   (("C-c n l" . org-roam)
-    ("C-c n f" . org-roam-find-file)
-    ("C-c n g" . org-roam-graph))
-   :map org-mode-map
-   (("C-c n i" . org-roam-insert)
-    ("C-c n I" . org-roam-insert-immediate))
-   ))
+        (("C-c n l" . org-roam)
+         ("C-c n f" . org-roam-find-file)
+         ("C-c n g" . org-roam-graph))
+        :map org-mode-map
+        (("C-c n i" . org-roam-insert)
+         ("C-c n I" . org-roam-insert-immediate))
+        ))
 
 (use-package org-roam-server
+  :defer t
   :after org-roam
   :config
   (setq org-roam-server-host "127.0.0.1"
@@ -875,13 +926,14 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
           (?1 . "⚡")(?2 . "⮬")(?3 . "⮮")(?4 . "☕")(?I . "important"))))
 
 (use-package org-noter
-  :config
-  (require 'org-noter-pdftools))
+  :defer t
+  )
 
 (use-package org-pdftools
   :hook (org-mode . org-pdftools-setup-link))
 
 (use-package org-noter-pdftools
+  :defer t
   :after org-noter
   :config
   ;; Add a function to ensure precise note is inserted
@@ -915,6 +967,7 @@ With a prefix ARG, remove start location."
     (add-hook 'pdf-annot-activate-handler-functions #'org-noter-pdftools-jump-to-note)))
 
 (use-package org-super-agenda
+  :defer t
   :config
   (setq org-super-agenda-groups
         '((:name "Next Items"
@@ -927,33 +980,36 @@ With a prefix ARG, remove start location."
           (:priority<= "B"
                        :scheduled future
                        :order 1)))
-  :after
-  org
+
   )
 
 (use-package org-mime
-  :after org
+  :defer t
   )
 
-(require 'org-protocol)
-
-(require 'json)
-(defun get-gcal-config-value (key)
-  "Return the value of the json file gcal_secret for key"
-  (cdr (assoc key (json-read-file "~/.emacs.d/gcal-secret.json")))
+(with-eval-after-load 'org
+  (require 'org-protocol)
   )
+
 (use-package org-gcal
+  :defer t
   :config
+  (require 'json)
+  (defun get-gcal-config-value (key)
+    "Return the value of the json file gcal_secret for key"
+    (cdr (assoc key (json-read-file "~/.emacs.d/gcal-secret.json")))
+    )
   (setq org-gcal-client-id (get-gcal-config-value 'org-gcal-client-id)
         org-gcal-client-secret (get-gcal-config-value 'org-gcal-client-secret)
-        org-gcal-fetch-file-alist '(("davidguqun@gmail.com" .  "~/SynologyDrive/org/gcal.org")
-                                    ))
+        org-gcal-fetch-file-alist
+        '(("davidguqun@gmail.com" .  "~/SynologyDrive/org/gcal.org")
+          ))
   )
 
 (use-package org-journal
-  :init
-  (setq org-journal-prefix-key "C-c j ")
+  :defer t
   :config
+  (setq org-journal-prefix-key "C-c j ")
   (setq org-journal-file-type 'monthly)
   (setq org-journal-file-format "%Y-%m.org")
   (setq org-journal-dir "~/SynologyDrive/org/journal/")
@@ -964,12 +1020,14 @@ With a prefix ARG, remove start location."
   )
 
 (use-package lsp-python-ms
-  :after
-  lsp
-  :init (setq lsp-python-ms-auto-install-server t)
+  :defer
+  t
+  :config
+  (setq lsp-python-ms-auto-install-server t)
   :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
 
 (use-package pyenv-mode
+  :defer t
   )
 
 (require 'dap-python)
@@ -1004,6 +1062,7 @@ With a prefix ARG, remove start location."
 (add-hook 'prog-mode-hook #'hs-minor-mode)
 
 (use-package evil-nerd-commenter
+  :defer t
   :bind
   ("M-/" . evilnc-comment-or-uncomment-lines)
   )
@@ -1011,6 +1070,7 @@ With a prefix ARG, remove start location."
 (setq doc-view-resolution 200)
 
 (use-package calfw
+  :defer t
   :commands
   (cfw:open-org-calendar)
   :config
@@ -1019,6 +1079,7 @@ With a prefix ARG, remove start location."
   )
 
 (use-package powerthesaurus
+  :defer t
   :commands
   (powerthesaurus-lookup-word-at-point))
 
@@ -1027,83 +1088,92 @@ With a prefix ARG, remove start location."
   :commands (pdf-view-mode pdf-tools-install)
   :mode ("\\.[pP][dD][fF]" . pdf-view-mode)
   :magic ("%PDF" . pdf-view-mode)
-  :config (pdf-tools-install :no-query)
+  ;; :config (pdf-tools-install :no-query)
   )
 
 (use-package pdf-view-restore
+  :defer t
   :after pdf-tools
   :config
   (add-hook 'pdf-view-mode-hook 'pdf-view-restore-mode))
 
-(use-package zotxt)
+(use-package zotxt
+  :defer t)
 
-(add-to-list 'load-path "/usr/local/Cellar/mu/1.4.14/share/emacs/site-lisp/mu/mu4e")
-(require 'mu4e)
-(setq mu4e-change-filenames-when-moving t)
-(setq mu4e-contexts
-      (list
-       ;; Gmail account
-       (make-mu4e-context
-        :name "gmail"
-        :vars '((mu4e-maildir . "~/.mail/gmail/")
-                (user-mail-address . "davidguqun@gmail.com")
-                (user-full-name    . "Qun Gu")
-                (mu4e-drafts-folder  . "/gmail/[Gmail]/Drafts")
-                (mu4e-sent-folder  . "/gmail/[Gmail]/Sent Mail")
-                (mu4e-refile-folder  . "/gmail/[Gmail]/All Mail")
-                (mu4e-trash-folder  . "/gmail/[Gmail]/Trash")
-                (mu4e-maildir-shortcuts . 
-                                        ((:maildir "/gmail/Inbox" :key ?i)
-                                         (:maildir "/gmail/[Gmail]/Sent Mail" :key ?s)
-                                         (:maildir "/gmail/[Gmail]/Trash" :key ?d)
-                                         (:maildir "/gmail/[Gmail]/All Mail" :key ?a)
-                                         (:maildir "/gmail/[Gmail]/Drafts" :key ?r)
-                                         (:maildir "/gmail/Edria" :key ?e)
-                                         )
-                                        )
-                (smtpmail-smtp-user . "davidguqun@gmail.com")
-                (smtpmail-smtp-server . "smtp.gmail.com")
-                (smtpmail-smtp-service . 587)
-                )
+(use-package mu4e
+  :defer t
+  :commands
+  (mu4e)
+  :ensure nil
+  :config
+  (add-to-list 'load-path "/usr/local/Cellar/mu/1.4.14/share/emacs/site-lisp/mu/mu4e")
+  (require 'mu4e)
+  (setq mu4e-change-filenames-when-moving t)
+  (setq mu4e-contexts
+        (list
+         ;; Gmail account
+         (make-mu4e-context
+          :name "gmail"
+          :vars '((mu4e-maildir . "~/.mail/gmail/")
+                  (user-mail-address . "davidguqun@gmail.com")
+                  (user-full-name    . "Qun Gu")
+                  (mu4e-drafts-folder  . "/gmail/[Gmail]/Drafts")
+                  (mu4e-sent-folder  . "/gmail/[Gmail]/Sent Mail")
+                  (mu4e-refile-folder  . "/gmail/[Gmail]/All Mail")
+                  (mu4e-trash-folder  . "/gmail/[Gmail]/Trash")
+                  (mu4e-maildir-shortcuts . 
+                                          ((:maildir "/gmail/Inbox" :key ?i)
+                                           (:maildir "/gmail/[Gmail]/Sent Mail" :key ?s)
+                                           (:maildir "/gmail/[Gmail]/Trash" :key ?d)
+                                           (:maildir "/gmail/[Gmail]/All Mail" :key ?a)
+                                           (:maildir "/gmail/[Gmail]/Drafts" :key ?r)
+                                           (:maildir "/gmail/Edria" :key ?e)
+                                           )
+                                          )
+                  (smtpmail-smtp-user . "davidguqun@gmail.com")
+                  (smtpmail-smtp-server . "smtp.gmail.com")
+                  (smtpmail-smtp-service . 587)
+                  )
+          )
+
+         ;; Outlook account
+         (make-mu4e-context
+          :name "outlook"
+          :vars '((mu4e-maildir . "~/.mail/outlook/")
+                  (user-mail-address . "guqun@outlook.com")
+                  (user-full-name    . "Qun Gu")
+                  (mu4e-drafts-folder  . "/outlook/Drafts")
+                  (mu4e-sent-folder  . "/outlook/Sent")
+                  (mu4e-refile-folder  . "/outlook/Archive")
+                  (mu4e-trash-folder  . "/outlook/Deleted")
+                  (mu4e-maildir-shortcuts . 
+                                          ((:maildir "/outlook/Inbox" :key ?i)
+                                           (:maildir "/outlook/Sent" :key ?s)
+                                           (:maildir "/outlook/Deleted" :key ?d)
+                                           (:maildir "/outlook/Archive" :key ?a)
+                                           (:maildir "/outlook/Drafts" :key ?r)
+                                           (:maildir "/outlook/Edria" :key ?e)))
+                  (smtpmail-smtp-server . "smtp.office365.com")
+                  (smtpmail-smtp-service . 587)
+                  )
+          )
+         )
         )
 
-       ;; Outlook account
-       (make-mu4e-context
-        :name "outlook"
-        :vars '((mu4e-maildir . "~/.mail/outlook/")
-                (user-mail-address . "guqun@outlook.com")
-                (user-full-name    . "Qun Gu")
-                (mu4e-drafts-folder  . "/outlook/Drafts")
-                (mu4e-sent-folder  . "/outlook/Sent")
-                (mu4e-refile-folder  . "/outlook/Archive")
-                (mu4e-trash-folder  . "/outlook/Deleted")
-                (mu4e-maildir-shortcuts . 
-                                        ((:maildir "/outlook/Inbox" :key ?i)
-                                         (:maildir "/outlook/Sent" :key ?s)
-                                         (:maildir "/outlook/Deleted" :key ?d)
-                                         (:maildir "/outlook/Archive" :key ?a)
-                                         (:maildir "/outlook/Drafts" :key ?r)
-                                         (:maildir "/outlook/Edria" :key ?e)))
-                (smtpmail-smtp-server . "smtp.office365.com")
-                (smtpmail-smtp-service . 587)
-                )
-        )
-       )
-      )
-
-(setq mail-user-agent 'mu4e-user-agent)
-(setq mu4e-get-mail-command "mbsync -a")
-(setq mu4e-update-interval 300)             ;; update every 5 minutes
-(setq mu4e-compose-signature
-      (concat
-       "Qun Gu\n"
-       "Sent from Emacs"))
-(setq mu4e-headers-precise-alignment t)
-;;      (setq mu4e-use-fancy-chars t)
+  (setq mail-user-agent 'mu4e-user-agent)
+  (setq mu4e-get-mail-command "mbsync -a")
+  (setq mu4e-update-interval 300)             ;; update every 5 minutes
+  (setq mu4e-compose-signature
+        (concat
+         "Qun Gu\n"
+         "Sent from Emacs"))
+  (setq mu4e-headers-precise-alignment t)
+  ;;      (setq mu4e-use-fancy-chars t)
+)
 
 (use-package mu4e-views
   :after mu4e
-  :defer nil
+  :defer t
   :bind (:map mu4e-headers-mode-map
               ("v" . mu4e-views-mu4e-select-view-msg-method) ;; select viewing method
               ("M-n" . mu4e-views-cursor-msg-view-window-down) ;; from headers window scroll the email view
@@ -1119,7 +1189,7 @@ With a prefix ARG, remove start location."
 
 (use-package mu4e-alert
   :after mu4e
-  :init
+  :config
   (setq mu4e-alert-interesting-mail-query
         "flag:unread maildir:/Inbox"
         )
@@ -1138,34 +1208,9 @@ With a prefix ARG, remove start location."
 (require 'mu4e-org)
 
 (use-package mu4e-maildirs-extension
+  :after mu4e
   :config
   (mu4e-maildirs-extension)
-  )
-
-(use-package mu4e-thread-folding
-  :quelpa
-  (mu4e-thread-folding
-   :fetcher
-   github
-   :repo
-   "rougier/mu4e-thread-folding"
-   )
-  :config
-  (add-to-list 'mu4e-header-info-custom
-               '(:empty . (:name "Qun Gu"
-                                 :shortname "GQ"
-                                 :function (lambda (msg) "  "))))
-  (setq mu4e-headers-fields '((:empty         .    2)
-                              (:human-date    .   12)
-                              (:flags         .    6)
-                              (:mailing-list  .   10)
-                              (:from          .   22)
-                              (:subject       .   nil)))
-  (define-key mu4e-headers-mode-map (kbd "<tab>")     'mu4e-headers-toggle-at-point)
-  (define-key mu4e-headers-mode-map (kbd "<left>")    'mu4e-headers-fold-at-point)
-  (define-key mu4e-headers-mode-map (kbd "<S-left>")  'mu4e-headers-fold-all)
-  (define-key mu4e-headers-mode-map (kbd "<right>")   'mu4e-headers-unfold-at-point)
-  (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
   )
 
 (use-package vterm
@@ -1173,6 +1218,7 @@ With a prefix ARG, remove start location."
   vterm)
 
 (use-package dash-at-point
+  :defer t
   :config
   (add-to-list 'dash-at-point-mode-alist'(python-mode . "python"))
   )
