@@ -29,8 +29,6 @@
      ("\\.png?\\'" . system)))
  '(org-latex-pdf-process
    '("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))
- '(package-selected-packages
-   '(dired emacs-color-themes zotxt yasnippet-snippets which-key vterm visual-fill-column treemacs-projectile treemacs-magit treemacs-icons-dired sublime-themes smex ranger rainbow-delimiters quelpa-use-package pyenv-mode powerthesaurus pdf-view-restore osx-trash org2blog org-trello org-superstar org-super-agenda org-roam-server org-pretty-tags org-pomodoro org-noter-pdftools org-mime org-kanban org-journal org-gcal org-fancy-priorities org-download no-littering mu4e-views mu4e-thread-folding mu4e-overview mu4e-marker-icons mu4e-maildirs-extension mu4e-alert modus-themes memoize lsp-ui lsp-python-ms lsp-origami lsp-ivy kaolin-themes ivy-posframe ivy-bibtex ibuffer-vc highlight-indent-guides helpful ghub general exec-path-from-shell evil-nerd-commenter emojify elpy doom-themes doom-modeline doct dired-single dired-hide-dotfiles dayone dashboard dash-at-point dap-mode counsel-projectile company-lsp company-emoji company-box company-auctex cnfonts centaur-tabs calfw-org calfw base16-theme auto-package-update all-the-icons-ivy-rich all-the-icons-ivy all-the-icons-ibuffer all-the-icons-dired))
  '(pos-tip-background-color "#E5E6DE")
  '(pos-tip-foreground-color "#4b5254")
  '(rustic-ansi-faces

@@ -1,15 +1,15 @@
+
 #+TITLE: Emacs Configuration
 #+STARTUP: overview
 #+PROPERTY: header-args:elisp :tangle ./init.el
 
-* DONE 包管理器
-CLOSED: [2021-03-04 Thu 11:28]
-** DONE package
+* 包管理器
+** package
 #+begin_src elisp
   (require 'package)
 #+end_src
    
-** DONE 配置源
+** 配置源
 *** CANCEL 清华源
 #+begin_src elisp :tangle no
   (setq package-archives
@@ -18,7 +18,7 @@ CLOSED: [2021-03-04 Thu 11:28]
           ("elpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
 #+end_src
    
-*** DONE 官方源
+*** 官方源
 #+begin_src elisp
   (setq package-archives
         '(("melpa" . "https://melpa.org/packages/")
@@ -32,15 +32,13 @@ CLOSED: [2021-03-04 Thu 11:28]
     (package-refresh-contents))
 #+end_src
 
-** DONE 导入 custom.el
-CLOSED: [2021-03-04 Thu 11:28]
+** 导入 custom.el
 #+begin_src elisp
   (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
   (load custom-file)
 #+end_src
 
-** DONE 自动导出 init.el
-CLOSED: [2021-03-04 Thu 11:28]
+** 自动导出 init.el
 #+begin_src elisp
   (defun gq/org-babel-tangle-config ()
     (when (string-equal (buffer-file-name)
@@ -52,8 +50,7 @@ CLOSED: [2021-03-04 Thu 11:28]
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'gq/org-babel-tangle-config)))
 #+end_src
    
-** DONE use-package
-CLOSED: [2021-03-04 Thu 11:28]
+** use-package
 #+begin_src elisp
   (package-initialize)
   (unless (package-installed-p 'use-package)
@@ -85,10 +82,8 @@ CLOSED: [2021-03-04 Thu 11:28]
   (require 'quelpa-use-package)
 #+end_src
 
-* DONE 启动性能
-CLOSED: [2021-03-04 Thu 11:32]
-** DONE 检测
-CLOSED: [2021-03-04 Thu 11:33]
+* 启动性能
+** 检测
 #+begin_src elisp
   (defun efs/display-startup-time ()
     (message "Emacs loaded in %s with %d garbage collections."
@@ -100,56 +95,48 @@ CLOSED: [2021-03-04 Thu 11:33]
   (add-hook 'emacs-startup-hook 'efs/display-startup-time)
 #+end_src
 
-** DONE no-littering
-CLOSED: [2021-03-04 Thu 11:33]
+** no-littering
 #+begin_src elisp
   (use-package no-littering)
 #+end_src
 
-* DONE 简化界面
-** DONE 删除启动消息
-CLOSED: [2021-03-04 Thu 11:32]
+* 简化界面
+** 删除启动消息
 #+begin_src elisp
   (setq inhibit-startup-message t)
 #+end_src
    
-** DONE 不显示滚动条
-CLOSED: [2021-03-04 Thu 11:32]
+** 不显示滚动条
 #+begin_src elisp
   (scroll-bar-mode -1)
 #+end_src
 
-** DONE 不显示工具条
-CLOSED: [2021-03-04 Thu 11:32]
+** 不显示工具条
 #+begin_src elisp
   (tool-bar-mode -1)
 #+end_src
 
-** DONE 设置白边
-CLOSED: [2021-03-04 Thu 11:32]
+** 设置白边
 #+begin_src elisp
   (set-fringe-mode 10)
 #+end_src
 
-** DONE 全屏显示
-CLOSED: [2021-03-04 Thu 11:32]
+** 全屏显示
 #+begin_src elisp
   (toggle-frame-maximized)
 #+end_src
 
-** DONE 设置透明度
-CLOSED: [2021-03-04 Thu 11:32]
+** 设置透明度
 #+begin_src elisp
   (set-frame-parameter (selected-frame) 'alpha '(90 . 50))
 #+end_src
 
-** DONE 显示电池用量
-CLOSED: [2021-03-04 Thu 11:32]
+** 显示电池用量
 #+begin_src elisp
   (display-battery-mode t)
 #+end_src
 
-** DONE 不显示菜单栏
+** 不显示菜单栏
 #+begin_src elisp
   (menu-bar-mode -1)
 #+end_src
@@ -159,14 +146,14 @@ CLOSED: [2021-03-04 Thu 11:32]
   (setq visible-bell t)
 #+end_src
 
-* DONE 简单设置
-** DONE 不需要备份文件
+* 简单设置
+** 不需要备份文件
 #+begin_src elisp
   (setq make-backup-files nil)
 #+end_src
 
-** DONE 全局快捷键
-*** DONE general
+** 全局快捷键
+*** general
 #+begin_src elisp
   (use-package general
     :config
@@ -200,7 +187,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-**** DONE 参考代码
+**** 参考代码
 #+begin_src elisp :tangle no
   ;; for frequently used prefix keys, the user can create a custom definer with a
   ;; default :prefix
@@ -238,14 +225,14 @@ CLOSED: [2021-03-04 Thu 11:32]
   (general-setq auto-revert-interval 10)
 #+end_src
 
-** DONE 系统编码
+** 系统编码
 #+begin_src elisp
   (setenv "LANG" "en_US.UTF-8")
   (setenv "LC_ALL" "en_US.UTF-8")
   (setenv "LC_CTYPE" "en_US.UTF-8")
 #+end_src
 
-** DONE 删除到回收站
+** 删除到回收站
 #+begin_src elisp
   (use-package osx-trash
     :defer t
@@ -256,15 +243,15 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE 环境变量
-*** DONE exec-path-from-shell
+** 环境变量
+*** exec-path-from-shell
 #+begin_src elisp
   (use-package exec-path-from-shell
     :config
     (when (memq window-system '(mac ns x))
       (exec-path-from-shell-initialize)))
 #+end_src
-** DONE 启动服务
+** 启动服务
 #+begin_src elisp
   (server-start)
 #+end_src
@@ -274,9 +261,9 @@ CLOSED: [2021-03-04 Thu 11:32]
                              ("https" . "127.0.0.1:7890")))
 #+end_src
 
-* DONE 外观设置
-** DONE 主题
-*** DONE doom-themes
+* 外观设置
+** 主题
+*** doom-themes
 #+begin_src elisp
   (use-package doom-themes
     :config
@@ -298,7 +285,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     (doom-themes-org-config))
 #+end_src
 
-*** DONE kaolin-themes
+*** CANCEL kaolin-themes
 #+begin_src elisp :tangle no
   (use-package kaolin-themes
     :config
@@ -307,7 +294,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-*** DONE base16-themes
+*** CANCEL base16-themes
 #+begin_src elisp :tangle no
   (use-package base16-theme
     :config
@@ -315,7 +302,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-*** DONE modus-themes
+*** CANCEL modus-themes
 #+begin_src elisp :tangle no
   (use-package modus-themes
     :config
@@ -328,7 +315,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE 打开行号
+** 打开行号
 #+begin_src elisp
   (column-number-mode)
   (global-display-line-numbers-mode t)
@@ -350,12 +337,12 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE 自动断行
+** 自动断行
 #+begin_src elisp
   (set-default 'truncate-lines t)
 #+end_src
 
-** DONE all-the-icons
+** all-the-icons
 #+begin_src elisp 
   (use-package all-the-icons
     :after
@@ -367,7 +354,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-*** DONE all-the-icons-ivy
+*** all-the-icons-ivy
 #+begin_src elisp
   (use-package all-the-icons-ivy
     :after
@@ -377,7 +364,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-*** DONE all-the-icons-ivy-rich
+*** all-the-icons-ivy-rich
 #+begin_src elisp
   (use-package all-the-icons-ivy-rich
     :after (all-the-icons ivy-rich)
@@ -385,7 +372,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-*** DONE all-the-icons-ibuffer
+*** all-the-icons-ibuffer
 #+begin_src elisp
   (use-package all-the-icons-ibuffer
     :defer t
@@ -394,7 +381,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-*** DONE all-the-icons-dired
+*** all-the-icons-dired
 #+begin_src elisp
   (use-package all-the-icons-dired
     :after (all-the-icons)
@@ -403,7 +390,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE doom-modeline
+** doom-modeline
 #+begin_src elisp
   (use-package doom-modeline
     :init
@@ -461,13 +448,13 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE rainbow-delimiters
+** rainbow-delimiters
 #+begin_src elisp
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
-** DONE dashboard
+** dashboard
 #+begin_src elisp
   (use-package dashboard
     :config
@@ -489,7 +476,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE cnfonts
+** cnfonts
 #+begin_src elisp
   (use-package cnfonts
     :init
@@ -508,14 +495,14 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE emojify
+** emojify
 #+begin_src elisp
   (use-package emojify
     :defer t
     :hook (after-init . global-emojify-mode))
 #+end_src
 
-** DONE company-emoji
+** company-emoji
 #+begin_src elisp
   (use-package company-emoji
     :after company
@@ -523,7 +510,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     (add-to-list 'company-backends 'company-emoji))
 #+end_src
 
-** DONE highlight-indent-guides
+** highlight-indent-guides
 #+begin_src elisp
   (use-package highlight-indent-guides
     :defer t
@@ -532,7 +519,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
   
-** DONE treemacs
+** treemacs
 #+begin_src elisp
   (use-package treemacs
     :defer t
@@ -601,7 +588,7 @@ CLOSED: [2021-03-04 Thu 11:32]
           ("C-x t M-t" . treemacs-find-tag)))
 #+end_src
 
-** DONE treemacs-projectile
+** treemacs-projectile
 #+begin_src elisp
   (use-package treemacs-projectile
     :after
@@ -609,7 +596,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE treemacs-magit
+** treemacs-magit
 #+begin_src elisp
   (use-package treemacs-magit
     :after
@@ -617,7 +604,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE centaur-tabs
+** centaur-tabs
 #+begin_src elisp
   (use-package centaur-tabs
     :defer t
@@ -653,13 +640,13 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE ibuffer-vc
+** ibuffer-vc
 #+begin_src elisp
   (use-package ibuffer-vc
     :defer t)
 #+end_src
 
-** DONE dired
+** dired
 #+begin_src elisp
   (use-package dired
     :ensure
@@ -689,7 +676,7 @@ CLOSED: [2021-03-04 Thu 11:32]
 
 #+end_src
 
-** DONE dired-single
+** dired-single
 #+begin_src elisp
   (use-package dired-single
     :after dired
@@ -715,7 +702,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
    
-** DONE dired-hide-dotfiles
+** dired-hide-dotfiles
 #+begin_src elisp
   (use-package dired-hide-dotfiles
     :defer t
@@ -732,7 +719,7 @@ CLOSED: [2021-03-04 Thu 11:32]
     )
 #+end_src
 
-** DONE visual-fill-column
+** visual-fill-column
 #+begin_src elisp
   (defun gq/org-mode-visual-fill ()
     (setq visual-fill-column-width 120
@@ -749,7 +736,7 @@ CLOSED: [2021-03-04 Thu 11:32]
   (use-package ranger)
 #+end_src
 
-* DONE 自动补全
+* 自动补全
 ** CANCEL smex
 CLOSED: [2021-02-26 Fri 21:26]
 Smart M-x
@@ -757,7 +744,7 @@ Smart M-x
   ;; (use-package smex)
 #+end_src
 
-** DONE ivy
+** ivy
 #+begin_src elisp
   (use-package ivy
     :diminish
@@ -779,7 +766,7 @@ Smart M-x
     (ivy-mode 1))
 #+end_src
 
-** DONE ivy-rich
+** ivy-rich
 #+begin_src elisp
   (use-package ivy-rich
     :defer t
@@ -790,7 +777,7 @@ Smart M-x
     )
 #+end_src
 
-** DONE ivy-bibtex
+** ivy-bibtex
 #+begin_src elisp
   (use-package ivy-bibtex
     :defer t
@@ -851,7 +838,7 @@ Smart M-x
     )
 #+end_src
 
-** DONE counsel
+** counsel
 #+begin_src elisp
   (use-package counsel
     :bind
@@ -867,7 +854,7 @@ Smart M-x
     )
 #+end_src
    
-** DONE which-key
+** which-key
 #+begin_src elisp
   (use-package which-key
     :defer t
@@ -878,7 +865,7 @@ Smart M-x
     )
 #+end_src
 
-** DONE helpful
+** helpful
 #+begin_src elisp
   (use-package helpful
     :defer t
@@ -893,8 +880,7 @@ Smart M-x
     )
 #+end_src
 
-* DONE 编程配置
-CLOSED: [2021-03-04 Thu 13:22]
+* 编程配置
 ** 项目管理
 *** projectile
 #+begin_src elisp
@@ -1180,7 +1166,6 @@ CLOSED: [2021-03-04 Thu 13:22]
       )
     )
 #+end_src
-
 
 ***** CANCEL 字体
 #+begin_src elisp :tangle no
@@ -1549,8 +1534,7 @@ CLOSED: [2021-03-04 Thu 13:22]
     ("M-/" . evilnc-comment-or-uncomment-lines)
     )
 #+end_src
-* DONE 常用工具
-CLOSED: [2021-03-04 Thu 13:22]
+* 常用工具
 ** doc-view
 #+begin_src elisp
   (setq doc-view-resolution 200)

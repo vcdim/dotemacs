@@ -1213,6 +1213,30 @@ With a prefix ARG, remove start location."
   (mu4e-maildirs-extension)
   )
 
+(use-package mu4e-thread-folding
+  :ensure
+  nil
+  :defer
+  t
+  :after mu4e
+  :config
+  (add-to-list 'mu4e-header-info-custom
+               '(:empty . (:name "Qun Gu"
+                                 :shortname "GQ"
+                                 :function (lambda (msg) "  "))))
+  (setq mu4e-headers-fields '((:empty         .    2)
+                              (:human-date    .   12)
+                              (:flags         .    6)
+                              (:mailing-list  .   10)
+                              (:from          .   22)
+                              (:subject       .   nil)))
+  (define-key mu4e-headers-mode-map (kbd "<tab>")     'mu4e-headers-toggle-at-point)
+  (define-key mu4e-headers-mode-map (kbd "<left>")    'mu4e-headers-fold-at-point)
+  (define-key mu4e-headers-mode-map (kbd "<S-left>")  'mu4e-headers-fold-all)
+  (define-key mu4e-headers-mode-map (kbd "<right>")   'mu4e-headers-unfold-at-point)
+  (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
+  )
+
 (use-package vterm
   :commands
   vterm)
