@@ -24,6 +24,20 @@
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+(setq package-enable-at-startup nil)
+
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
@@ -59,6 +73,11 @@
    "M-x" 'counsel-M-x
    "C-s" 'counsel-grep-or-swiper
    "C-x b" 'counsel-switch-buffer
+   "C-c C-j" 'org-journal-new-entry
+   "C-s-<left>" 'shrink-window-horizontally
+   "C-s-<right>" 'enlarge-window-horizontally
+   "C-s-<down>" 'shrink-window
+   "C-s-<up>" 'enlarge-window
    )
 
   ;; * Mode Keybindings
@@ -74,14 +93,14 @@
   (general-def org-mode-map
     "C-c C-q" 'counsel-org-tag
     )
-
   ;; * Prefix Keybindings
   ;; :prefix can be used to prevent redundant specification of prefix keys
   (general-define-key
    :prefix "C-c"
-   "a" 'org-agenda
+   "a" 'org-agenda-list
    "b" 'counsel-bookmark
-   "c" 'org-capture)
+   "c" 'org-capture
+   )
   )
 
 (setenv "LANG" "en_US.UTF-8")
@@ -108,7 +127,7 @@
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-monokai-pro t)
+  (load-theme 'doom-one t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -171,10 +190,42 @@
   )
 
 (use-package all-the-icons-dired
-  :after (all-the-icons)
+  :diminish
   :if (display-graphic-p)
   :hook (dired-mode . all-the-icons-dired-mode)
-  )
+  :config
+  ;; FIXME: Refresh after creating or renaming the files/directories.
+  ;; @see https://github.com/jtbm37/all-the-icons-dired/issues/34.
+  (with-no-warnings
+    (advice-add #'dired-do-create-files :around #'all-the-icons-dired--refresh-advice)
+    (advice-add #'dired-create-directory :around #'all-the-icons-dired--refresh-advice)
+    (advice-add #'wdired-abort-changes :around #'all-the-icons-dired--refresh-advice))
+
+  (with-no-warnings
+    (defun my-all-the-icons-dired--refresh ()
+      "Display the icons of files in a dired buffer."
+      (all-the-icons-dired--remove-all-overlays)
+      ;; NOTE: don't display icons it too many items
+      (if (<= (count-lines (point-min) (point-max)) 1000)
+          (save-excursion
+            (goto-char (point-min))
+            (while (not (eobp))
+              (when (dired-move-to-filename nil)
+                (let ((file (file-local-name (dired-get-filename 'relative 'noerror))))
+                  (when file
+                    (let ((icon (if (file-directory-p file)
+                                    (all-the-icons-icon-for-dir file
+                                                                :face 'all-the-icons-dired-dir-face
+                                                                :height 0.9
+                                                                :v-adjust all-the-icons-dired-v-adjust)
+                                  (all-the-icons-icon-for-file file :height 0.9 :v-adjust all-the-icons-dired-v-adjust))))
+                      (if (member file '("." ".."))
+                          (all-the-icons-dired--add-overlay (point) "  \t")
+                        (all-the-icons-dired--add-overlay (point) (concat icon "\t")))))))
+              (forward-line 1)))
+        (message "Not display icons because of too many items.")))
+    (advice-add #'all-the-icons-dired--refresh :override #'my-all-the-icons-dired--refresh)
+    ))
 
 (use-package doom-modeline
   :init
@@ -246,7 +297,7 @@
                           (bookmarks . 5)
                           (projects . 5)
                           (agenda . 5)
-                          (registers . 5)))
+                          ))
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
   (setq dashboard-set-navigator t)
@@ -263,6 +314,7 @@
                                      ("Noto Sans SC")
                                      ()))
   (setq use-default-font-for-symbols nil)
+  (setq cnfonts-use-face-font-rescale t)
   :bind
   (("C-=" . cnfonts-increase-fontsize)
    ("C--" . cnfonts-decrease-fontsize)
@@ -272,11 +324,6 @@
 (use-package emojify
   :defer t
   :hook (after-init . global-emojify-mode))
-
-(use-package company-emoji
-  :after company
-  :config
-  (add-to-list 'company-backends 'company-emoji))
 
 (use-package highlight-indent-guides
   :defer t
@@ -361,22 +408,21 @@
   )
 
 (use-package centaur-tabs
-  :defer t
-  :load-path "~/.emacs.d/other/centaur-tabs"
-  :config
-  (setq centaur-tabs-style "wave"
-	centaur-tabs-height 40
-	centaur-tabs-set-icons t
-	centaur-tabs-set-modified-marker t
-	centaur-tabs-show-navigation-buttons t
-	centaur-tabs-set-bar 'under
-	x-underline-at-descent-line t)
+  :init
+  (centaur-tabs-mode t)
+  (setq centaur-tabs-style "bar"
+        centaur-tabs-height 35
+        centaur-tabs-set-icons t
+        centaur-tabs-set-modified-marker t
+        centaur-tabs-show-navigation-buttons nil
+        centaur-tabs-set-bar 'left
+        x-underline-at-descent-line t)
+  (centaur-tabs-change-fonts "FiraGO" 180)
   (centaur-tabs-headline-match)
 
   (setq centaur-tabs-gray-out-icons 'buffer)
   (centaur-tabs-enable-buffer-reordering)
   (setq centaur-tabs-adjust-buffer-order t)
-  (centaur-tabs-mode t)
   (setq uniquify-separator "/")
   (setq uniquify-buffer-name-style 'forward)
   :hook
@@ -423,9 +469,7 @@
   )
 
 (use-package dired-single
-  :after dired
-  :defer t
-  :config
+  :init
   (defun my-dired-init ()
     "Bunch of stuff to run for dired, either immediately or when it's
 loaded."
@@ -540,6 +584,31 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :bind (("C-x p" . ivy-bibtex-my-publications))
   )
 
+(use-package ivy-prescient
+  :straight t
+  :after ivy
+  :config
+  (ivy-prescient-mode)
+  )
+
+(use-package prescient
+  :straight t
+  :config
+  (prescient-persist-mode +1))
+
+(use-package selectrum
+  :straight t
+  :config
+  (selectrum-mode +1)
+  )
+
+(use-package selectrum-prescient
+  :after (selectrum prescient)
+  :straight t
+  :config
+  (selectrum-prescient-mode +1)
+  )
+
 (use-package counsel
   :bind
   (("M-x" . counsel-M-x)
@@ -554,7 +623,6 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   )
 
 (use-package which-key
-  :defer t
   :diminish
   :config
   (which-key-mode)
@@ -732,15 +800,19 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
     (push '("[X]" . "☑") prettify-symbols-alist)
     (push '("[-]" . "❍") prettify-symbols-alist)
     (prettify-symbols-mode))
+
+  (setq org-emphasis-regexp-components '("-[:multibyte:][:space:]('\"{" "-[:multibyte:][:space:].,:!?;'\")}\\[" "[:space:]" "." 1))
+  (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+  (org-element-update-syntax)
   )
 (use-package org
   :ensure nil
-  :defer t
   :hook
   (org-mode . gq/org-mode-setup)
   :config
   (with-eval-after-load 'org
-    (setq org-support-shift-select 1)     ;; 用 shift 进行选择
+    ;; 用 shift 进行选择
+    (setq org-support-shift-select 1)     
 
 
     ;; 定义零宽字符与它的快捷键
@@ -786,10 +858,11 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
             ("\\.png?\\'" . system)))
     ;; 待办事项状态
     (setq org-todo-keywords
-          '((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)" "CANCEL(c)")))
+          '((sequence "TODO(t)" "NEXT(n)" "DOING(i)""|" "DONE(d)" "CANCEL(c)")))
     (setq org-todo-keyword-faces
           '(("TODO" . (:foreground "red" :weight bold))
             ("NEXT" . "#E35DBF")
+            ("DOING" . "brown")
             ("DONE" . (:foreground "#1AA260" :weight bold))
             ("CANCEL" . (:foreground "#888888")))
           )
@@ -808,6 +881,31 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
     )
   )
 
+(custom-theme-set-faces
+ 'user
+ '(variable-pitch ((t (:family "CMU Sans Serif" :height 200))))
+ '(fixed-pitch ((t (:family "Fira Code" :height 160))))
+ '(org-block ((t (:inherit fixed-pitch))))
+ '(org-code ((t (:inherit (fixed-pitch)))))
+ '(org-document-info ((t (:foreground "dark orange"))))
+ '(org-block-begin-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
+ '(org-block-end-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
+ ;; '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+ '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+ '(org-link ((t (:foreground "royal blue" :underline t))))
+ '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+ '(org-property-value ((t (:inherit fixed-pitch))) t)
+ '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+ '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+ '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+ '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+ )
+(with-eval-after-load 'org
+  (add-to-list 'org-emphasis-alist
+               '("*" (:foreground "red" :weight bold)
+                 ))
+  )
+
 (with-eval-after-load 'org
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -823,6 +921,14 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (use-package org-pretty-tags
   :defer t
   )
+
+(defun org-journal-find-location ()
+  ;; Open today's journal, but specify a non-nil prefix argument in order to
+  ;; inhibit inserting the heading; org-capture will insert the heading.
+  (org-journal-new-entry t)
+  (unless (eq org-journal-file-type 'daily)
+    (org-narrow-to-subtree))
+  (goto-char (point-max)))
 
 (setq org-capture-templates
       '(
@@ -840,6 +946,9 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
          "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
         ("l" "org-protocol link" entry (file "~/SynologyDrive/org/inbox.org")
          "* [[%:link][%:description]] \nCaptured On: %U")
+        ("j" "Journal entry" plain (function org-journal-find-location)
+         "** %(format-time-string org-journal-time-format)%^{Title}\n%i%?"
+         :jump-to-captured t :immediate-finish t)
         ))
 
 (setq org-refile-targets '((nil :maxlevel . 9)
@@ -859,14 +968,26 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (use-package org-download
   :defer t)
 
+(require 'org-habit)
+(setq org-habit-show-done-always-green t) 
+;;; 减少显示天数，使其可以放在任务条的左边
+(setq org-habit-graph-column 1)
+(setq org-habit-preceding-days 10)
+(setq org-habit-following-days 2)
+;;; 恢复默认日历行为
+(setq org-habit-show-habits-only-for-today t)
+(let ((agenda-sorting-strategy
+       (assoc 'agenda org-agenda-sorting-strategy)))
+  (setcdr agenda-sorting-strategy
+          (remove 'habit-down (cdr agenda-sorting-strategy))))
+
 (use-package org-kanban
   :commands org-kanban)
 
 (use-package org-superstar
-  :defer t
   :hook
   (org-mode . org-superstar-mode)
-  :config
+  :init
   ;; This is usually the default, but keep in mind it must be nil
   (setq org-hide-leading-stars nil)
   ;; This line is necessary.
@@ -1007,9 +1128,9 @@ With a prefix ARG, remove start location."
   )
 
 (use-package org-journal
-  :defer t
-  :config
-  (setq org-journal-prefix-key "C-c j ")
+  :init
+
+
   (setq org-journal-file-type 'monthly)
   (setq org-journal-file-format "%Y-%m.org")
   (setq org-journal-dir "~/SynologyDrive/org/journal/")
@@ -1027,7 +1148,7 @@ With a prefix ARG, remove start location."
   :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
 
 (use-package pyenv-mode
-  :defer t
+  :after python-mode
   )
 
 (require 'dap-python)
@@ -1205,7 +1326,9 @@ With a prefix ARG, remove start location."
 ;; (use-package mu4e-marker-icons
 ;;   :init (mu4e-marker-icons-mode 1))
 
-(require 'mu4e-org)
+(with-eval-after-load 'mu4e
+  (require 'mu4e-org)
+)
 
 (use-package mu4e-maildirs-extension
   :after mu4e
