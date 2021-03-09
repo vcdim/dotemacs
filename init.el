@@ -377,7 +377,8 @@
           treemacs-user-mode-line-format         nil
           treemacs-user-header-line-format       nil
           treemacs-width                         35
-          treemacs-workspace-switch-cleanup      nil)
+          treemacs-workspace-switch-cleanup      nil
+          )
     (treemacs-resize-icons 18)
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
@@ -504,7 +505,7 @@ loaded."
   )
 
 (defun gq/org-mode-visual-fill ()
-  (setq visual-fill-column-width 120
+  (setq visual-fill-column-width 80
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -792,6 +793,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (defun gq/org-mode-setup ()
   (org-indent-mode)
   (visual-line-mode 1)
+  (toggle-word-wrap 0)
 
   ;; 待办事项图标
   (lambda ()
@@ -812,7 +814,9 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :config
   (with-eval-after-load 'org
     ;; 用 shift 进行选择
-    (setq org-support-shift-select 1)     
+    (setq org-support-shift-select 1)
+    ;; 源代码不要缩进
+    (setq org-edit-src-content-indentation 0)
 
 
     ;; 定义零宽字符与它的快捷键
@@ -942,10 +946,10 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
          "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
         ("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
          "* %?\nEntered on %U\n%i")
-        ("p" "org-protocol" entry (file "~/SynologyDrive/org/inbox.org")
+        ("p" "org-protocol" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
          "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
-        ("l" "org-protocol link" entry (file "~/SynologyDrive/org/inbox.org")
-         "* [[%:link][%:description]] \nCaptured On: %U")
+        ("l" "org-protocol link" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
+         "* [[%:link][%:description]] \n%?\nCaptured On: %U")
         ("j" "Journal entry" plain (function org-journal-find-location)
          "** %(format-time-string org-journal-time-format)%^{Title}\n%i%?"
          :jump-to-captured t :immediate-finish t)
@@ -971,9 +975,9 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (require 'org-habit)
 (setq org-habit-show-done-always-green t) 
 ;;; 减少显示天数，使其可以放在任务条的左边
-(setq org-habit-graph-column 1)
-(setq org-habit-preceding-days 10)
-(setq org-habit-following-days 2)
+(setq org-habit-graph-column 55)
+(setq org-habit-preceding-days 30)
+(setq org-habit-following-days 1)
 ;;; 恢复默认日历行为
 (setq org-habit-show-habits-only-for-today t)
 (let ((agenda-sorting-strategy
@@ -1160,9 +1164,15 @@ With a prefix ARG, remove start location."
     'TeX-command-list
     '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))))
 
-(setq TeX-auto-save t)
-(setq TeX-parse-self t)
-(setq-default TeX-master nil)
+(use-package auctex
+  :ensure nil
+  :config
+  (setq TeX-auto-save t)
+  (setq TeX-parse-self t)
+  (setq-default TeX-master nil)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.8))
+  (setq TeX-view-program-selection "PDF Tools")
+  )
 
 (defun toggle-selective-display (column)
   (interactive "P")
@@ -1290,7 +1300,7 @@ With a prefix ARG, remove start location."
          "Sent from Emacs"))
   (setq mu4e-headers-precise-alignment t)
   ;;      (setq mu4e-use-fancy-chars t)
-)
+  )
 
 (use-package mu4e-views
   :after mu4e
@@ -1328,7 +1338,7 @@ With a prefix ARG, remove start location."
 
 (with-eval-after-load 'mu4e
   (require 'mu4e-org)
-)
+  )
 
 (use-package mu4e-maildirs-extension
   :after mu4e
