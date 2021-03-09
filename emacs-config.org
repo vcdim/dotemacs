@@ -1227,6 +1227,9 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
             ("\\.pptx?\\'" . system)
             ("\\.docx?\\'" . system)
             ("\\.xlsx?\\'" . system)
+            ("\\.ppt?\\'" . system)
+            ("\\.doc?\\'" . system)
+            ("\\.xls?\\'" . system)
             ("\\.png?\\'" . system)))
     ;; 待办事项状态
     (setq org-todo-keywords
