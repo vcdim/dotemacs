@@ -127,7 +127,7 @@
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-one t)
+  ;; (load-theme 'doom-one t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -140,6 +140,11 @@
 
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
+
+(use-package moe-theme
+  :config
+  (moe-light)
+  )
 
 (column-number-mode)
 (global-display-line-numbers-mode t)
@@ -426,11 +431,52 @@
   (setq centaur-tabs-adjust-buffer-order t)
   (setq uniquify-separator "/")
   (setq uniquify-buffer-name-style 'forward)
+  (defun centaur-tabs-buffer-groups ()
+    "`centaur-tabs-buffer-groups' control buffers' group rules.
+
+ Group centaur-tabs with mode if buffer is derived from `eshell-mode' `emacs-lisp-mode' `dired-mode' `org-mode' `magit-mode'.
+ All buffer name start with * will group to \"Emacs\".
+ Other buffer group by `centaur-tabs-get-group-name' with project name."
+    (list
+     (cond
+      ;; ((not (eq (file-remote-p (buffer-file-name)) nil))
+      ;; "Remote")
+      ((or (string-equal "*" (substring (buffer-name) 0 1))
+	   (memq major-mode '(magit-process-mode
+			      magit-status-mode
+			      magit-diff-mode
+			      magit-log-mode
+			      magit-file-mode
+			      magit-blob-mode
+			      magit-blame-mode
+			      )))
+       "Emacs")
+      ((derived-mode-p 'prog-mode)
+       "Editing")
+      ((derived-mode-p 'dired-mode)
+       "Dired")
+      ((memq major-mode '(helpful-mode
+			  help-mode))
+       "Help")
+      ((memq major-mode '(org-mode
+			  org-agenda-clockreport-mode
+			  org-src-mode
+			  org-agenda-mode
+			  org-beamer-mode
+			  org-indent-mode
+			  org-bullets-mode
+			  org-cdlatex-mode
+			  org-agenda-log-mode
+			  diary-mode))
+       "OrgMode")
+      (t
+       (centaur-tabs-get-group-name (current-buffer))))))
   :hook
   (dashboard-mode . centaur-tabs-local-mode)
   (term-mode . centaur-tabs-local-mode)
   (calendar-mode . centaur-tabs-local-mode)
   (org-agenda-mode . centaur-tabs-local-mode)
+  (org-todo-mode . centaur-tabs-local-mode)
   (helpful-mode . centaur-tabs-local-mode)
   :bind
   ("C-<prior>" . centaur-tabs-backward)
@@ -505,7 +551,7 @@ loaded."
   )
 
 (defun gq/org-mode-visual-fill ()
-  (setq visual-fill-column-width 80
+  (setq visual-fill-column-width 100
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -591,6 +637,23 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :config
   (ivy-prescient-mode)
   )
+
+(use-package marginalia
+  :config
+  (marginalia-mode))
+
+(use-package embark
+  :bind
+  ("C-S-a" . embark-act))              ; pick some comfortable binding
+
+;; Consult users will also want the embark-consult package.
+(use-package embark-consult
+  :after (embark consult)
+  :demand t ; only necessary if you have the hook below
+  ;; if you want to have consult previews as you move around an
+  ;; auto-updating embark collect buffer
+  :hook
+  (embark-collect-mode . embark-consult-preview-minor-mode))
 
 (use-package prescient
   :straight t
@@ -1167,15 +1230,12 @@ With a prefix ARG, remove start location."
     'TeX-command-list
     '("XeLaTeX" "%`xelatex --synctex=1%(mode)%' %t" TeX-run-TeX nil t))))
 
-(use-package auctex
-  :ensure nil
-  :config
-  (setq TeX-auto-save t)
-  (setq TeX-parse-self t)
-  (setq-default TeX-master nil)
-  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.8))
-  (setq TeX-view-program-selection "PDF Tools")
-  )
+(setq TeX-auto-save t)
+(setq TeX-parse-self t)
+(setq-default TeX-master nil)
+(setq org-format-latex-options (plist-put org-format-latex-options :scale 1.8))
+(setq pdf-view-use-scaling t)
+(setq TeX-view-program-selection "PDF Tools")
 
 (defun toggle-selective-display (column)
   (interactive "P")
