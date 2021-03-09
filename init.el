@@ -1403,12 +1403,6 @@ With a prefix ARG, remove start location."
   (require 'mu4e-org)
   )
 
-(use-package mu4e-maildirs-extension
-  :after mu4e
-  :config
-  (mu4e-maildirs-extension)
-  )
-
 (use-package mu4e-thread-folding
   :ensure
   nil

@@ -272,10 +272,12 @@
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 #+end_src
+
 ** 启动服务
 #+begin_src elisp
 (server-start)
 #+end_src
+
 ** CANCEL 系统代理
 #+begin_src elisp :tangle no
 (setq url-proxy-services '(("http" . "127.0.0.1:7890")
@@ -335,6 +337,7 @@
   (modus-themes-load-themes)
   )
 #+end_src
+
 *** moe-theme
 #+begin_src elisp
 (use-package moe-theme
@@ -342,6 +345,7 @@
   (moe-light)
   )
 #+end_src
+
 ** 打开行号
 #+begin_src elisp
 (column-number-mode)
@@ -966,6 +970,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :config
   (prescient-persist-mode +1))
 #+end_src
+
 ** selectrum
 #+begin_src elisp
 (use-package selectrum
@@ -1417,6 +1422,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
          :jump-to-captured t :immediate-finish t)
         ))
 #+end_src
+
 **** org-refile
 #+begin_src elisp
 (setq org-refile-targets '((nil :maxlevel . 9)
@@ -1634,6 +1640,7 @@ With a prefix ARG, remove start location."
           ))
   )
 #+end_src
+
 **** org-journal
 #+begin_src elisp
 (use-package org-journal
@@ -1725,6 +1732,7 @@ With a prefix ARG, remove start location."
   ("M-/" . evilnc-comment-or-uncomment-lines)
   )
 #+end_src
+
 * 常用工具
 ** doc-view
 #+begin_src elisp
@@ -1903,14 +1911,16 @@ With a prefix ARG, remove start location."
   )
 #+end_src
 
-*** mu4e-maildirs-extension
-#+begin_src elisp
+*** CANCEL mu4e-maildirs-extension
+CLOSED: [2021-03-09 Tue 21:22]
+#+begin_src elisp :tangle no
 (use-package mu4e-maildirs-extension
   :after mu4e
   :config
   (mu4e-maildirs-extension)
   )
 #+end_src
+
 *** mu4e-thread-folding
 #+begin_src elisp
 (use-package mu4e-thread-folding
