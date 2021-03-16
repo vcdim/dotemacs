@@ -6,21 +6,23 @@
         ("gnu" . "https://elpa.gnu.org/packages/")))
 
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(load custom-file)
+;; (load custom-file)
 
 (defun gq/org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/.emacs.d/emacs-config.org"))
+                      (expand-file-name "emacs-config.org" user-emacs-directory))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
-
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'gq/org-babel-tangle-config)))
+      (org-babel-tangle)))
+  )
+(add-hook 'org-mode-hook
+	  (lambda () (add-hook 'after-save-hook 'gq/org-babel-tangle-config)))
 
 (package-initialize)
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 (require 'use-package)
+
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 
@@ -49,48 +51,61 @@
 
 (use-package no-littering)
 
+;; 删除启动信息
 (setq inhibit-startup-message t)
-
+;; 不显示滚动条
 (scroll-bar-mode -1)
-
+;; 不显示工具条
 (tool-bar-mode -1)
-
-(set-fringe-mode 10)
-
-(toggle-frame-maximized)
-
-(set-frame-parameter (selected-frame) 'alpha '(90 . 50))
-
-(display-battery-mode t)
-
+;; 不显示菜单栏
 (menu-bar-mode -1)
+;; 设置白边
+(set-fringe-mode 10)
+;; 全屏显示
+(toggle-frame-maximized)
+;; 设置透明度
+(set-frame-parameter (selected-frame) 'alpha '(90 . 50))
+;; 显示电池用量
+(display-battery-mode t)
+;; 显示列数
+(column-number-mode)
+;; 默认自动断行
+(set-default 'truncate-lines t)
+;; 设置可视警告
+;; (setq visible-bell t)
 
+;; 不需要备份文件
 (setq make-backup-files nil)
+;; 环境变量——系统编码
+(setenv "LANG" "en_US.UTF-8")
+(setenv "LC_ALL" "en_US.UTF-8")
+(setenv "LC_CTYPE" "en_US.UTF-8")
+;; 启动 emacs 服务，让 emacsclient 可用
+(server-start)
+;; 系统代理
+;; (setq url-proxy-services '(("http" . "127.0.0.1:7890")
+;;                            ("https" . "127.0.0.1:7890")))
 
 (use-package general
   :config
   (general-define-key
    "M-x" 'counsel-M-x
-   "C-s" 'counsel-grep-or-swiper
+   "C-x d" 'counsel-dired
    "C-x b" 'counsel-switch-buffer
-   "C-c C-j" 'org-journal-new-entry
+   "C-s" 'counsel-grep-or-swiper
+   "C-x C-b" 'ibuffer
    "C-s-<left>" 'shrink-window-horizontally
    "C-s-<right>" 'enlarge-window-horizontally
    "C-s-<down>" 'shrink-window
    "C-s-<up>" 'enlarge-window
-   )
-
-  ;; * Mode Keybindings
-  ;; `general-define-key' is comparable to `define-key' when :keymaps is specified
-  (general-define-key
-   ;; NOTE: keymaps specified with :keymaps must be quoted
-   :keymaps 'org-mode-map
+   "<escape>" 'keyboard-escape-quit
    "<home>" 'beginning-of-line
    "<end>" 'end-of-line
-   "<escape>" 'keyboard-escape-quit
    )
+
   ;; `general-def' can be used instead for `define-key'-like syntax
   (general-def org-mode-map
+    "C-c C-j" 'org-journal-new-entry
     "C-c C-q" 'counsel-org-tag
     )
   ;; * Prefix Keybindings
@@ -100,12 +115,9 @@
    "a" 'org-agenda-list
    "b" 'counsel-bookmark
    "c" 'org-capture
+   "C-j" 'org-journal-new-entry
    )
   )
-
-(setenv "LANG" "en_US.UTF-8")
-(setenv "LC_ALL" "en_US.UTF-8")
-(setenv "LC_CTYPE" "en_US.UTF-8")
 
 (use-package osx-trash
   :defer t
@@ -120,14 +132,12 @@
   (when (memq window-system '(mac ns x))
     (exec-path-from-shell-initialize)))
 
-(server-start)
-
 (use-package doom-themes
   :config
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  ;; (load-theme 'doom-one t)
+  ;; (load-theme 'doom-dracula t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -141,31 +151,10 @@
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
-(use-package moe-theme
-  :config
-  (moe-light)
+(use-package apropospriate-theme
+  :config 
+  (load-theme 'apropospriate-light t)
   )
-
-(column-number-mode)
-(global-display-line-numbers-mode t)
-(dolist
-    (mode '(org-mode-hook
-            term-mode-hook
-            eshell-mode-hook
-            vterm-mode-hook
-            treemacs-mode-hook
-            org-agenda-mode-hook
-            pdf-view-mode-hook
-            dired-mode-hook
-            xwidget-webkit-mode-hook
-            mu4e-headers-mode-hook
-            ))
-  (add-hook mode
-            (lambda () (display-line-numbers-mode 0))
-            )
-  )
-
-(set-default 'truncate-lines t)
 
 (use-package all-the-icons
   :after
@@ -232,6 +221,37 @@
     (advice-add #'all-the-icons-dired--refresh :override #'my-all-the-icons-dired--refresh)
     ))
 
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+
+(use-package cnfonts
+  :init
+  (cnfonts-enable)
+  (cnfonts-set-spacemacs-fallback-fonts)
+  (setq cnfonts-profiles
+	'("program" "org-mode" "read-book"))
+  (setq cnfonts-personal-fontnames
+	'(("Iosevka Comfy" "MesloLGS NF" "Yanone Kaffeesatz")
+	  ("Noto Sans SC" "TsangerJinKai02 W04")
+	  ()))
+  (setq use-default-font-for-symbols nil)
+  (setq cnfonts-use-face-font-rescale t)
+  :bind
+  (("C-=" . cnfonts-increase-fontsize)
+   ("C--" . cnfonts-decrease-fontsize)
+   )
+  )
+
+(use-package emojify
+  :defer t
+  :hook (after-init . global-emojify-mode))
+
+(use-package highlight-indent-guides
+  :defer t
+  :hook
+  (prog-mode . highlight-indent-guides-mode)
+  )
+
 (use-package doom-modeline
   :init
   (doom-modeline-mode 1)
@@ -285,55 +305,6 @@
   (setq doom-modeline-env-load-string "...")
   (setq doom-modeline-before-update-env-hook nil)
   (setq doom-modeline-after-update-env-hook nil)  
-  )
-
-(use-package rainbow-delimiters
-  :hook (prog-mode . rainbow-delimiters-mode))
-
-(use-package dashboard
-  :config
-  (dashboard-setup-startup-hook)
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-  (setq dashboard-banner-logo-title "笔耕不辍, 静水流深        ")
-  (setq dashboard-startup-banner "~/.emacs.d/g.png")
-  (setq dashboard-center-content t)
-  (setq dashboard-set-footer nil)
-  (setq dashboard-items '((recents  . 5)
-                          (bookmarks . 5)
-                          (projects . 5)
-                          (agenda . 5)
-                          ))
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-set-navigator t)
-  (setq dashboard-set-init-info t)
-  )
-
-(use-package cnfonts
-  :init
-  (cnfonts-enable)
-  (cnfonts-set-spacemacs-fallback-fonts)
-  (setq cnfonts-profiles
-        '("program" "org-mode" "read-book"))
-  (setq cnfonts-personal-fontnames '(("Iosevka Comfy")
-                                     ("Noto Sans SC")
-                                     ()))
-  (setq use-default-font-for-symbols nil)
-  (setq cnfonts-use-face-font-rescale t)
-  :bind
-  (("C-=" . cnfonts-increase-fontsize)
-   ("C--" . cnfonts-decrease-fontsize)
-   )
-  )
-
-(use-package emojify
-  :defer t
-  :hook (after-init . global-emojify-mode))
-
-(use-package highlight-indent-guides
-  :defer t
-  :hook
-  (prog-mode . highlight-indent-guides-mode)
   )
 
 (use-package treemacs
@@ -413,77 +384,28 @@
   (treemacs magit)
   )
 
-(use-package centaur-tabs
-  :init
-  (centaur-tabs-mode t)
-  (setq centaur-tabs-style "bar"
-        centaur-tabs-height 35
-        centaur-tabs-set-icons t
-        centaur-tabs-set-modified-marker t
-        centaur-tabs-show-navigation-buttons nil
-        centaur-tabs-set-bar 'left
-        x-underline-at-descent-line t)
-  (centaur-tabs-change-fonts "FiraGO" 180)
-  (centaur-tabs-headline-match)
-
-  (setq centaur-tabs-gray-out-icons 'buffer)
-  (centaur-tabs-enable-buffer-reordering)
-  (setq centaur-tabs-adjust-buffer-order t)
-  (setq uniquify-separator "/")
-  (setq uniquify-buffer-name-style 'forward)
-  (defun centaur-tabs-buffer-groups ()
-    "`centaur-tabs-buffer-groups' control buffers' group rules.
-
- Group centaur-tabs with mode if buffer is derived from `eshell-mode' `emacs-lisp-mode' `dired-mode' `org-mode' `magit-mode'.
- All buffer name start with * will group to \"Emacs\".
- Other buffer group by `centaur-tabs-get-group-name' with project name."
-    (list
-     (cond
-      ;; ((not (eq (file-remote-p (buffer-file-name)) nil))
-      ;; "Remote")
-      ((or (string-equal "*" (substring (buffer-name) 0 1))
-	   (memq major-mode '(magit-process-mode
-			      magit-status-mode
-			      magit-diff-mode
-			      magit-log-mode
-			      magit-file-mode
-			      magit-blob-mode
-			      magit-blame-mode
-			      )))
-       "Emacs")
-      ((derived-mode-p 'prog-mode)
-       "Editing")
-      ((derived-mode-p 'dired-mode)
-       "Dired")
-      ((memq major-mode '(helpful-mode
-			  help-mode))
-       "Help")
-      ((memq major-mode '(org-mode
-			  org-agenda-clockreport-mode
-			  org-src-mode
-			  org-agenda-mode
-			  org-beamer-mode
-			  org-indent-mode
-			  org-bullets-mode
-			  org-cdlatex-mode
-			  org-agenda-log-mode
-			  diary-mode))
-       "OrgMode")
-      (t
-       (centaur-tabs-get-group-name (current-buffer))))))
-  :hook
-  (dashboard-mode . centaur-tabs-local-mode)
-  (term-mode . centaur-tabs-local-mode)
-  (calendar-mode . centaur-tabs-local-mode)
-  (org-agenda-mode . centaur-tabs-local-mode)
-  (org-todo-mode . centaur-tabs-local-mode)
-  (helpful-mode . centaur-tabs-local-mode)
+(use-package neotree
   :bind
-  ("C-<prior>" . centaur-tabs-backward)
-  ("C-<next>" . centaur-tabs-forward)
-  ("C-c t s" . centaur-tabs-counsel-switch-group)
-  ("C-c t p" . centaur-tabs-group-by-projectile-project)
-  ("C-c t g" . centaur-tabs-group-buffer-groups)
+  (("<f12>" . 'neotree-toggle))
+  )
+
+(use-package dashboard
+  :config
+  (dashboard-setup-startup-hook)
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  (setq dashboard-banner-logo-title "笔耕不辍, 静水流深        ")
+  (setq dashboard-startup-banner "~/.emacs.d/g.png")
+  (setq dashboard-center-content t)
+  (setq dashboard-set-footer nil)
+  (setq dashboard-items '((recents  . 5)
+                          (bookmarks . 5)
+                          (projects . 5)
+                          (agenda . 5)
+                          ))
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-set-navigator t)
+  (setq dashboard-set-init-info t)
   )
 
 (use-package ibuffer-vc
@@ -869,6 +791,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (setq org-emphasis-regexp-components '("-[:multibyte:][:space:]('\"{" "-[:multibyte:][:space:].,:!?;'\")}\\[" "[:space:]" "." 1))
   (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
   (org-element-update-syntax)
+
+  
   )
 (use-package org
   :ensure nil
@@ -951,25 +875,25 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
     )
   )
 
-(custom-theme-set-faces
- 'user
- '(variable-pitch ((t (:family "CMU Sans Serif" :height 200))))
- '(fixed-pitch ((t (:family "Fira Code" :height 160))))
- '(org-block ((t (:inherit fixed-pitch))))
- '(org-code ((t (:inherit (fixed-pitch)))))
- '(org-document-info ((t (:foreground "dark orange"))))
- '(org-block-begin-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
- '(org-block-end-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
- ;; '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
- '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
- '(org-link ((t (:foreground "royal blue" :underline t))))
- '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
- '(org-property-value ((t (:inherit fixed-pitch))) t)
- '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
- '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
- '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
- '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
- )
+;; (custom-theme-set-faces
+;;  'user
+;;  '(variable-pitch ((t (:family "CMU Sans Serif" :height 200))))
+;;  '(fixed-pitch ((t (:family "Fira Code" :height 160))))
+;;  '(org-block ((t (:inherit fixed-pitch))))
+;;  '(org-code ((t (:inherit (fixed-pitch)))))
+;;  '(org-document-info ((t (:foreground "dark orange"))))
+;;  '(org-block-begin-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
+;;  '(org-block-end-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
+;;  ;; '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+;;  '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+;;  '(org-link ((t (:foreground "royal blue" :underline t))))
+;;  '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+;;  '(org-property-value ((t (:inherit fixed-pitch))) t)
+;;  '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+;;  )
 (with-eval-after-load 'org
   (add-to-list 'org-emphasis-alist
                '("*" (:foreground "red" :weight bold)
@@ -983,6 +907,11 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
      (python . t)))
   (setq org-confirm-babel-evaluate nil)
   )
+
+(setq org-latex-pdf-process
+   '("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))
+
+(setq org-export-backends '(beamer html latex))
 
 (use-package org-pomodoro
   :commands org-pomodoro
@@ -1010,20 +939,29 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
          "* TODO %?\nReference: %a\n")
         ("m" "Email" entry (file+headline "~/SynologyDrive/org/inbox.org" "Email")
          "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
-        ("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
-         "* %?\nEntered on %U\n%i")
+        ("d" "Diary"
+	 entry
+	 (file+olp+datetree "~/SynologyDrive/org/diary.org")
+         "* 日记\n%?\nEntered on %U\n%i"
+	 :jump-to-captured t
+	 :immediate-finish t
+	 )
         ("p" "org-protocol" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
          "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
         ("l" "org-protocol link" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
          "* [[%:link][%:description]] \n%?\nCaptured On: %U")
         ("j" "Journal entry" plain (function org-journal-find-location)
-         "** %(format-time-string org-journal-time-format)%^{Title}\n%i%?"
+         "** %(format-time-string org-journal-time-format)%?\n%i"
          :jump-to-captured t :immediate-finish t)
         ))
 
-(setq org-refile-targets '((nil :maxlevel . 9)
-                           (("~/SynologyDrive/org/archive/email.org"
-                             "~/SynologyDrive/org/archive/tasks.org") :maxlevel . 1)))
+(setq org-refile-targets
+      '((nil :maxlevel . 9)
+        (("~/SynologyDrive/org/archive/email.org"
+          "~/SynologyDrive/org/archive/tasks.org") :maxlevel . 1)
+        (("~/SynologyDrive/Study/"
+          "~/SynologyDrive/Work/"
+	  "~/SynologyDrive/Life/") :maxlevel . 9)))
 (advice-add 'org-refile :after 'org-save-all-org-buffers)
 
 (use-package org2blog
@@ -1200,14 +1138,36 @@ With a prefix ARG, remove start location."
 (use-package org-journal
   :init
 
-
   (setq org-journal-file-type 'monthly)
   (setq org-journal-file-format "%Y-%m.org")
   (setq org-journal-dir "~/SynologyDrive/org/journal/")
   (setq org-journal-date-format "%A, %d %B %Y")
   (setq org-agenda-file-regexp "\\`\\\([^.].*\\.org\\\|[0-9]\\\{8\\\}\\\(\\.gpg\\\)?\\\)\\'")
+
+  (setq org-agenda-files
+	'("~/SynologyDrive/org/gcal.org"
+	  "~/SynologyDrive/org/inbox.org"
+	  "~/SynologyDrive/org/habits.org"
+	  "~/SynologyDrive/org/birthdays.org"
+	  ))
+
   (add-to-list 'org-agenda-files org-journal-dir)
   (setq org-journal-enable-agenda-integration t)
+  )
+
+(use-package deft
+  :bind
+  ("<f8>" . deft)
+  :commands
+  (deft)
+  :config
+  (setq deft-directory "~/SynologyDrive/org/roam"
+        deft-extensions '("md" "org")
+	deft-recursive t
+	deft-use-filename-as-title nil
+	deft-use-filter-string-for-filename t
+	deft-file-naming-rules '((nospace . "-"))
+	)
   )
 
 (use-package lsp-python-ms
@@ -1235,7 +1195,38 @@ With a prefix ARG, remove start location."
 (setq-default TeX-master nil)
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.8))
 (setq pdf-view-use-scaling t)
-(setq TeX-view-program-selection "PDF Tools")
+(setq pdf-view-use-imagemagick nil)
+(setq TeX-view-program-selection
+      '((output-dvi "open")
+	(output-pdf "open")
+	(output-html "open")))
+
+(use-package dart-mode
+  :hook (dart-mode . flutter-test-mode))
+
+(use-package flutter
+  :after dart-mode
+  :bind (:map dart-mode-map
+              ("C-M-x" . #'flutter-run-or-hot-reload))
+  :custom
+  (flutter-sdk-path "~/software/flutter/"))
+
+(use-package flutter-l10n-flycheck
+  :after flutter
+  :config
+  (flutter-l10n-flycheck-setup))
+
+(use-package lsp-dart
+  :hook (dart-mode . lsp))
+
+(use-package hover)
+
+(use-package yaml-mode
+  :defer t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+  (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))	       
+  )
 
 (defun toggle-selective-display (column)
   (interactive "P")
@@ -1436,3 +1427,22 @@ With a prefix ARG, remove start location."
   :config
   (add-to-list 'dash-at-point-mode-alist'(python-mode . "python"))
   )
+
+(use-package calibredb
+  :defer t
+  :config
+  (setq calibredb-root-dir "~/SynologyDrive/Library/calibre")
+  (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
+  (setq calibredb-library-alist '(("~/SynologyDrive/Library/calibre")
+				))
+  )
+
+(use-package nov
+  :defer t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+  )
+
+(use-package djvu
+  :ensure nil
+  :defer t)

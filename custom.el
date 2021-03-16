@@ -10,8 +10,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files
-   '("~/SynologyDrive/org/gcal.org" "~/SynologyDrive/org/inbox.org" "~/SynologyDrive/org/habits.org" "~/SynologyDrive/org/birthdays.org"))
- '(org-export-backends '(beamer html latex))
- '(org-latex-pdf-process
-   '("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))
- )
+   '("~/SynologyDrive/org/gcal.org" "~/SynologyDrive/org/inbox.org" "~/SynologyDrive/org/habits.org" "~/SynologyDrive/org/birthdays.org" "/Users/gq/SynologyDrive/org/journal/2021-03.org")))

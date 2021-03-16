@@ -2,14 +2,17 @@
 #+STARTUP: overview
 #+PROPERTY: header-args:elisp :tangle ./init.el
 
-* 包管理器
+* 插件管理器
+“插件” (或者“包” package) 其实是 emacs 的灵魂。
 ** package
+导入 =package= 包
 #+begin_src elisp
 (require 'package)
 #+end_src
    
 ** 配置源
 *** 官方源
+=package-archives= 是 emacs 包的档案库
 #+begin_src elisp
 (setq package-archives
       '(("melpa" . "https://melpa.org/packages/")
@@ -31,35 +34,42 @@
   (package-refresh-contents))
 #+end_src
 
-** 导入 custom.el
+** 定义 custom.el 但不导入
+文件 =custom.el= 存储 *定制化* 的信息，它的路径由 =custom-file= 定义。
 #+begin_src elisp
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
-(load custom-file)
+;; (load custom-file)
 #+end_src
 
 ** 自动导出 init.el
+在保存 =config= 文件时自动执行 =org-babel-tangle= 导出 =init.el=。
 #+begin_src elisp
 (defun gq/org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/.emacs.d/emacs-config.org"))
+                      (expand-file-name "emacs-config.org" user-emacs-directory))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
-
-(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'gq/org-babel-tangle-config)))
+      (org-babel-tangle)))
+  )
+(add-hook 'org-mode-hook
+	  (lambda () (add-hook 'after-save-hook 'gq/org-babel-tangle-config)))
 #+end_src
    
 ** use-package
+- 初始化 =package= 。如果没有安装 =use-package=，安装之。导入 =use-pacakge=。
+- https://github.com/jwiegley/use-package
 #+begin_src elisp
 (package-initialize)
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 (require 'use-package)
+
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 #+end_src
    
-** straight.el
+** TODO straight.el
+参考网站: https://github.com/raxod502/straight.el
 #+begin_src elisp
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -77,6 +87,8 @@
 #+end_src
 
 ** CANCEL quelpa
+- https://github.com/quelpa/quelpa
+  
 #+begin_src elisp :tangle no
 (unless (package-installed-p 'quelpa)
   (with-temp-buffer
@@ -88,7 +100,8 @@
 #+end_src
 
 ** CANCEL quelpa-use-package
-需要使用 quelpa 的原因是: mu4e-thread-folding.
+- https://github.com/quelpa/quelpa-use-package
+- 需要使用 quelpa 的原因是: mu4e-thread-folding.
 
 #+begin_src elisp :tangle no
 (quelpa
@@ -111,90 +124,77 @@
 (add-hook 'emacs-startup-hook 'efs/display-startup-time)
 #+end_src
 
-** no-littering
+** TODO no-littering
+- https://github.com/emacscollective/no-littering
 #+begin_src elisp
 (use-package no-littering)
 #+end_src
 
-* 简化界面
-** 删除启动消息
+* 界面基本配置
 #+begin_src elisp
+;; 删除启动信息
 (setq inhibit-startup-message t)
-#+end_src
-   
-** 不显示滚动条
-#+begin_src elisp
+;; 不显示滚动条
 (scroll-bar-mode -1)
-#+end_src
-
-** 不显示工具条
-#+begin_src elisp
+;; 不显示工具条
 (tool-bar-mode -1)
-#+end_src
-
-** 设置白边
-#+begin_src elisp
-(set-fringe-mode 10)
-#+end_src
-
-** 全屏显示
-#+begin_src elisp
-(toggle-frame-maximized)
-#+end_src
-
-** 设置透明度
-#+begin_src elisp
-(set-frame-parameter (selected-frame) 'alpha '(90 . 50))
-#+end_src
-
-** 显示电池用量
-#+begin_src elisp
-(display-battery-mode t)
-#+end_src
-
-** 不显示菜单栏
-#+begin_src elisp
+;; 不显示菜单栏
 (menu-bar-mode -1)
+;; 设置白边
+(set-fringe-mode 10)
+;; 全屏显示
+(toggle-frame-maximized)
+;; 设置透明度
+(set-frame-parameter (selected-frame) 'alpha '(90 . 50))
+;; 显示电池用量
+(display-battery-mode t)
+;; 显示列数
+(column-number-mode)
+;; 默认自动断行
+(set-default 'truncate-lines t)
+;; 设置可视警告
+;; (setq visible-bell t)
 #+end_src
 
-** CANCEL 设置可视警告
-#+begin_src elisp :tangle no
-(setq visible-bell t)
-#+end_src
-
-* 简单设置
-** 不需要备份文件
+* 全局设置
 #+begin_src elisp
+;; 不需要备份文件
 (setq make-backup-files nil)
+;; 环境变量——系统编码
+(setenv "LANG" "en_US.UTF-8")
+(setenv "LC_ALL" "en_US.UTF-8")
+(setenv "LC_CTYPE" "en_US.UTF-8")
+;; 启动 emacs 服务，让 emacsclient 可用
+(server-start)
+;; 系统代理
+;; (setq url-proxy-services '(("http" . "127.0.0.1:7890")
+;;                            ("https" . "127.0.0.1:7890")))
+
 #+end_src
 
-** 全局快捷键
-*** general
+** 全局快捷键 general
+- https://github.com/noctuid/general.el
 #+begin_src elisp
 (use-package general
   :config
   (general-define-key
    "M-x" 'counsel-M-x
-   "C-s" 'counsel-grep-or-swiper
+   "C-x d" 'counsel-dired
    "C-x b" 'counsel-switch-buffer
-   "C-c C-j" 'org-journal-new-entry
+   "C-s" 'counsel-grep-or-swiper
+   "C-x C-b" 'ibuffer
    "C-s-<left>" 'shrink-window-horizontally
    "C-s-<right>" 'enlarge-window-horizontally
    "C-s-<down>" 'shrink-window
    "C-s-<up>" 'enlarge-window
-   )
-
-  ;; * Mode Keybindings
-  ;; `general-define-key' is comparable to `define-key' when :keymaps is specified
-  (general-define-key
-   ;; NOTE: keymaps specified with :keymaps must be quoted
-   :keymaps 'org-mode-map
+   "<escape>" 'keyboard-escape-quit
    "<home>" 'beginning-of-line
    "<end>" 'end-of-line
-   "<escape>" 'keyboard-escape-quit
    )
+
   ;; `general-def' can be used instead for `define-key'-like syntax
   (general-def org-mode-map
+    "C-c C-j" 'org-journal-new-entry
     "C-c C-q" 'counsel-org-tag
     )
   ;; * Prefix Keybindings
@@ -204,56 +204,13 @@
    "a" 'org-agenda-list
    "b" 'counsel-bookmark
    "c" 'org-capture
+   "C-j" 'org-journal-new-entry
    )
   )
 #+end_src
 
-**** 参考代码
-#+begin_src elisp :tangle no
-;; for frequently used prefix keys, the user can create a custom definer with a
-;; default :prefix
-;; using a variable is not necessary, but it may be useful if you want to
-;; experiment with different prefix keys and aren't using `general-create-definer'
-(defconst my-leader "C-c")
-
-(general-create-definer my-leader-def
-  ;; :prefix my-leader
-  ;; or without a variable
-  :prefix "C-c")
-
-;; ** Global Keybindings
-(my-leader-def
- "a" 'org-agenda
- "b" 'counsel-bookmark
- "c" 'org-capture
- "l" 'org-store-link)
-
-;; ** Mode Keybindings
-(my-leader-def
- :keymaps 'clojure-mode-map
- ;; bind "C-c C-l"
- "C-l" 'cider-load-file
- "C-z" 'cider-switch-to-repl-buffer)
-`general-create-definer' creates wrappers around `general-def', so
-;; `define-key'-like syntax is also supported
-(my-leader-def clojure-mode-map
-               "C-l" 'cider-load-file
-               "C-z" 'cider-switch-to-repl-buffer)
-
-;; * Settings
-;; change `auto-revert-interval' after autorevert has been loaded (`setq' will
-;; not work)
-(general-setq auto-revert-interval 10)
-#+end_src
-
-** 系统编码
-#+begin_src elisp
-(setenv "LANG" "en_US.UTF-8")
-(setenv "LC_ALL" "en_US.UTF-8")
-(setenv "LC_CTYPE" "en_US.UTF-8")
-#+end_src
-
-** 删除到回收站
+** 删除到回收站 osx-trash
+- https://github.com/emacsorphanage/osx-trash
 #+begin_src elisp
 (use-package osx-trash
   :defer t
@@ -264,8 +221,8 @@
   )
 #+end_src
 
-** 环境变量
-*** exec-path-from-shell
+** 环境变量 exec-path-from-shell
+- https://github.com/purcell/exec-path-from-shell
 #+begin_src elisp
 (use-package exec-path-from-shell
   :config
@@ -273,27 +230,17 @@
     (exec-path-from-shell-initialize)))
 #+end_src
 
-** 启动服务
-#+begin_src elisp
-(server-start)
-#+end_src
-
-** CANCEL 系统代理
-#+begin_src elisp :tangle no
-(setq url-proxy-services '(("http" . "127.0.0.1:7890")
-                           ("https" . "127.0.0.1:7890")))
-#+end_src
-
 * 外观设置
 ** 主题
 *** doom-themes
+- https://github.com/hlissner/emacs-doom-themes
 #+begin_src elisp
 (use-package doom-themes
   :config
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  ;; (load-theme 'doom-one t)
+  ;; (load-theme 'doom-dracula t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -309,6 +256,7 @@
 #+end_src
 
 *** CANCEL kaolin-themes
+- https://github.com/ogdenwebb/emacs-kaolin-themes
 #+begin_src elisp :tangle no
 (use-package kaolin-themes
   :config
@@ -318,6 +266,7 @@
 #+end_src
 
 *** CANCEL base16-themes
+- https://github.com/belak/base16-emacs
 #+begin_src elisp :tangle no
 (use-package base16-theme
   :config
@@ -326,6 +275,7 @@
 #+end_src
 
 *** CANCEL modus-themes
+- https://github.com/protesilaos/modus-themes
 #+begin_src elisp :tangle no
 (use-package modus-themes
   :config
@@ -338,42 +288,24 @@
   )
 #+end_src
 
-*** moe-theme
-#+begin_src elisp
+*** CANCEL moe-theme
+- https://github.com/kuanyui/moe-theme.el
+#+begin_src elisp :tangle no
 (use-package moe-theme
   :config
   (moe-light)
   )
 #+end_src
 
-** 打开行号
+*** apropospriate-theme
 #+begin_src elisp
-(column-number-mode)
-(global-display-line-numbers-mode t)
-(dolist
-    (mode '(org-mode-hook
-            term-mode-hook
-            eshell-mode-hook
-            vterm-mode-hook
-            treemacs-mode-hook
-            org-agenda-mode-hook
-            pdf-view-mode-hook
-            dired-mode-hook
-            xwidget-webkit-mode-hook
-            mu4e-headers-mode-hook
-            ))
-  (add-hook mode
-            (lambda () (display-line-numbers-mode 0))
-            )
+(use-package apropospriate-theme
+  :config 
+  (load-theme 'apropospriate-light t)
   )
 #+end_src
-
-** 自动断行
-#+begin_src elisp
-(set-default 'truncate-lines t)
-#+end_src
-
-** all-the-icons
+** 字符
+*** all-the-icons
 #+begin_src elisp 
 (use-package all-the-icons
   :after
@@ -385,7 +317,7 @@
   )
 #+end_src
 
-*** all-the-icons-ivy
+**** all-the-icons-ivy
 #+begin_src elisp
 (use-package all-the-icons-ivy
   :after
@@ -395,7 +327,7 @@
   )
 #+end_src
 
-*** all-the-icons-ivy-rich
+**** all-the-icons-ivy-rich
 #+begin_src elisp
 (use-package all-the-icons-ivy-rich
   :after (all-the-icons ivy-rich)
@@ -403,7 +335,7 @@
   )
 #+end_src
 
-*** all-the-icons-ibuffer
+**** all-the-icons-ibuffer
 #+begin_src elisp
 (use-package all-the-icons-ibuffer
   :defer t
@@ -412,7 +344,7 @@
   )
 #+end_src
 
-*** all-the-icons-dired
+**** all-the-icons-dired
 #+begin_src elisp
 (use-package all-the-icons-dired
   :diminish
@@ -453,103 +385,24 @@
     ))
 #+end_src
 
-** doom-modeline
-#+begin_src elisp
-(use-package doom-modeline
-  :init
-  (doom-modeline-mode 1)
-  :config
-  (setq doom-modeline-height 25)
-  (setq doom-modeline-bar-width 3)
-  (setq doom-modeline-window-width-limit fill-column)
-  (setq doom-modeline-project-detection 'project)
-  (setq doom-modeline-buffer-file-name-style 'auto)
-  (setq doom-modeline-icon (display-graphic-p))
-  (setq doom-modeline-major-mode-icon t)
-  (setq doom-modeline-major-mode-color-icon t)
-  (setq doom-modeline-buffer-state-icon t)
-  (setq doom-modeline-buffer-modification-icon t)
-  (setq doom-modeline-unicode-fallback t)
-  (setq doom-modeline-minor-modes nil)
-  (setq doom-modeline-enable-word-count t)
-  (setq doom-modeline-continuous-word-count-modes '(markdown-mode gfm-mode org-mode))
-  (setq doom-modeline-buffer-encoding t)
-  (setq doom-modeline-indent-info nil)
-  (setq doom-modeline-checker-simple-format t)
-  (setq doom-modeline-number-limit 99)
-  (setq doom-modeline-vcs-max-length 12)
-  (setq doom-modeline-workspace-name t)
-  (setq doom-modeline-persp-name t)
-  (setq doom-modeline-display-default-persp-name nil)
-  (setq doom-modeline-persp-icon t)
-  (setq doom-modeline-lsp t)
-  (setq doom-modeline-github t)
-  (setq doom-modeline-github-interval (* 30 60))
-  (setq doom-modeline-modal-icon t)
-  (setq doom-modeline-mu4e t)
-  (setq doom-modeline-gnus t)
-  (setq doom-modeline-gnus-timer 2)
-  (setq doom-modeline-gnus-excluded-groups '("dummy.group"))
-  (setq doom-modeline-irc t)
-  (setq doom-modeline-irc-stylize 'identity)
-  (setq doom-modeline-env-version t)
-  (setq doom-modeline-env-enable-python t)
-  (setq doom-modeline-env-enable-ruby t)
-  (setq doom-modeline-env-enable-perl t)
-  (setq doom-modeline-env-enable-go t)
-  (setq doom-modeline-env-enable-elixir t)
-  (setq doom-modeline-env-enable-rust t)
-  (setq doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
-  (setq doom-modeline-env-ruby-executable "ruby")
-  (setq doom-modeline-env-perl-executable "perl")
-  (setq doom-modeline-env-go-executable "go")
-  (setq doom-modeline-env-elixir-executable "iex")
-  (setq doom-modeline-env-rust-executable "rustc")
-  (setq doom-modeline-env-load-string "...")
-  (setq doom-modeline-before-update-env-hook nil)
-  (setq doom-modeline-after-update-env-hook nil)  
-  )
-#+end_src
-
-** rainbow-delimiters
+*** rainbow-delimiters
 #+begin_src elisp
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
-** dashboard
-#+begin_src elisp
-(use-package dashboard
-  :config
-  (dashboard-setup-startup-hook)
-  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-  (setq dashboard-banner-logo-title "笔耕不辍, 静水流深        ")
-  (setq dashboard-startup-banner "~/.emacs.d/g.png")
-  (setq dashboard-center-content t)
-  (setq dashboard-set-footer nil)
-  (setq dashboard-items '((recents  . 5)
-                          (bookmarks . 5)
-                          (projects . 5)
-                          (agenda . 5)
-                          ))
-  (setq dashboard-set-heading-icons t)
-  (setq dashboard-set-file-icons t)
-  (setq dashboard-set-navigator t)
-  (setq dashboard-set-init-info t)
-  )
-#+end_src
-
-** cnfonts
+*** cnfonts
 #+begin_src elisp
 (use-package cnfonts
   :init
   (cnfonts-enable)
   (cnfonts-set-spacemacs-fallback-fonts)
   (setq cnfonts-profiles
-        '("program" "org-mode" "read-book"))
-  (setq cnfonts-personal-fontnames '(("Iosevka Comfy")
-                                     ("Noto Sans SC")
-                                     ()))
+	'("program" "org-mode" "read-book"))
+  (setq cnfonts-personal-fontnames
+	'(("Iosevka Comfy" "MesloLGS NF" "Yanone Kaffeesatz")
+	  ("Noto Sans SC" "TsangerJinKai02 W04")
+	  ()))
   (setq use-default-font-for-symbols nil)
   (setq cnfonts-use-face-font-rescale t)
   :bind
@@ -559,14 +412,14 @@
   )
 #+end_src
 
-** emojify
+*** emojify
 #+begin_src elisp
 (use-package emojify
   :defer t
   :hook (after-init . global-emojify-mode))
 #+end_src
 
-** highlight-indent-guides
+*** highlight-indent-guides
 #+begin_src elisp
 (use-package highlight-indent-guides
   :defer t
@@ -574,95 +427,10 @@
   (prog-mode . highlight-indent-guides-mode)
   )
 #+end_src
-  
-** treemacs
-#+begin_src elisp
-(use-package treemacs
-  :defer t
-  :init (with-eval-after-load 'winum
-          (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-  :config
-  (progn
-    (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
-          treemacs-deferred-git-apply-delay      0.5
-          treemacs-directory-name-transformer    #'identity
-          treemacs-display-in-side-window        t
-          treemacs-eldoc-display                 t
-          treemacs-file-event-delay              5000
-          treemacs-file-extension-regex          treemacs-last-period-regex-value
-          treemacs-file-follow-delay             0.2
-          treemacs-file-name-transformer         #'identity
-          treemacs-follow-after-init             t
-          treemacs-git-command-pipe              ""
-          treemacs-goto-tag-strategy             'refetch-index
-          treemacs-indentation                   2
-          treemacs-indentation-string            " "
-          treemacs-is-never-other-window         nil
-          treemacs-max-git-entries               5000
-          treemacs-missing-project-action        'ask
-          treemacs-move-forward-on-expand        nil
-          treemacs-no-png-images                 nil
-          treemacs-no-delete-other-windows       t
-          treemacs-project-follow-cleanup        nil
-          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-          treemacs-position                      'left
-          treemacs-read-string-input             'from-child-frame
-          treemacs-recenter-distance             0.1
-          treemacs-recenter-after-file-follow    nil
-          treemacs-recenter-after-tag-follow     nil
-          treemacs-recenter-after-project-jump   'always
-          treemacs-recenter-after-project-expand 'on-distance
-          treemacs-show-cursor                   nil
-          treemacs-show-hidden-files             nil
-          treemacs-silent-filewatch              nil
-          treemacs-silent-refresh                nil
-          treemacs-sorting                       'alphabetic-asc
-          treemacs-space-between-root-nodes      t
-          treemacs-tag-follow-cleanup            t
-          treemacs-tag-follow-delay              1.5
-          treemacs-user-mode-line-format         nil
-          treemacs-user-header-line-format       nil
-          treemacs-width                         35
-          treemacs-workspace-switch-cleanup      nil
-          )
-    (treemacs-resize-icons 18)
-    (treemacs-follow-mode t)
-    (treemacs-filewatch-mode t)
-    (treemacs-fringe-indicator-mode t)
-    (pcase (cons (not (null (executable-find "git")))
-                 (not (null treemacs-python-executable)))
-      (`(t . t)
-       (treemacs-git-mode 'deferred))
-      (`(t . _)
-       (treemacs-git-mode 'simple))))
-  :bind
-  (:map global-map
-        ("M-0"       . treemacs-select-window)
-        ("C-x t 1"   . treemacs-delete-other-windows)
-        ("C-x t t"   . treemacs)
-        ("C-x t B"   . treemacs-bookmark)
-        ("C-x t C-t" . treemacs-find-file)
-        ("C-x t M-t" . treemacs-find-tag)))
-#+end_src
 
-** treemacs-projectile
-#+begin_src elisp
-(use-package treemacs-projectile
-  :after
-  (treemacs projectile)
-  )
-#+end_src
-
-** treemacs-magit
-#+begin_src elisp
-(use-package treemacs-magit
-  :after
-  (treemacs magit)
-  )
-#+end_src
-
-** centaur-tabs
-#+begin_src elisp
+** 顶部  
+*** centaur-tabs
+#+begin_src elisp :tangle no
 (use-package centaur-tabs
   :init
   (centaur-tabs-mode t)
@@ -737,13 +505,191 @@
   )
 #+end_src
 
-** ibuffer-vc
+** 底部
+*** doom-modeline
+#+begin_src elisp
+(use-package doom-modeline
+  :init
+  (doom-modeline-mode 1)
+  :config
+  (setq doom-modeline-height 25)
+  (setq doom-modeline-bar-width 3)
+  (setq doom-modeline-window-width-limit fill-column)
+  (setq doom-modeline-project-detection 'project)
+  (setq doom-modeline-buffer-file-name-style 'auto)
+  (setq doom-modeline-icon (display-graphic-p))
+  (setq doom-modeline-major-mode-icon t)
+  (setq doom-modeline-major-mode-color-icon t)
+  (setq doom-modeline-buffer-state-icon t)
+  (setq doom-modeline-buffer-modification-icon t)
+  (setq doom-modeline-unicode-fallback t)
+  (setq doom-modeline-minor-modes nil)
+  (setq doom-modeline-enable-word-count t)
+  (setq doom-modeline-continuous-word-count-modes '(markdown-mode gfm-mode org-mode))
+  (setq doom-modeline-buffer-encoding t)
+  (setq doom-modeline-indent-info nil)
+  (setq doom-modeline-checker-simple-format t)
+  (setq doom-modeline-number-limit 99)
+  (setq doom-modeline-vcs-max-length 12)
+  (setq doom-modeline-workspace-name t)
+  (setq doom-modeline-persp-name t)
+  (setq doom-modeline-display-default-persp-name nil)
+  (setq doom-modeline-persp-icon t)
+  (setq doom-modeline-lsp t)
+  (setq doom-modeline-github t)
+  (setq doom-modeline-github-interval (* 30 60))
+  (setq doom-modeline-modal-icon t)
+  (setq doom-modeline-mu4e t)
+  (setq doom-modeline-gnus t)
+  (setq doom-modeline-gnus-timer 2)
+  (setq doom-modeline-gnus-excluded-groups '("dummy.group"))
+  (setq doom-modeline-irc t)
+  (setq doom-modeline-irc-stylize 'identity)
+  (setq doom-modeline-env-version t)
+  (setq doom-modeline-env-enable-python t)
+  (setq doom-modeline-env-enable-ruby t)
+  (setq doom-modeline-env-enable-perl t)
+  (setq doom-modeline-env-enable-go t)
+  (setq doom-modeline-env-enable-elixir t)
+  (setq doom-modeline-env-enable-rust t)
+  (setq doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
+  (setq doom-modeline-env-ruby-executable "ruby")
+  (setq doom-modeline-env-perl-executable "perl")
+  (setq doom-modeline-env-go-executable "go")
+  (setq doom-modeline-env-elixir-executable "iex")
+  (setq doom-modeline-env-rust-executable "rustc")
+  (setq doom-modeline-env-load-string "...")
+  (setq doom-modeline-before-update-env-hook nil)
+  (setq doom-modeline-after-update-env-hook nil)  
+  )
+#+end_src
+
+** 左侧
+*** treemacs
+#+begin_src elisp
+(use-package treemacs
+  :defer t
+  :init (with-eval-after-load 'winum
+          (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-collapse-dirs                 (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay      0.5
+          treemacs-directory-name-transformer    #'identity
+          treemacs-display-in-side-window        t
+          treemacs-eldoc-display                 t
+          treemacs-file-event-delay              5000
+          treemacs-file-extension-regex          treemacs-last-period-regex-value
+          treemacs-file-follow-delay             0.2
+          treemacs-file-name-transformer         #'identity
+          treemacs-follow-after-init             t
+          treemacs-git-command-pipe              ""
+          treemacs-goto-tag-strategy             'refetch-index
+          treemacs-indentation                   2
+          treemacs-indentation-string            " "
+          treemacs-is-never-other-window         nil
+          treemacs-max-git-entries               5000
+          treemacs-missing-project-action        'ask
+          treemacs-move-forward-on-expand        nil
+          treemacs-no-png-images                 nil
+          treemacs-no-delete-other-windows       t
+          treemacs-project-follow-cleanup        nil
+          treemacs-persist-file                  (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                      'left
+          treemacs-read-string-input             'from-child-frame
+          treemacs-recenter-distance             0.1
+          treemacs-recenter-after-file-follow    nil
+          treemacs-recenter-after-tag-follow     nil
+          treemacs-recenter-after-project-jump   'always
+          treemacs-recenter-after-project-expand 'on-distance
+          treemacs-show-cursor                   nil
+          treemacs-show-hidden-files             nil
+          treemacs-silent-filewatch              nil
+          treemacs-silent-refresh                nil
+          treemacs-sorting                       'alphabetic-asc
+          treemacs-space-between-root-nodes      t
+          treemacs-tag-follow-cleanup            t
+          treemacs-tag-follow-delay              1.5
+          treemacs-user-mode-line-format         nil
+          treemacs-user-header-line-format       nil
+          treemacs-width                         35
+          treemacs-workspace-switch-cleanup      nil
+          )
+    (treemacs-resize-icons 18)
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode t)
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple))))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+#+end_src
+
+**** treemacs-projectile
+#+begin_src elisp
+(use-package treemacs-projectile
+  :after
+  (treemacs projectile)
+  )
+#+end_src
+
+**** treemacs-magit
+#+begin_src elisp
+(use-package treemacs-magit
+  :after
+  (treemacs magit)
+  )
+#+end_src
+
+*** neotree
+#+begin_src elisp
+(use-package neotree
+  :bind
+  (("<f12>" . 'neotree-toggle))
+  )
+#+end_src
+
+** 启动
+*** dashboard
+#+begin_src elisp
+(use-package dashboard
+  :config
+  (dashboard-setup-startup-hook)
+  (setq initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  (setq dashboard-banner-logo-title "笔耕不辍, 静水流深        ")
+  (setq dashboard-startup-banner "~/.emacs.d/g.png")
+  (setq dashboard-center-content t)
+  (setq dashboard-set-footer nil)
+  (setq dashboard-items '((recents  . 5)
+                          (bookmarks . 5)
+                          (projects . 5)
+                          (agenda . 5)
+                          ))
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-set-navigator t)
+  (setq dashboard-set-init-info t)
+  )
+#+end_src
+
+** 切换
+*** ibuffer-vc
 #+begin_src elisp
 (use-package ibuffer-vc
   :defer t)
 #+end_src
 
-** dired
+*** dired
 #+begin_src elisp
 (use-package dired
   :ensure
@@ -773,7 +719,7 @@
 
 #+end_src
 
-** dired-single
+**** dired-single
 #+begin_src elisp
 (use-package dired-single
   :init
@@ -797,7 +743,7 @@ loaded."
   )
 #+end_src
    
-** dired-hide-dotfiles
+**** dired-hide-dotfiles
 #+begin_src elisp
 (use-package dired-hide-dotfiles
   :defer t
@@ -824,11 +770,6 @@ loaded."
 (use-package visual-fill-column
   :defer t
   :hook (org-mode . gq/org-mode-visual-fill))
-#+end_src
-
-** CANCEL ranger
-#+begin_src elisp :tangle no
-(use-package ranger)
 #+end_src
 
 * 自动补全
@@ -1246,6 +1187,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (setq org-emphasis-regexp-components '("-[:multibyte:][:space:]('\"{" "-[:multibyte:][:space:].,:!?;'\")}\\[" "[:space:]" "." 1))
   (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
   (org-element-update-syntax)
+
+  
   )
 (use-package org
   :ensure nil
@@ -1331,25 +1274,25 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 ***** 字体
 #+begin_src elisp
-(custom-theme-set-faces
- 'user
- '(variable-pitch ((t (:family "CMU Sans Serif" :height 200))))
- '(fixed-pitch ((t (:family "Fira Code" :height 160))))
- '(org-block ((t (:inherit fixed-pitch))))
- '(org-code ((t (:inherit (fixed-pitch)))))
- '(org-document-info ((t (:foreground "dark orange"))))
- '(org-block-begin-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
- '(org-block-end-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
- ;; '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
- '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
- '(org-link ((t (:foreground "royal blue" :underline t))))
- '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
- '(org-property-value ((t (:inherit fixed-pitch))) t)
- '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
- '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
- '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
- '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
- )
+;; (custom-theme-set-faces
+;;  'user
+;;  '(variable-pitch ((t (:family "CMU Sans Serif" :height 200))))
+;;  '(fixed-pitch ((t (:family "Fira Code" :height 160))))
+;;  '(org-block ((t (:inherit fixed-pitch))))
+;;  '(org-code ((t (:inherit (fixed-pitch)))))
+;;  '(org-document-info ((t (:foreground "dark orange"))))
+;;  '(org-block-begin-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
+;;  '(org-block-end-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
+;;  ;; '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+;;  '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+;;  '(org-link ((t (:foreground "royal blue" :underline t))))
+;;  '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+;;  '(org-property-value ((t (:inherit fixed-pitch))) t)
+;;  '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
+;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
+;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+;;  )
 (with-eval-after-load 'org
   (add-to-list 'org-emphasis-alist
                '("*" (:foreground "red" :weight bold)
@@ -1367,7 +1310,18 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (setq org-confirm-babel-evaluate nil)
   )
 #+end_src
-     
+
+**** org-latex
+#+begin_src elisp
+(setq org-latex-pdf-process
+   '("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))
+#+end_src
+
+**** org-export
+#+begin_src elisp
+(setq org-export-backends '(beamer html latex))
+#+end_src
+
 **** org-pomodoro
 #+begin_src elisp
 (use-package org-pomodoro
@@ -1411,23 +1365,32 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
          "* TODO %?\nReference: %a\n")
         ("m" "Email" entry (file+headline "~/SynologyDrive/org/inbox.org" "Email")
          "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
-        ("d" "Diary" entry (file+olp+datetree "~/SynologyDrive/org/diary.org")
-         "* %?\nEntered on %U\n%i")
+        ("d" "Diary"
+	 entry
+	 (file+olp+datetree "~/SynologyDrive/org/diary.org")
+         "* 日记\n%?\nEntered on %U\n%i"
+	 :jump-to-captured t
+	 :immediate-finish t
+	 )
         ("p" "org-protocol" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
          "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
         ("l" "org-protocol link" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
          "* [[%:link][%:description]] \n%?\nCaptured On: %U")
         ("j" "Journal entry" plain (function org-journal-find-location)
-         "** %(format-time-string org-journal-time-format)%^{Title}\n%i%?"
+         "** %(format-time-string org-journal-time-format)%?\n%i"
          :jump-to-captured t :immediate-finish t)
         ))
 #+end_src
 
 **** org-refile
 #+begin_src elisp
-(setq org-refile-targets '((nil :maxlevel . 9)
-                           (("~/SynologyDrive/org/archive/email.org"
-                             "~/SynologyDrive/org/archive/tasks.org") :maxlevel . 1)))
+(setq org-refile-targets
+      '((nil :maxlevel . 9)
+        (("~/SynologyDrive/org/archive/email.org"
+          "~/SynologyDrive/org/archive/tasks.org") :maxlevel . 1)
+        (("~/SynologyDrive/Study/"
+          "~/SynologyDrive/Work/"
+	  "~/SynologyDrive/Life/") :maxlevel . 9)))
 (advice-add 'org-refile :after 'org-save-all-org-buffers)
 #+end_src
 
@@ -1646,14 +1609,39 @@ With a prefix ARG, remove start location."
 (use-package org-journal
   :init
 
-
   (setq org-journal-file-type 'monthly)
   (setq org-journal-file-format "%Y-%m.org")
   (setq org-journal-dir "~/SynologyDrive/org/journal/")
   (setq org-journal-date-format "%A, %d %B %Y")
   (setq org-agenda-file-regexp "\\`\\\([^.].*\\.org\\\|[0-9]\\\{8\\\}\\\(\\.gpg\\\)?\\\)\\'")
+
+  (setq org-agenda-files
+	'("~/SynologyDrive/org/gcal.org"
+	  "~/SynologyDrive/org/inbox.org"
+	  "~/SynologyDrive/org/habits.org"
+	  "~/SynologyDrive/org/birthdays.org"
+	  ))
+
   (add-to-list 'org-agenda-files org-journal-dir)
   (setq org-journal-enable-agenda-integration t)
+  )
+#+end_src
+
+**** deft
+#+begin_src elisp
+(use-package deft
+  :bind
+  ("<f8>" . deft)
+  :commands
+  (deft)
+  :config
+  (setq deft-directory "~/SynologyDrive/org/roam"
+        deft-extensions '("md" "org")
+	deft-recursive t
+	deft-use-filename-as-title nil
+	deft-use-filter-string-for-filename t
+	deft-file-naming-rules '((nospace . "-"))
+	)
   )
 #+end_src
 
@@ -1698,7 +1686,44 @@ With a prefix ARG, remove start location."
 (setq-default TeX-master nil)
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.8))
 (setq pdf-view-use-scaling t)
-(setq TeX-view-program-selection "PDF Tools")
+(setq pdf-view-use-imagemagick nil)
+(setq TeX-view-program-selection
+      '((output-dvi "open")
+	(output-pdf "open")
+	(output-html "open")))
+#+end_src
+
+*** Dart/Flutter
+#+begin_src elisp
+(use-package dart-mode
+  :hook (dart-mode . flutter-test-mode))
+
+(use-package flutter
+  :after dart-mode
+  :bind (:map dart-mode-map
+              ("C-M-x" . #'flutter-run-or-hot-reload))
+  :custom
+  (flutter-sdk-path "~/software/flutter/"))
+
+(use-package flutter-l10n-flycheck
+  :after flutter
+  :config
+  (flutter-l10n-flycheck-setup))
+
+(use-package lsp-dart
+  :hook (dart-mode . lsp))
+
+(use-package hover)
+#+end_src
+
+*** yaml
+#+begin_src elisp
+(use-package yaml-mode
+  :defer t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+  (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))	       
+  )
 #+end_src
 
 ** 折叠
@@ -1962,4 +1987,31 @@ CLOSED: [2021-03-09 Tue 21:22]
   :config
   (add-to-list 'dash-at-point-mode-alist'(python-mode . "python"))
   )
+#+end_src
+
+** epub
+*** calibredb
+#+begin_src elisp
+(use-package calibredb
+  :defer t
+  :config
+  (setq calibredb-root-dir "~/SynologyDrive/Library/calibre")
+  (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
+  (setq calibredb-library-alist '(("~/SynologyDrive/Library/calibre")
+				))
+  )
+#+end_src
+*** nov
+#+begin_src elisp
+(use-package nov
+  :defer t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+  )
+#+end_src
+** djvu
+#+begin_src elisp
+  (use-package djvu
+    :ensure nil
+    :defer t)
 #+end_src
