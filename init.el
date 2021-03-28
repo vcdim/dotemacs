@@ -137,7 +137,7 @@
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  ;; (load-theme 'doom-dracula t)
+  (load-theme 'doom-dracula t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -151,18 +151,59 @@
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
-(use-package apropospriate-theme
-  :config 
-  (load-theme 'apropospriate-light t)
+(defun my/default-mode-font()
+  (interactive)
+  (set-face-attribute
+   'default nil
+   :font (font-spec :name "-*-MesloLGS NF-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"
+                    :size 16.0))
+  (dolist (charset '(kana han cjk-misc bopomofo))
+    (set-fontset-font
+     (frame-parameter nil 'font)
+     charset
+     (font-spec :name "-*-KaiTi_GB2312-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
+		:size 20.0)))
   )
+
+(defun my/org-mode-font()
+  (interactive)
+  (set-face-attribute
+   'default nil
+   :font (font-spec :name "-*-CMU Typewriter Text-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"
+                    :size 16.0))
+  (dolist (charset '(kana han cjk-misc bopomofo))
+    (set-fontset-font
+     (frame-parameter nil 'font)
+     charset
+     (font-spec :name "-*-KaiTi_GB2312-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
+		:weight 'normal
+		:slant 'normal
+		:size 16.0)))
+  )
+
+(defun my/prog-mode-font()
+  (interactive)
+  (set-face-attribute
+   'default nil
+   :font (font-spec :name "-*-RobotoMono Nerd Font-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"
+                    :size 16.0))
+  (dolist (charset '(kana han cjk-misc bopomofo))
+    (set-fontset-font
+     (frame-parameter nil 'font)
+     charset
+     (font-spec :name "-*-KaiTi_GB2312-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
+		:size 16.0)))
+  )
+
+(my/default-mode-font)
+(set-fontset-font
+ "fontset-default" 'unicode "Apple Color Emoji" nil 'prepend)
+(set-fontset-font
+ t 'symbol (font-spec :family "Apple Color Emoji" :size 15.0) nil 'prepend)
 
 (use-package all-the-icons
   :after
   cnfonts
-  :if
-  (display-graphic-p)
-  :hook
-  (dired-mode . all-the-icons-dired-mode)
   )
 
 (use-package all-the-icons-ivy
@@ -224,27 +265,11 @@
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
-(use-package cnfonts
-  :init
-  (cnfonts-enable)
-  (cnfonts-set-spacemacs-fallback-fonts)
-  (setq cnfonts-profiles
-	'("program" "org-mode" "read-book"))
-  (setq cnfonts-personal-fontnames
-	'(("Iosevka Comfy" "MesloLGS NF" "Yanone Kaffeesatz")
-	  ("Noto Sans SC" "TsangerJinKai02 W04")
-	  ()))
-  (setq use-default-font-for-symbols nil)
-  (setq cnfonts-use-face-font-rescale t)
-  :bind
-  (("C-=" . cnfonts-increase-fontsize)
-   ("C--" . cnfonts-decrease-fontsize)
-   )
-  )
-
 (use-package emojify
-  :defer t
-  :hook (after-init . global-emojify-mode))
+  :config
+  (setq emojify-display-style 'unicode)
+  (setq emojify-emoji-set "twemoji-v2-22")
+  )
 
 (use-package highlight-indent-guides
   :defer t
@@ -284,11 +309,6 @@
   (setq doom-modeline-github-interval (* 30 60))
   (setq doom-modeline-modal-icon t)
   (setq doom-modeline-mu4e t)
-  (setq doom-modeline-gnus t)
-  (setq doom-modeline-gnus-timer 2)
-  (setq doom-modeline-gnus-excluded-groups '("dummy.group"))
-  (setq doom-modeline-irc t)
-  (setq doom-modeline-irc-stylize 'identity)
   (setq doom-modeline-env-version t)
   (setq doom-modeline-env-enable-python t)
   (setq doom-modeline-env-enable-ruby t)
@@ -296,7 +316,7 @@
   (setq doom-modeline-env-enable-go t)
   (setq doom-modeline-env-enable-elixir t)
   (setq doom-modeline-env-enable-rust t)
-  (setq doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
+  (setq doom-modeline-env-python-executable 'python-shell-interpreter)
   (setq doom-modeline-env-ruby-executable "ruby")
   (setq doom-modeline-env-perl-executable "perl")
   (setq doom-modeline-env-go-executable "go")
@@ -304,7 +324,7 @@
   (setq doom-modeline-env-rust-executable "rustc")
   (setq doom-modeline-env-load-string "...")
   (setq doom-modeline-before-update-env-hook nil)
-  (setq doom-modeline-after-update-env-hook nil)  
+  (setq doom-modeline-after-update-env-hook nil)
   )
 
 (use-package treemacs
@@ -472,6 +492,8 @@ loaded."
   (dired-mode . my-dired-mode-hook)
   )
 
+(use-package transpose-frame)
+
 (defun gq/org-mode-visual-fill ()
   (setq visual-fill-column-width 100
         visual-fill-column-center-text t)
@@ -482,7 +504,7 @@ loaded."
   :hook (org-mode . gq/org-mode-visual-fill))
 
 (use-package ivy
-  :diminish
+  :diminish t
   :bind
   (("C-s" . swiper)
    :map ivy-minibuffer-map
@@ -588,6 +610,9 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (selectrum-mode +1)
   )
 
+(use-package orderless
+  :custom (completion-styles '(orderless)))
+
 (use-package selectrum-prescient
   :after (selectrum prescient)
   :straight t
@@ -629,7 +654,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (use-package projectile
   :diminish
-  projectile
+  projectile-mode
   :config
   (projectile-mode)
   (when (file-directory-p "~/projects")
@@ -733,6 +758,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (company-mode . company-box-mode))
 
 (use-package yasnippet
+  :delight
   :defer
   t
   :config
@@ -762,8 +788,13 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   ;; (dap-ui-mode 1)
   ;; (dap-tooltip-mode 1)
   ;; (tooltip-mode 1)
-  ;; (dap-ui-controls-mode 1)
+  (dap-ui-controls-mode 1)
   ;; )
+  (dap-register-debug-template
+   "Flutter :: Release"
+   (list :type "flutter"
+	 :args "--release")
+   )
   )
 
 (use-package magit
@@ -791,8 +822,6 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (setq org-emphasis-regexp-components '("-[:multibyte:][:space:]('\"{" "-[:multibyte:][:space:].,:!?;'\")}\\[" "[:space:]" "." 1))
   (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
   (org-element-update-syntax)
-
-  
   )
 (use-package org
   :ensure nil
@@ -939,20 +968,35 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
          "* TODO %?\nReference: %a\n")
         ("m" "Email" entry (file+headline "~/SynologyDrive/org/inbox.org" "Email")
          "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
-        ("d" "Diary"
+        ("d" "Diary, Plan, Review")
+	("dd" "Diary"
 	 entry
 	 (file+olp+datetree "~/SynologyDrive/org/diary.org")
          "* 日记\n%?\nEntered on %U\n%i"
 	 :jump-to-captured t
 	 :immediate-finish t
 	 )
+	("dp" "Plan"
+	 entry
+	 (file+olp+datetree "~/SynologyDrive/org/plan.org")
+         "* Plan\n%?\nEntered on %U\n%i"
+	 :jump-to-captured t
+	 :immediate-finish t
+	 )
+	("dr" "Review"
+	 entry
+	 (file+olp+datetree "~/SynologyDrive/org/plan.org")
+         "* Review\n%?\nEntered on %U\n%i"
+	 :jump-to-captured t
+	 :immediate-finish t
+	 )
+        ("j" "Journal entry" plain (function org-journal-find-location)
+         "** %(format-time-string org-journal-time-format)%?\n%i"
+         :jump-to-captured t :immediate-finish t)
         ("p" "org-protocol" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
          "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
         ("l" "org-protocol link" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
          "* [[%:link][%:description]] \n%?\nCaptured On: %U")
-        ("j" "Journal entry" plain (function org-journal-find-location)
-         "** %(format-time-string org-journal-time-format)%?\n%i"
-         :jump-to-captured t :immediate-finish t)
         ))
 
 (setq org-refile-targets
@@ -974,7 +1018,18 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   )
 
 (use-package org-download
-  :defer t)
+  :custom
+  (org-download-method 'directory)
+  (org-download-image-dir "images")
+  (org-download-heading-lvl nil)
+  (org-download-timestamp "%Y%m%d-%H%M%S_")
+  (org-image-actual-width 300)
+  (org-download-screenshot-method "/usr/local/bin/pngpaste %s")
+  :bind
+  ("C-M-y" . org-download-screenshot) 
+  :hook
+  (dired-mode . org-download-enable)
+  )
 
 (require 'org-habit)
 (setq org-habit-show-done-always-green t) 
@@ -1047,6 +1102,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
         org-roam-server-network-label-wrap-length 20))
 
 (use-package org-fancy-priorities
+  :delight
   :hook
   (org-mode . org-fancy-priorities-mode)
   :config

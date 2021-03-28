@@ -3,7 +3,6 @@
 #+PROPERTY: header-args:elisp :tangle ./init.el
 
 * 插件管理器
-“插件” (或者“包” package) 其实是 emacs 的灵魂。
 ** package
 导入 =package= 包
 #+begin_src elisp
@@ -240,7 +239,7 @@
   ;; Global settings (defaults)
   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  ;; (load-theme 'doom-dracula t)
+  (load-theme 'doom-dracula t)
 
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
@@ -297,23 +296,73 @@
   )
 #+end_src
 
-*** apropospriate-theme
-#+begin_src elisp
+*** CANCEL apropospriate-theme
+CLOSED: [2021-03-21 Sun 14:34]
+#+begin_src elisp :tangle no
 (use-package apropospriate-theme
   :config 
   (load-theme 'apropospriate-light t)
   )
 #+end_src
 ** 字符
+*** 字体
+#+begin_src elisp
+(defun my/default-mode-font()
+  (interactive)
+  (set-face-attribute
+   'default nil
+   :font (font-spec :name "-*-MesloLGS NF-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"
+                    :size 16.0))
+  (dolist (charset '(kana han cjk-misc bopomofo))
+    (set-fontset-font
+     (frame-parameter nil 'font)
+     charset
+     (font-spec :name "-*-KaiTi_GB2312-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
+		:size 20.0)))
+  )
+
+(defun my/org-mode-font()
+  (interactive)
+  (set-face-attribute
+   'default nil
+   :font (font-spec :name "-*-CMU Typewriter Text-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"
+                    :size 16.0))
+  (dolist (charset '(kana han cjk-misc bopomofo))
+    (set-fontset-font
+     (frame-parameter nil 'font)
+     charset
+     (font-spec :name "-*-KaiTi_GB2312-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
+		:weight 'normal
+		:slant 'normal
+		:size 16.0)))
+  )
+
+(defun my/prog-mode-font()
+  (interactive)
+  (set-face-attribute
+   'default nil
+   :font (font-spec :name "-*-RobotoMono Nerd Font-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"
+                    :size 16.0))
+  (dolist (charset '(kana han cjk-misc bopomofo))
+    (set-fontset-font
+     (frame-parameter nil 'font)
+     charset
+     (font-spec :name "-*-KaiTi_GB2312-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
+		:size 16.0)))
+  )
+
+(my/default-mode-font)
+(set-fontset-font
+ "fontset-default" 'unicode "Apple Color Emoji" nil 'prepend)
+(set-fontset-font
+ t 'symbol (font-spec :family "Apple Color Emoji" :size 15.0) nil 'prepend)
+#+end_src
+
 *** all-the-icons
 #+begin_src elisp 
 (use-package all-the-icons
   :after
   cnfonts
-  :if
-  (display-graphic-p)
-  :hook
-  (dired-mode . all-the-icons-dired-mode)
   )
 #+end_src
 
@@ -392,19 +441,19 @@
 #+end_src
 
 *** cnfonts
-#+begin_src elisp
+#+begin_src elisp :tangle no
 (use-package cnfonts
   :init
   (cnfonts-enable)
-  (cnfonts-set-spacemacs-fallback-fonts)
+  ;; (cnfonts-set-spacemacs-fallback-fonts)
   (setq cnfonts-profiles
 	'("program" "org-mode" "read-book"))
   (setq cnfonts-personal-fontnames
 	'(("Iosevka Comfy" "MesloLGS NF" "Yanone Kaffeesatz")
 	  ("Noto Sans SC" "TsangerJinKai02 W04")
 	  ()))
-  (setq use-default-font-for-symbols nil)
-  (setq cnfonts-use-face-font-rescale t)
+  ;; (setq use-default-font-for-symbols nil)
+  ;; (setq cnfonts-use-face-font-rescale t)
   :bind
   (("C-=" . cnfonts-increase-fontsize)
    ("C--" . cnfonts-decrease-fontsize)
@@ -415,8 +464,10 @@
 *** emojify
 #+begin_src elisp
 (use-package emojify
-  :defer t
-  :hook (after-init . global-emojify-mode))
+  :config
+  (setq emojify-display-style 'unicode)
+  (setq emojify-emoji-set "twemoji-v2-22")
+  )
 #+end_src
 
 *** highlight-indent-guides
@@ -428,7 +479,7 @@
   )
 #+end_src
 
-** 顶部  
+** 顶部
 *** centaur-tabs
 #+begin_src elisp :tangle no
 (use-package centaur-tabs
@@ -540,11 +591,6 @@
   (setq doom-modeline-github-interval (* 30 60))
   (setq doom-modeline-modal-icon t)
   (setq doom-modeline-mu4e t)
-  (setq doom-modeline-gnus t)
-  (setq doom-modeline-gnus-timer 2)
-  (setq doom-modeline-gnus-excluded-groups '("dummy.group"))
-  (setq doom-modeline-irc t)
-  (setq doom-modeline-irc-stylize 'identity)
   (setq doom-modeline-env-version t)
   (setq doom-modeline-env-enable-python t)
   (setq doom-modeline-env-enable-ruby t)
@@ -552,7 +598,7 @@
   (setq doom-modeline-env-enable-go t)
   (setq doom-modeline-env-enable-elixir t)
   (setq doom-modeline-env-enable-rust t)
-  (setq doom-modeline-env-python-executable "python") ; or `python-shell-interpreter'
+  (setq doom-modeline-env-python-executable 'python-shell-interpreter)
   (setq doom-modeline-env-ruby-executable "ruby")
   (setq doom-modeline-env-perl-executable "perl")
   (setq doom-modeline-env-go-executable "go")
@@ -560,10 +606,9 @@
   (setq doom-modeline-env-rust-executable "rustc")
   (setq doom-modeline-env-load-string "...")
   (setq doom-modeline-before-update-env-hook nil)
-  (setq doom-modeline-after-update-env-hook nil)  
+  (setq doom-modeline-after-update-env-hook nil)
   )
 #+end_src
-
 ** 左侧
 *** treemacs
 #+begin_src elisp
@@ -760,6 +805,10 @@ loaded."
   )
 #+end_src
 
+** 窗口管理
+#+begin_src elisp
+(use-package transpose-frame)
+#+end_src
 ** visual-fill-column
 #+begin_src elisp
 (defun gq/org-mode-visual-fill ()
@@ -771,7 +820,21 @@ loaded."
   :defer t
   :hook (org-mode . gq/org-mode-visual-fill))
 #+end_src
-
+** CANCEL spaceline
+CLOSED: [2021-03-21 Sun 14:29]
+#+begin_src elisp :tangle no
+ (use-package spaceline
+  :config
+  (spaceline-emacs-theme)
+  )
+#+end_src
+*** CANCEL spaceline-all-the-icons
+CLOSED: [2021-03-21 Sun 14:30]
+#+begin_src elisp :tangle no
+(use-package spaceline-all-the-icons
+  :after spaceline
+  :config (spaceline-all-the-icons-theme))
+#+end_src
 * 自动补全
 ** CANCEL smex
 CLOSED: [2021-02-26 Fri 21:26]
@@ -783,7 +846,7 @@ Smart M-x
 ** ivy
 #+begin_src elisp
 (use-package ivy
-  :diminish
+  :diminish t
   :bind
   (("C-s" . swiper)
    :map ivy-minibuffer-map
@@ -921,6 +984,12 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   )
 #+end_src
 
+** orderless
+#+begin_src elisp
+(use-package orderless
+  :custom (completion-styles '(orderless)))
+#+end_src
+
 ** selectrum-prescient
 #+begin_src elisp
 (use-package selectrum-prescient
@@ -978,7 +1047,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 #+begin_src elisp
 (use-package projectile
   :diminish
-  projectile
+  projectile-mode
   :config
   (projectile-mode)
   (when (file-directory-p "~/projects")
@@ -1104,6 +1173,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 *** yasnippet
 #+begin_src elisp
 (use-package yasnippet
+  :delight
   :defer
   t
   :config
@@ -1149,8 +1219,13 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   ;; (dap-ui-mode 1)
   ;; (dap-tooltip-mode 1)
   ;; (tooltip-mode 1)
-  ;; (dap-ui-controls-mode 1)
+  (dap-ui-controls-mode 1)
   ;; )
+  (dap-register-debug-template
+   "Flutter :: Release"
+   (list :type "flutter"
+	 :args "--release")
+   )
   )
 #+end_src
 
@@ -1187,8 +1262,6 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (setq org-emphasis-regexp-components '("-[:multibyte:][:space:]('\"{" "-[:multibyte:][:space:].,:!?;'\")}\\[" "[:space:]" "." 1))
   (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
   (org-element-update-syntax)
-
-  
   )
 (use-package org
   :ensure nil
@@ -1365,20 +1438,35 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
          "* TODO %?\nReference: %a\n")
         ("m" "Email" entry (file+headline "~/SynologyDrive/org/inbox.org" "Email")
          "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
-        ("d" "Diary"
+        ("d" "Diary, Plan, Review")
+	("dd" "Diary"
 	 entry
 	 (file+olp+datetree "~/SynologyDrive/org/diary.org")
          "* 日记\n%?\nEntered on %U\n%i"
 	 :jump-to-captured t
 	 :immediate-finish t
 	 )
+	("dp" "Plan"
+	 entry
+	 (file+olp+datetree "~/SynologyDrive/org/plan.org")
+         "* Plan\n%?\nEntered on %U\n%i"
+	 :jump-to-captured t
+	 :immediate-finish t
+	 )
+	("dr" "Review"
+	 entry
+	 (file+olp+datetree "~/SynologyDrive/org/plan.org")
+         "* Review\n%?\nEntered on %U\n%i"
+	 :jump-to-captured t
+	 :immediate-finish t
+	 )
+        ("j" "Journal entry" plain (function org-journal-find-location)
+         "** %(format-time-string org-journal-time-format)%?\n%i"
+         :jump-to-captured t :immediate-finish t)
         ("p" "org-protocol" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
          "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
         ("l" "org-protocol link" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
          "* [[%:link][%:description]] \n%?\nCaptured On: %U")
-        ("j" "Journal entry" plain (function org-journal-find-location)
-         "** %(format-time-string org-journal-time-format)%?\n%i"
-         :jump-to-captured t :immediate-finish t)
         ))
 #+end_src
 
@@ -1409,7 +1497,18 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 **** org-download
 #+begin_src elisp
 (use-package org-download
-  :defer t)
+  :custom
+  (org-download-method 'directory)
+  (org-download-image-dir "images")
+  (org-download-heading-lvl nil)
+  (org-download-timestamp "%Y%m%d-%H%M%S_")
+  (org-image-actual-width 300)
+  (org-download-screenshot-method "/usr/local/bin/pngpaste %s")
+  :bind
+  ("C-M-y" . org-download-screenshot) 
+  :hook
+  (dired-mode . org-download-enable)
+  )
 #+end_src
 
 **** org-habit
@@ -1500,6 +1599,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 **** org-fancy-priorities
 #+begin_src elisp
 (use-package org-fancy-priorities
+  :delight
   :hook
   (org-mode . org-fancy-priorities-mode)
   :config
@@ -2015,3 +2115,4 @@ CLOSED: [2021-03-09 Tue 21:22]
     :ensure nil
     :defer t)
 #+end_src
+
