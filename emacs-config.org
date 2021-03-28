@@ -1,5 +1,5 @@
 #+TITLE: Emacs Configuration
-#+STARTUP: overview
+#+STARTUP: showall
 #+PROPERTY: header-args:elisp :tangle ./init.el
 
 * 插件管理器
@@ -309,61 +309,54 @@ CLOSED: [2021-03-21 Sun 14:34]
 #+begin_src elisp
 (defun my/default-mode-font()
   (interactive)
-  (set-face-attribute
-   'default nil
-   :font (font-spec :name "-*-MesloLGS NF-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"
-                    :size 16.0))
-  (dolist (charset '(kana han cjk-misc bopomofo))
-    (set-fontset-font
-     (frame-parameter nil 'font)
-     charset
-     (font-spec :name "-*-KaiTi_GB2312-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
-		:size 20.0)))
+  (setq chinese-font "STFangsong")
+  (setq chinese-font-size 16.0)
+  (set-face-attribute 'default nil :font (font-spec :family "MesloLGS NF" :size 14.0))
+  (set-fontset-font t 'kana (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'han (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'cjk-misc (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'bopomofo (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 12.0) nil 'prepend)
   )
 
 (defun my/org-mode-font()
   (interactive)
-  (set-face-attribute
-   'default nil
-   :font (font-spec :name "-*-CMU Typewriter Text-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"
-                    :size 16.0))
-  (dolist (charset '(kana han cjk-misc bopomofo))
-    (set-fontset-font
-     (frame-parameter nil 'font)
-     charset
-     (font-spec :name "-*-KaiTi_GB2312-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
-		:weight 'normal
-		:slant 'normal
-		:size 16.0)))
+  (setq chinese-font "SimHei")
+  (setq chinese-font-size 16.0)
+  (set-face-attribute 'default nil :font (font-spec :family "CMU Typewriter Text" :size 15.0))
+  (set-fontset-font t 'kana (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'han (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'cjk-misc (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'bopomofo (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 12.0) nil 'prepend)
   )
 
 (defun my/prog-mode-font()
   (interactive)
-  (set-face-attribute
-   'default nil
-   :font (font-spec :name "-*-RobotoMono Nerd Font-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1"
-                    :size 16.0))
-  (dolist (charset '(kana han cjk-misc bopomofo))
-    (set-fontset-font
-     (frame-parameter nil 'font)
-     charset
-     (font-spec :name "-*-KaiTi_GB2312-normal-normal-normal-*-*-*-*-*-p-0-iso10646-1"
-		:size 16.0)))
+  (setq chinese-font "STKaiti")
+  (setq chinese-font-size 16.0)
+  (set-face-attribute 'default nil :font (font-spec :family "Iosevka" :size 15.0))
+  (set-fontset-font t 'kana (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'han (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'cjk-misc (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'bopomofo (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 12.0) nil 'prepend)
   )
 
 (my/default-mode-font)
-(set-fontset-font
- "fontset-default" 'unicode "Apple Color Emoji" nil 'prepend)
-(set-fontset-font
- t 'symbol (font-spec :family "Apple Color Emoji" :size 15.0) nil 'prepend)
 #+end_src
+
+|----------|
+| 12345678 |
+| abcdefgh |
+| 中文测试 |
+| 繁體測試 |
+| 🕖🕥🥚🏦 |
+|----------|
 
 *** all-the-icons
 #+begin_src elisp 
-(use-package all-the-icons
-  :after
-  cnfonts
-  )
+(use-package all-the-icons)
 #+end_src
 
 **** all-the-icons-ivy
@@ -440,7 +433,8 @@ CLOSED: [2021-03-21 Sun 14:34]
   :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
-*** cnfonts
+*** CANCEL cnfonts
+CLOSED: [2021-03-28 Sun 20:39]
 #+begin_src elisp :tangle no
 (use-package cnfonts
   :init
@@ -1298,7 +1292,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
         1 'org-checkbox-done-text prepend)) 'append)
 
     ;; 省略号自定义
-    (setq org-ellipsis " ↴ ")
+    (setq org-ellipsis " ⤵")
     ;; 源代码原生字体
     (setq org-src-fontify-natively t)
     ;; Tab 按键行为
@@ -1438,30 +1432,15 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
          "* TODO %?\nReference: %a\n")
         ("m" "Email" entry (file+headline "~/SynologyDrive/org/inbox.org" "Email")
          "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
-        ("d" "Diary, Plan, Review")
-	("dd" "Diary"
+	("d" "Diary"
 	 entry
 	 (file+olp+datetree "~/SynologyDrive/org/diary.org")
          "* 日记\n%?\nEntered on %U\n%i"
 	 :jump-to-captured t
 	 :immediate-finish t
 	 )
-	("dp" "Plan"
-	 entry
-	 (file+olp+datetree "~/SynologyDrive/org/plan.org")
-         "* Plan\n%?\nEntered on %U\n%i"
-	 :jump-to-captured t
-	 :immediate-finish t
-	 )
-	("dr" "Review"
-	 entry
-	 (file+olp+datetree "~/SynologyDrive/org/plan.org")
-         "* Review\n%?\nEntered on %U\n%i"
-	 :jump-to-captured t
-	 :immediate-finish t
-	 )
         ("j" "Journal entry" plain (function org-journal-find-location)
-         "** %(format-time-string org-journal-time-format)%?\n%i"
+         "** %(format-time-string org-journal-time-format)%?\nSCHEDULED: %T\n%i"
          :jump-to-captured t :immediate-finish t)
         ("p" "org-protocol" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
          "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
@@ -1474,8 +1453,9 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 #+begin_src elisp
 (setq org-refile-targets
       '((nil :maxlevel . 9)
-        (("~/SynologyDrive/org/archive/email.org"
-          "~/SynologyDrive/org/archive/tasks.org") :maxlevel . 1)
+        (("~/SynologyDrive/org/archive/email_archive.org"
+          "~/SynologyDrive/org/archive/tasks_archive.org"
+	  "~/SynologyDrive/org/archive/web_archive.org") :maxlevel . 1)
         (("~/SynologyDrive/Study/"
           "~/SynologyDrive/Work/"
 	  "~/SynologyDrive/Life/") :maxlevel . 9)))
