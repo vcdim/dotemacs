@@ -189,6 +189,8 @@
    "<escape>" 'keyboard-escape-quit
    "<home>" 'beginning-of-line
    "<end>" 'end-of-line
+   "C-=" 'my/increase-font-size
+   "C--" 'my/decrease-font-size   
    )
 
   ;; `general-def' can be used instead for `define-key'-like syntax
@@ -206,7 +208,11 @@
    "C-j" 'org-journal-new-entry
    )
   )
+
 #+end_src
+
+#+RESULTS:
+: t
 
 ** 删除到回收站 osx-trash
 - https://github.com/emacsorphanage/osx-trash
@@ -258,9 +264,9 @@
 - https://github.com/ogdenwebb/emacs-kaolin-themes
 #+begin_src elisp :tangle no
 (use-package kaolin-themes
-  :config
-  ;;  (load-theme 'kaolin-dark t)
-  ;;  (kaolin-treemacs-theme)
+  ;; :config
+  ;; (load-theme 'kaolin-dark t)
+  ;; (kaolin-treemacs-theme)
   )
 #+end_src
 
@@ -297,7 +303,7 @@
 #+end_src
 
 *** CANCEL apropospriate-theme
-CLOSED: [2021-03-21 Sun 14:34]
+CLOSED: [2021-03-28 Sun 21:47]
 #+begin_src elisp :tangle no
 (use-package apropospriate-theme
   :config 
@@ -307,44 +313,105 @@ CLOSED: [2021-03-21 Sun 14:34]
 ** 字符
 *** 字体
 #+begin_src elisp
+(defvar my-current-font-size)
+(setq my-current-font-size 2)
+
+(defun my/increase-font-size ()
+  (interactive)
+  (setq my-current-font-size (min (+ my-current-font-size 1) 4))
+  (my/set-fonts my-font-sizes-suite english-font chinese-font symbol-font)
+  )
+(defun my/decrease-font-size ()
+  (interactive)
+  (setq my-current-font-size (max (- my-current-font-size 1) 0))
+  (my/set-fonts my-font-sizes-suite english-font chinese-font symbol-font)
+  )
+(defun my/set-fonts (my-font-sizes-suite english-font chinese-font symbol-font)
+  (setq my-font-sizes (nth my-current-font-size my-font-sizes-suite))
+  (setq english-font-size (nth 0 my-font-sizes))
+  (setq chinese-font-size (nth 1 my-font-sizes))
+  (setq symbol-font-size (nth 2 my-font-sizes))
+  (set-face-attribute 'default nil :font (font-spec :family english-font :size english-font-size))
+  (set-fontset-font t 'kana (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'han (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'cjk-misc (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'bopomofo (font-spec :family chinese-font :size chinese-font-size))
+  (set-fontset-font t 'symbol (font-spec :family symbol-font :size symbol-font-size))
+  (set-fontset-font "fontset-default" '(#x2010 . #x20ff)
+                    (font-spec :family chinese-font :size chinese-font-size) nil :append)
+  
+  (defun blaenk/set-char-widths (alist)
+    (while (char-table-parent char-width-table)
+      (setq char-width-table (char-table-parent char-width-table)))
+    (dolist (pair alist)
+      (let ((width (car pair))
+            (chars (cdr pair))
+            (table (make-char-table nil)))
+        (dolist (char chars)
+          (set-char-table-range table char width))
+        (optimize-char-table table)
+        (set-char-table-parent table char-width-table)
+        (setq char-width-table table))))
+
+  (blaenk/set-char-widths
+   `((2 . (,(string-to-char "“") ,(string-to-char "”") ,(string-to-char "‘") ,(string-to-char "’")
+           ,(string-to-char "…") ,(string-to-char "—") ,(string-to-char "（") ,(string-to-char "）")
+	         ,(string-to-char "【") ,(string-to-char "】")
+           ))))
+  )
+
 (defun my/default-mode-font()
   (interactive)
   (setq chinese-font "STFangsong")
-  (setq chinese-font-size 16.0)
-  (set-face-attribute 'default nil :font (font-spec :family "MesloLGS NF" :size 14.0))
-  (set-fontset-font t 'kana (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'han (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'cjk-misc (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'bopomofo (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 12.0) nil 'prepend)
+  (setq english-font "MesloLGS NF")
+  (setq symbol-font "Apple Color Emoji")
+  (setq my-font-sizes-suite
+	'((14.0 16.0 12.0)
+	  (16.0 20.0 15.0)
+	  (18.0 22.0 18.0)
+	  (20.0 24.0 22.0)
+	  (24.0 28.0 28.0)
+	  )
+	)
+  (setq use-default-font-for-symbols nil)
+  (my/set-fonts my-font-sizes-suite english-font chinese-font symbol-font)
   )
-
 (defun my/org-mode-font()
   (interactive)
   (setq chinese-font "SimHei")
-  (setq chinese-font-size 16.0)
-  (set-face-attribute 'default nil :font (font-spec :family "CMU Typewriter Text" :size 15.0))
-  (set-fontset-font t 'kana (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'han (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'cjk-misc (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'bopomofo (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 12.0) nil 'prepend)
+  (setq english-font "JetBrains Mono")
+  (setq symbol-font "Apple Color Emoji")
+  (setq my-font-sizes-suite
+	'((13.0 16.0 12.0)
+	  (16.0 20.0 15.0)
+	  (18.0 22.0 18.0)
+	  (20.0 24.0 22.0)
+	  (22.0 26.0 26.0)	  
+	  )
+	)
+  (my/set-fonts my-font-sizes-suite english-font chinese-font symbol-font)  
   )
 
 (defun my/prog-mode-font()
   (interactive)
   (setq chinese-font "STKaiti")
-  (setq chinese-font-size 16.0)
-  (set-face-attribute 'default nil :font (font-spec :family "Iosevka" :size 15.0))
-  (set-fontset-font t 'kana (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'han (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'cjk-misc (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'bopomofo (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'symbol (font-spec :family "Apple Color Emoji" :size 12.0) nil 'prepend)
+  (setq english-font "Iosevka")
+  (setq symbol-font "Apple Color Emoji")
+  (setq my-font-sizes-suite
+	'((16.0 16.0 12.0)
+	  (19.0 20.0 15.0)
+	  (21.0 22.0 18.0)
+	  (23.0 24.0 22.0)
+	  (25.0 26.0 26.0)	  
+	  )
+	)
+  (my/set-fonts my-font-sizes-suite english-font chinese-font symbol-font)
   )
 
-(my/default-mode-font)
+(my/org-mode-font)
 #+end_src
+
+#+RESULTS:
 
 |----------|
 | 12345678 |
@@ -352,6 +419,13 @@ CLOSED: [2021-03-21 Sun 14:34]
 | 中文测试 |
 | 繁體測試 |
 | 🕖🕥🥚🏦 |
+| ……—— |
+| 《》【】 |
+| ！？＠＃ |
+| ￥％＆＊ |
+| （）－＋ |
+| ＝＿｜＼ |
+| ～：；   |
 |----------|
 
 *** all-the-icons
@@ -486,7 +560,6 @@ CLOSED: [2021-03-28 Sun 20:39]
         centaur-tabs-show-navigation-buttons nil
         centaur-tabs-set-bar 'left
         x-underline-at-descent-line t)
-  (centaur-tabs-change-fonts "FiraGO" 180)
   (centaur-tabs-headline-match)
 
   (setq centaur-tabs-gray-out-icons 'buffer)
@@ -602,7 +675,17 @@ CLOSED: [2021-03-28 Sun 20:39]
   (setq doom-modeline-before-update-env-hook nil)
   (setq doom-modeline-after-update-env-hook nil)
   )
+
+;; (doom-modeline-def-modeline 'my-org-line
+;;   '(bar buffer-info vcs buffer-encoding major-mode)
+;;   '())
+
+;; ;; Add to `doom-modeline-mode-hook` or other hooks
+;; (defun setup-custom-doom-modeline ()
+;;    (doom-modeline-set-modeline 'my-org-line 'default))
+;; (add-hook 'org-mode-hook 'setup-custom-doom-modeline)
 #+end_src
+
 ** 左侧
 *** treemacs
 #+begin_src elisp
@@ -736,10 +819,13 @@ CLOSED: [2021-03-28 Sun 20:39]
   :defer t
   :commands
   (dired dired-jump)
-  :custom
-  ((dired-listing-swithes "-agho --group-directories-first")
-   (counsel-dired-listing-swithes "-agho --group-directories-first"))
   :config
+  (when (string= system-type "darwin")
+    (setq dired-use-ls-dired t
+          insert-directory-program "/usr/local/bin/gls"
+          dired-listing-switches "-aBhl --group-directories-first"))
+  
+	(setq counsel-dired-listing-switches "-agho --group-directories-first")
   (setq dired-guess-shell-alist-user
 	'(("\\.pdf\\'" "open")
 	  ("\\.doc\\'" "open")
@@ -799,6 +885,76 @@ loaded."
   )
 #+end_src
 
+**** dired-rainbow
+#+begin_src elisp
+(use-package dired-rainbow
+  :config
+  (progn
+    (dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
+    (dired-rainbow-define html "#eb5286" ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml"))
+    (dired-rainbow-define xml "#f2d024" ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata"))
+    (dired-rainbow-define document "#9561e2" ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx"))
+    (dired-rainbow-define markdown "#ffed4a" ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt"))
+    (dired-rainbow-define database "#6574cd" ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc"))
+    (dired-rainbow-define media "#de751f" ("mp3" "mp4" "MP3" "MP4" "avi" "mpeg" "mpg" "flv" "ogg" "mov" "mid" "midi" "wav" "aiff" "flac"))
+    (dired-rainbow-define image "#f66d9b" ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg" "png" "psd" "eps" "svg"))
+    (dired-rainbow-define log "#c17d11" ("log"))
+    (dired-rainbow-define shell "#f6993f" ("awk" "bash" "bat" "sed" "sh" "zsh" "vim"))
+    (dired-rainbow-define interpreted "#38c172" ("py" "ipynb" "rb" "pl" "t" "msql" "mysql" "pgsql" "sql" "r" "clj" "cljs" "scala" "js"))
+    (dired-rainbow-define compiled "#4dc0b5" ("asm" "cl" "lisp" "el" "c" "h" "c++" "h++" "hpp" "hxx" "m" "cc" "cs" "cp" "cpp" "go" "f" "for" "ftn" "f90" "f95" "f03" "f08" "s" "rs" "hi" "hs" "pyc" ".java"))
+    (dired-rainbow-define executable "#8cc4ff" ("exe" "msi"))
+    (dired-rainbow-define compressed "#51d88a" ("7z" "zip" "bz2" "tgz" "txz" "gz" "xz" "z" "Z" "jar" "war" "ear" "rar" "sar" "xpi" "apk" "xz" "tar"))
+    (dired-rainbow-define packaged "#faad63" ("deb" "rpm" "apk" "jad" "jar" "cab" "pak" "pk3" "vdf" "vpk" "bsp"))
+    (dired-rainbow-define encrypted "#ffed4a" ("gpg" "pgp" "asc" "bfe" "enc" "signature" "sig" "p12" "pem"))
+    (dired-rainbow-define fonts "#6cb2eb" ("afm" "fon" "fnt" "pfb" "pfm" "ttf" "otf"))
+    (dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
+    (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
+    (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*")
+    )) 
+#+end_src
+**** dired-collapse
+#+begin_src elisp
+(use-package dired-collapse)
+#+end_src
+**** dired-subtree
+#+begin_src elisp
+(use-package dired-subtree
+  :bind (:map dired-mode-map
+              ("i" . dired-subtree-insert)
+              (";" . dired-subtree-remove)
+              ("<tab>" . dired-subtree-toggle)
+              ("<backtab>" . dired-subtree-cycle)))
+#+end_src
+**** dired-filter
+#+begin_src elisp
+(use-package dired-filter)
+#+end_src
+**** dired-narrow
+#+begin_src elisp
+(use-package dired-narrow 
+  :bind (:map dired-mode-map
+              ("C-f" . dired-narrow)))
+#+end_src
+**** dired-ranger
+#+begin_src elisp
+(use-package dired-ranger)
+#+end_src
+
+**** dired-quick-sort
+#+begin_src elisp
+(use-package dired-quick-sort
+  :config (dired-quick-sort-setup))
+#+end_src
+**** diredfl
+#+begin_src elisp
+(use-package diredfl
+  :init
+  (diredfl-global-mode))
+#+end_src
+**** dired-hacks-utils
+#+begin_src elisp
+(use-package dired-hacks-utils)
+#+end_src
 ** 窗口管理
 #+begin_src elisp
 (use-package transpose-frame)
@@ -806,7 +962,7 @@ loaded."
 ** visual-fill-column
 #+begin_src elisp
 (defun gq/org-mode-visual-fill ()
-  (setq visual-fill-column-width 100
+  (setq visual-fill-column-width 120
         visual-fill-column-center-text t)
   (visual-fill-column-mode 1))
 
@@ -1235,7 +1391,13 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   ("C-x g" . magit-status)
   )
 #+end_src
-
+*** diff-hl
+#+begin_src elisp
+(use-package diff-hl
+  :config
+  (global-diff-hl-mode)
+  )
+#+end_src
 ** 语言
 *** org
 **** org
@@ -1248,9 +1410,9 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   ;; 待办事项图标
   (lambda ()
     "Beautify Org Checkbox Symbol"
-    (push '("[ ]" . "☐") prettify-symbols-alist)
-    (push '("[X]" . "☑") prettify-symbols-alist)
-    (push '("[-]" . "❍") prettify-symbols-alist)
+    (push '("[ ]" . "📌") prettify-symbols-alist)
+    (push '("[X]" . "✅") prettify-symbols-alist)
+    (push '("[-]" . "⏩") prettify-symbols-alist)
     (prettify-symbols-mode))
 
   (setq org-emphasis-regexp-components '("-[:multibyte:][:space:]('\"{" "-[:multibyte:][:space:].,:!?;'\")}\\[" "[:space:]" "." 1))
@@ -1316,13 +1478,13 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
     ;; 待办事项状态
     (setq org-todo-keywords
           '((sequence "TODO(t)" "NEXT(n)" "DOING(i)""|" "DONE(d)" "CANCEL(c)")))
-    (setq org-todo-keyword-faces
-          '(("TODO" . (:foreground "red" :weight bold))
-            ("NEXT" . "#E35DBF")
-            ("DOING" . "brown")
-            ("DONE" . (:foreground "#1AA260" :weight bold))
-            ("CANCEL" . (:foreground "#888888")))
-          )
+    ;; (setq org-todo-keyword-faces
+    ;;       '(("TODO" . (:foreground "red" :weight bold))
+    ;;         ("NEXT" . "#E35DBF")
+    ;;         ("DOING" . "brown")
+    ;;         ("DONE" . (:foreground "#1AA260" :weight bold))
+    ;;         ("CANCEL" . (:foreground "#888888")))
+    ;;       )
     ;; 记录时间戳
     (setq org-agenda-start-with-log-mode t)
     (setq org-log-done 'time)
@@ -1341,25 +1503,6 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 ***** 字体
 #+begin_src elisp
-;; (custom-theme-set-faces
-;;  'user
-;;  '(variable-pitch ((t (:family "CMU Sans Serif" :height 200))))
-;;  '(fixed-pitch ((t (:family "Fira Code" :height 160))))
-;;  '(org-block ((t (:inherit fixed-pitch))))
-;;  '(org-code ((t (:inherit (fixed-pitch)))))
-;;  '(org-document-info ((t (:foreground "dark orange"))))
-;;  '(org-block-begin-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
-;;  '(org-block-end-line ((t (:inherit (shadow fixed-pitch) :weight bold))))
-;;  ;; '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-;;  '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
-;;  '(org-link ((t (:foreground "royal blue" :underline t))))
-;;  '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-;;  '(org-property-value ((t (:inherit fixed-pitch))) t)
-;;  '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-;;  '(org-table ((t (:inherit fixed-pitch :foreground "#83a598"))))
-;;  '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold :height 0.8))))
-;;  '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
-;;  )
 (with-eval-after-load 'org
   (add-to-list 'org-emphasis-alist
                '("*" (:foreground "red" :weight bold)
@@ -1424,27 +1567,61 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (setq org-capture-templates
       '(
-        ("n" "Next" entry (file+headline "~/SynologyDrive/org/inbox.org" "Tasks")
-         "* NEXT %?\nSCHEDULED: %T\n\nReference: %a\n")
-        ("t" "Todo" entry (file+headline "~/SynologyDrive/org/inbox.org" "Tasks")
-         "* TODO %?\n")
-        ("f" "Todo with File" entry (file+headline "~/SynologyDrive/org/inbox.org" "Tasks")
-         "* TODO %?\nReference: %a\n")
-        ("m" "Email" entry (file+headline "~/SynologyDrive/org/inbox.org" "Email")
-         "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
-	("d" "Diary"
+        ("n"
+	 "Next"
 	 entry
-	 (file+olp+datetree "~/SynologyDrive/org/diary.org")
+	 (file+headline
+	  "~/SynologyDrive/org/inbox.org"
+	  "Tasks")
+         "* NEXT %?\nSCHEDULED: %T\n\nReference: %a\n")
+        ("t"
+	 "Todo"
+	 entry
+	 (file+headline
+	  "~/SynologyDrive/org/inbox.org"
+	  "Tasks")
+         "* TODO %?\n")
+        ("f"
+	 "Todo with File"
+	 entry
+	 (file+headline
+	  "~/SynologyDrive/org/inbox.org"
+	  "Tasks")
+         "* TODO %?\nReference: %a\n")
+        ("m"
+	 "Email"
+	 entry
+	 (file+headline
+	  "~/SynologyDrive/org/inbox.org"
+	  "Email")
+         "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
+	("d"
+	 "Diary"
+	 entry
+	 (file+olp+datetree
+	  "~/SynologyDrive/org/diary.org")
          "* 日记\n%?\nEntered on %U\n%i"
 	 :jump-to-captured t
-	 :immediate-finish t
-	 )
-        ("j" "Journal entry" plain (function org-journal-find-location)
-         "** %(format-time-string org-journal-time-format)%?\nSCHEDULED: %T\n%i"
-         :jump-to-captured t :immediate-finish t)
-        ("p" "org-protocol" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
+	 :immediate-finish t)
+        ("j"
+	 "Journal entry"
+	 plain
+	 (function org-journal-find-location)
+	 "** %(format-time-string org-journal-time-format)%?\nSCHEDULED: %T\n"
+         )
+        ("p"
+	 "org-protocol"
+	 entry
+	 (file+headline
+	  "~/SynologyDrive/org/inbox.org"
+	  "Web")
          "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
-        ("l" "org-protocol link" entry (file+headline "~/SynologyDrive/org/inbox.org" "Web")
+        ("l"
+	 "org-protocol link"
+	 entry
+	 (file+headline
+	  "~/SynologyDrive/org/inbox.org"
+	  "Web")
          "* [[%:link][%:description]] \n%?\nCaptured On: %U")
         ))
 #+end_src
@@ -1453,9 +1630,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 #+begin_src elisp
 (setq org-refile-targets
       '((nil :maxlevel . 9)
-        (("~/SynologyDrive/org/archive/email_archive.org"
-          "~/SynologyDrive/org/archive/tasks_archive.org"
-	  "~/SynologyDrive/org/archive/web_archive.org") :maxlevel . 1)
+        (("~/SynologyDrive/org/archive/emails.org"
+          "~/SynologyDrive/org/archive/tasks.org") :maxlevel . 1)
         (("~/SynologyDrive/Study/"
           "~/SynologyDrive/Work/"
 	  "~/SynologyDrive/Life/") :maxlevel . 9)))
@@ -1699,6 +1875,7 @@ With a prefix ARG, remove start location."
 	'("~/SynologyDrive/org/gcal.org"
 	  "~/SynologyDrive/org/inbox.org"
 	  "~/SynologyDrive/org/habits.org"
+	  "~/SynologyDrive/org/archive/tasks.org"	  
 	  "~/SynologyDrive/org/birthdays.org"
 	  ))
 
