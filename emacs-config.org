@@ -315,28 +315,29 @@ CLOSED: [2021-03-28 Sun 21:47]
 #+begin_src elisp
 (defvar my-current-font-size)
 (setq my-current-font-size 2)
+#+end_src
 
+#+begin_src elisp
 (defun my/increase-font-size ()
   (interactive)
-  (setq my-current-font-size (min (+ my-current-font-size 1) 4))
-  (my/set-fonts my-font-sizes-suite english-font chinese-font symbol-font)
+  (setq my-current-font-size (min (+ my-current-font-size 1) 7))
+  (my/set-fonts my-font-sizes-suite english-font chinese-font)
   )
 (defun my/decrease-font-size ()
   (interactive)
   (setq my-current-font-size (max (- my-current-font-size 1) 0))
-  (my/set-fonts my-font-sizes-suite english-font chinese-font symbol-font)
+  (my/set-fonts my-font-sizes-suite english-font chinese-font)
   )
-(defun my/set-fonts (my-font-sizes-suite english-font chinese-font symbol-font)
+(defun my/set-fonts (my-font-sizes-suite english-font chinese-font)
   (setq my-font-sizes (nth my-current-font-size my-font-sizes-suite))
   (setq english-font-size (nth 0 my-font-sizes))
   (setq chinese-font-size (nth 1 my-font-sizes))
-  (setq symbol-font-size (nth 2 my-font-sizes))
   (set-face-attribute 'default nil :font (font-spec :family english-font :size english-font-size))
   (set-fontset-font t 'kana (font-spec :family chinese-font :size chinese-font-size))
   (set-fontset-font t 'han (font-spec :family chinese-font :size chinese-font-size))
   (set-fontset-font t 'cjk-misc (font-spec :family chinese-font :size chinese-font-size))
   (set-fontset-font t 'bopomofo (font-spec :family chinese-font :size chinese-font-size))
-  (set-fontset-font t 'symbol (font-spec :family symbol-font :size symbol-font-size))
+;;  (set-fontset-font t 'symbol (font-spec :family symbol-font :size symbol-font-size))
   (set-fontset-font "fontset-default" '(#x2010 . #x20ff)
                     (font-spec :family chinese-font :size chinese-font-size) nil :append)
   
@@ -360,55 +361,60 @@ CLOSED: [2021-03-28 Sun 21:47]
            ))))
   )
 
-(defun my/default-mode-font()
+(defun my/prog-mode-font()
   (interactive)
-  (setq chinese-font "STFangsong")
-  (setq english-font "MesloLGS NF")
-  (setq symbol-font "Apple Color Emoji")
+  (setq chinese-font "STKaiti")
+  (setq english-font "Iosevka")
   (setq my-font-sizes-suite
-	'((14.0 16.0 12.0)
-	  (16.0 20.0 15.0)
-	  (18.0 22.0 18.0)
-	  (20.0 24.0 22.0)
-	  (24.0 28.0 28.0)
+	'((10.0 10.0)
+	  (12.0 12.0)
+	  (14.0 14.0)
+	  (16.0 16.0)
+	  (19.0 20.0)
+	  (21.0 22.0)
+	  (23.0 24.0)
+	  (25.0 26.0)	  
 	  )
 	)
-  (setq use-default-font-for-symbols nil)
-  (my/set-fonts my-font-sizes-suite english-font chinese-font symbol-font)
+  (my/set-fonts my-font-sizes-suite english-font chinese-font)
   )
 (defun my/org-mode-font()
   (interactive)
   (setq chinese-font "SimHei")
   (setq english-font "JetBrains Mono")
-  (setq symbol-font "Apple Color Emoji")
   (setq my-font-sizes-suite
-	'((13.0 16.0 12.0)
-	  (16.0 20.0 15.0)
-	  (18.0 22.0 18.0)
-	  (20.0 24.0 22.0)
-	  (22.0 26.0 26.0)	  
+	'((8.0 10.0)
+	  (10.0 12.0)
+	  (11.0 14.0)
+	  (13.0 16.0)
+	  (16.0 20.0)
+	  (18.0 22.0)
+	  (20.0 24.0)
+	  (22.0 26.0)	  
 	  )
 	)
-  (my/set-fonts my-font-sizes-suite english-font chinese-font symbol-font)  
+  (my/set-fonts my-font-sizes-suite english-font chinese-font)  
   )
-
-(defun my/prog-mode-font()
+(defun my/default-mode-font()
   (interactive)
-  (setq chinese-font "STKaiti")
-  (setq english-font "Iosevka")
-  (setq symbol-font "Apple Color Emoji")
+  (setq chinese-font "STFangsong")
+  (setq english-font "MesloLGS NF")
   (setq my-font-sizes-suite
-	'((16.0 16.0 12.0)
-	  (19.0 20.0 15.0)
-	  (21.0 22.0 18.0)
-	  (23.0 24.0 22.0)
-	  (25.0 26.0 26.0)	  
+	'((8.0 10.0)
+	  (10.0 12.0)
+	  (12.0 14.0)
+	  (14.0 16.0)
+	  (16.0 20.0)
+	  (18.0 22.0)
+	  (20.0 24.0)
+	  (24.0 28.0)
 	  )
 	)
-  (my/set-fonts my-font-sizes-suite english-font chinese-font symbol-font)
+  (setq use-default-font-for-symbols nil)
+  (my/set-fonts my-font-sizes-suite english-font chinese-font)
   )
 
-(my/org-mode-font)
+(my/default-mode-font)
 #+end_src
 
 #+RESULTS:
@@ -418,7 +424,6 @@ CLOSED: [2021-03-28 Sun 21:47]
 | abcdefgh |
 | 中文测试 |
 | 繁體測試 |
-| 🕖🕥🥚🏦 |
 | ……—— |
 | 《》【】 |
 | ！？＠＃ |
@@ -533,8 +538,8 @@ CLOSED: [2021-03-28 Sun 20:39]
 #+begin_src elisp
 (use-package emojify
   :config
-  (setq emojify-display-style 'unicode)
-  (setq emojify-emoji-set "twemoji-v2-22")
+  (setq emojify-display-style 'image)
+  ;; (setq emojify-emoji-set "twemoji-v2-22")
   )
 #+end_src
 
@@ -1516,7 +1521,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
-     (python . t)))
+     (python . t)
+     (ledger . t)))
   (setq org-confirm-babel-evaluate nil)
   )
 #+end_src
@@ -1631,7 +1637,9 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 (setq org-refile-targets
       '((nil :maxlevel . 9)
         (("~/SynologyDrive/org/archive/emails.org"
-          "~/SynologyDrive/org/archive/tasks.org") :maxlevel . 1)
+          "~/SynologyDrive/org/archive/tasks.org"
+          "~/SynologyDrive/org/archive/webposts.org"	  
+	  ) :maxlevel . 1)
         (("~/SynologyDrive/Study/"
           "~/SynologyDrive/Work/"
 	  "~/SynologyDrive/Life/") :maxlevel . 9)))
@@ -1842,8 +1850,9 @@ With a prefix ARG, remove start location."
   )
 #+end_src
 
-**** org-gcal
-#+begin_src elisp
+**** CANCEL org-gcal
+CLOSED: [2021-04-19 Mon 06:55]
+#+begin_src elisp :tangle no
 (use-package org-gcal
   :defer t
   :config
@@ -1872,7 +1881,7 @@ With a prefix ARG, remove start location."
   (setq org-agenda-file-regexp "\\`\\\([^.].*\\.org\\\|[0-9]\\\{8\\\}\\\(\\.gpg\\\)?\\\)\\'")
 
   (setq org-agenda-files
-	'("~/SynologyDrive/org/gcal.org"
+	'(
 	  "~/SynologyDrive/org/inbox.org"
 	  "~/SynologyDrive/org/habits.org"
 	  "~/SynologyDrive/org/archive/tasks.org"	  
@@ -2068,6 +2077,11 @@ With a prefix ARG, remove start location."
   :defer t)
 #+end_src
 
+** zotero
+#+begin_src elisp
+(use-package zotero
+  )
+#+end_src
 ** email
 *** mu4e
 #+begin_src elisp
@@ -2272,4 +2286,8 @@ CLOSED: [2021-03-09 Tue 21:22]
     :ensure nil
     :defer t)
 #+end_src
-
+** ledger
+#+begin_src elisp
+(use-package ledger-mode
+  )
+#+end_src
