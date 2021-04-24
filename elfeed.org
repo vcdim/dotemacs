@@ -1,0 +1,25 @@
+* Blogs                                                              :elfeed:
+** News                                                                :news:
+*** http://rss.cnn.com/rss/cnn_topstories.rss                           :cnn:
+*** https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml           :nyt:
+*** http://feeds.bbci.co.uk/news/rss.xml#                               :bbc:
+# *** https://rsshub.app/cctv/xwlb                                       :cctv:
+# *** https://rsshub.app/cctv/world                                    :cctv:
+# *** https://www.seattletimes.com/feed/                              :seattle:
+*** https://www.apnews.com/apf-usnews                                    :ap:
+*** http://rssfeeds.usatoday.com/usatoday-NewsTopStories           :usatoday:
+*** http://www.npr.org/rss/rss.php?id=1001                              :npr:
+
+** reddit
+*** https://www.reddit.com/r/emacs.rss                           :emacs:
+** Academic
+*** arxiv                                                             :arXiv:
+**** https://arxiv.org/rss/cs.LG                                         :ml:
+**** https://arxiv.org/rss/cs.DB                                         :ml:
+# **** https://arxiv.org/rss/cs.SI                                         :ml:
+**** https://arxiv.org/rss/cs.CY                                         :ml:
+**** https://arxiv.org/rss/cs.IR                                         :ml:
+**** https://arxiv.org/rss/stat.ML                                       :ml:
+**** https://arxiv.org/rss/cs.CV                                         :cv:
+*** PNAS                                                               :PNAS:
+**** https://rsshub.app/pnas/latest

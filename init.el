@@ -122,7 +122,6 @@
   )
 
 (use-package osx-trash
-  :defer t
   :config
   (when (eq system-type 'darwin)
     (osx-trash-setup))
@@ -154,7 +153,7 @@
   (doom-themes-org-config))
 
 (defvar my-current-font-size)
-(setq my-current-font-size 2)
+(setq my-current-font-size 5)
 
 (defun my/increase-font-size ()
   (interactive)
@@ -218,7 +217,7 @@
   )
 (defun my/org-mode-font()
   (interactive)
-  (setq chinese-font "SimHei")
+  (setq chinese-font "STXihei")
   (setq english-font "JetBrains Mono")
   (setq my-font-sizes-suite
 	'((8.0 10.0)
@@ -248,10 +247,26 @@
 	  (24.0 28.0)
 	  )
 	)
-  (setq use-default-font-for-symbols nil)
   (my/set-fonts my-font-sizes-suite english-font chinese-font)
   )
-
+(defun my/text-mode-font()
+  (interactive)
+  (setq chinese-font "STKaiti")
+  (setq english-font "Consola Mono")
+  (setq my-font-sizes-suite
+	'((8.0 10.0)
+	  (10.0 12.0)
+	  (12.0 14.0)
+	  (14.0 16.0)
+	  (16.0 18.0)
+	  (18.0 22.0)
+	  (20.0 24.0)
+	  (24.0 28.0)
+	  )
+	)
+  (my/set-fonts my-font-sizes-suite english-font chinese-font)
+  )
+(setq use-default-font-for-symbols nil)
 (my/default-mode-font)
 
 (use-package all-the-icons)
@@ -1037,6 +1052,8 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (setq org-confirm-babel-evaluate nil)
   )
 
+(use-package org-analyzer)
+
 (setq org-latex-pdf-process
    '("xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f" "xelatex -interaction nonstopmode -output-directory %o %f"))
 
@@ -1093,7 +1110,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 	 entry
 	 (file+olp+datetree
 	  "~/SynologyDrive/org/diary.org")
-         "* 日记\n%?\nEntered on %U\n%i"
+         "* 日记\n%?\nEntered on %U, %(format \"(Lat, Lng) = (%s, %s)\" osx-location-latitude osx-location-longitude)\n%i"
 	 :jump-to-captured t
 	 :immediate-finish t)
         ("j"
@@ -1584,6 +1601,33 @@ With a prefix ARG, remove start location."
   (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
   )
 
+(use-package elfeed
+  :config
+  (add-hook 'elfeed-show-mode-hook
+            (lambda ()
+              (let ((inhibit-read-only t)
+                    (inhibit-modification-hooks t))
+                (setq-local truncate-lines nil)
+                (setq-local shr-width 85)
+                (set-buffer-modified-p nil))
+              (setq-local left-margin-width 15)
+              (setq-local right-margin-width 15)
+              ))
+  :bind ("C-x w" . elfeed)
+  )
+
+(use-package elfeed-org
+  :init
+  (elfeed-org)
+  :config
+  (setq rmh-elfeed-org-files (list "~/.emacs.d/elfeed.org"))
+  )
+
+(use-package elfeed-goodies
+  :config
+  (elfeed-goodies/setup)
+  )
+
 (use-package vterm
   :commands
   vterm)
@@ -1614,4 +1658,14 @@ With a prefix ARG, remove start location."
   :defer t)
 
 (use-package ledger-mode
+  :config
+  (add-hook 'ledger-mode-hook
+            (lambda ()
+              (setq-local tab-always-indent 'complete)
+              (setq-local completion-cycle-threshold t)
+              (setq-local ledger-complete-in-steps t)))
   )
+
+(use-package osx-location
+  :config
+  (osx-location-watch))
