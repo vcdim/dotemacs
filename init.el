@@ -5,6 +5,9 @@
         ("org" . "https://orgmode.org/elpa/")
         ("gnu" . "https://elpa.gnu.org/packages/")))
 
+(unless package-archive-contents
+  (package-refresh-contents))
+
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 ;; (load custom-file)
 
@@ -73,6 +76,10 @@
 (set-default 'truncate-lines t)
 ;; 设置可视警告
 ;; (setq visible-bell t)
+;; 
+(when (eq system-type 'darwin)
+  (setq mac-option-modifier 'meta)
+  (global-unset-key (kbd "C-M-SPC")))
 
 ;; 不需要备份文件
 (setq make-backup-files nil)

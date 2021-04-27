@@ -27,8 +27,8 @@
         ("elpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
 #+end_src
    
-*** CANCEL 刷新包
-#+begin_src elisp :tangle no
+*** 刷新包
+#+begin_src elisp
 (unless package-archive-contents
   (package-refresh-contents))
 #+end_src
@@ -153,6 +153,10 @@
 (set-default 'truncate-lines t)
 ;; 设置可视警告
 ;; (setq visible-bell t)
+;; 
+(when (eq system-type 'darwin)
+  (setq mac-option-modifier 'meta)
+  (global-unset-key (kbd "C-M-SPC")))
 #+end_src
 
 * 全局设置
@@ -210,9 +214,6 @@
   )
 
 #+end_src
-
-#+RESULTS:
-: t
 
 ** 删除到回收站 osx-trash
 - https://github.com/emacsorphanage/osx-trash
