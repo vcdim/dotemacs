@@ -8,7 +8,7 @@
 #+begin_src elisp
 (require 'package)
 #+end_src
-   
+
 ** 配置源
 *** 官方源
 =package-archives= 是 emacs 包的档案库
@@ -18,7 +18,7 @@
         ("org" . "https://orgmode.org/elpa/")
         ("gnu" . "https://elpa.gnu.org/packages/")))
 #+end_src
-    
+
 *** CANCEL 清华源
 #+begin_src elisp :tangle no
 (setq package-archives
@@ -26,7 +26,7 @@
         ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")
         ("elpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")))
 #+end_src
-   
+
 *** 刷新包
 #+begin_src elisp
 (unless package-archive-contents
@@ -51,9 +51,9 @@
       (org-babel-tangle)))
   )
 (add-hook 'org-mode-hook
-	  (lambda () (add-hook 'after-save-hook 'gq/org-babel-tangle-config)))
+          (lambda () (add-hook 'after-save-hook 'gq/org-babel-tangle-config)))
 #+end_src
-   
+
 ** use-package
 - 初始化 =package= 。如果没有安装 =use-package=，安装之。导入 =use-pacakge=。
 - https://github.com/jwiegley/use-package
@@ -66,7 +66,7 @@
 (setq use-package-always-ensure t)
 (setq use-package-verbose t)
 #+end_src
-   
+
 ** TODO straight.el
 参考网站: https://github.com/raxod502/straight.el
 #+begin_src elisp
@@ -86,8 +86,7 @@
 #+end_src
 
 ** CANCEL quelpa
-- https://github.com/quelpa/quelpa
-  
+https://github.com/quelpa/quelpa
 #+begin_src elisp :tangle no
 (unless (package-installed-p 'quelpa)
   (with-temp-buffer
@@ -153,10 +152,11 @@
 (set-default 'truncate-lines t)
 ;; 设置可视警告
 ;; (setq visible-bell t)
-;; 
+;;
+(setq show-trailing-whitespace t)
 (when (eq system-type 'darwin)
   (setq mac-option-modifier 'meta)
-  (setq mac-command-modifier 'super) 
+  (setq mac-command-modifier 'super)
   (global-unset-key (kbd "C-M-SPC"))
   (global-set-key (kbd "s-c") 'kill-ring-save)
   (global-set-key (kbd "s-v") 'yank)
@@ -169,7 +169,7 @@
   (global-set-key (kbd "s-o") 'mac-open-file)
   (global-set-key (kbd "s-n") 'find-file)
   (global-set-key (kbd "s-s") 'save-buffer)
-  (global-set-key (kbd "s-S") 'mac-save-file-as) 
+  (global-set-key (kbd "s-S") 'mac-save-file-as)
   (global-set-key (kbd "s-p") 'mac-preview) ; requires mac-preview
   (global-set-key (kbd "s-w") 'kill-buffer)
   (global-set-key (kbd "s-m") 'iconify-frame)
@@ -221,7 +221,7 @@
    "<home>" 'beginning-of-line
    "<end>" 'end-of-line
    "C-=" 'my/increase-font-size
-   "C--" 'my/decrease-font-size   
+   "C--" 'my/decrease-font-size
    )
 
   ;; `general-def' can be used instead for `define-key'-like syntax
@@ -333,7 +333,7 @@
 CLOSED: [2021-03-28 Sun 21:47]
 #+begin_src elisp :tangle no
 (use-package apropospriate-theme
-  :config 
+  :config
   (load-theme 'apropospriate-light t)
   )
 #+end_src
@@ -367,7 +367,6 @@ CLOSED: [2021-03-28 Sun 21:47]
 ;;  (set-fontset-font t 'symbol (font-spec :family symbol-font :size symbol-font-size))
   (set-fontset-font "fontset-default" '(#x2010 . #x20ff)
                     (font-spec :family chinese-font :size chinese-font-size) nil :append)
-  
   (defun blaenk/set-char-widths (alist)
     (while (char-table-parent char-width-table)
       (setq char-width-table (char-table-parent char-width-table)))
@@ -384,7 +383,7 @@ CLOSED: [2021-03-28 Sun 21:47]
   (blaenk/set-char-widths
    `((2 . (,(string-to-char "“") ,(string-to-char "”") ,(string-to-char "‘") ,(string-to-char "’")
            ,(string-to-char "…") ,(string-to-char "—") ,(string-to-char "（") ,(string-to-char "）")
-	         ,(string-to-char "【") ,(string-to-char "】")
+                 ,(string-to-char "【") ,(string-to-char "】")
            ))))
   )
 
@@ -393,16 +392,16 @@ CLOSED: [2021-03-28 Sun 21:47]
   (setq chinese-font "STKaiti")
   (setq english-font "Iosevka")
   (setq my-font-sizes-suite
-	'((10.0 10.0)
-	  (12.0 12.0)
-	  (14.0 14.0)
-	  (16.0 16.0)
-	  (19.0 20.0)
-	  (21.0 22.0)
-	  (23.0 24.0)
-	  (25.0 26.0)	  
-	  )
-	)
+        '((10.0 10.0)
+          (12.0 12.0)
+          (14.0 14.0)
+          (16.0 16.0)
+          (19.0 20.0)
+          (21.0 22.0)
+          (23.0 24.0)
+          (25.0 26.0)
+          )
+        )
   (my/set-fonts my-font-sizes-suite english-font chinese-font)
   )
 (defun my/org-mode-font()
@@ -410,33 +409,33 @@ CLOSED: [2021-03-28 Sun 21:47]
   (setq chinese-font "STXihei")
   (setq english-font "JetBrains Mono")
   (setq my-font-sizes-suite
-	'((8.0 10.0)
-	  (10.0 12.0)
-	  (11.0 14.0)
-	  (13.0 16.0)
-	  (16.0 20.0)
-	  (18.0 22.0)
-	  (20.0 24.0)
-	  (22.0 26.0)	  
-	  )
-	)
-  (my/set-fonts my-font-sizes-suite english-font chinese-font)  
+        '((8.0 10.0)
+          (10.0 12.0)
+          (11.0 14.0)
+          (13.0 16.0)
+          (16.0 20.0)
+          (18.0 22.0)
+          (20.0 24.0)
+          (22.0 26.0)
+          )
+        )
+  (my/set-fonts my-font-sizes-suite english-font chinese-font)
   )
 (defun my/default-mode-font()
   (interactive)
   (setq chinese-font "STFangsong")
   (setq english-font "MesloLGS NF")
   (setq my-font-sizes-suite
-	'((8.0 10.0)
-	  (10.0 12.0)
-	  (12.0 14.0)
-	  (14.0 16.0)
-	  (16.0 20.0)
-	  (18.0 22.0)
-	  (20.0 24.0)
-	  (24.0 28.0)
-	  )
-	)
+        '((8.0 10.0)
+          (10.0 12.0)
+          (12.0 14.0)
+          (14.0 16.0)
+          (16.0 20.0)
+          (18.0 22.0)
+          (20.0 24.0)
+          (24.0 28.0)
+          )
+        )
   (my/set-fonts my-font-sizes-suite english-font chinese-font)
   )
 (defun my/text-mode-font()
@@ -444,16 +443,16 @@ CLOSED: [2021-03-28 Sun 21:47]
   (setq chinese-font "STKaiti")
   (setq english-font "Consola Mono")
   (setq my-font-sizes-suite
-	'((8.0 10.0)
-	  (10.0 12.0)
-	  (12.0 14.0)
-	  (14.0 16.0)
-	  (16.0 18.0)
-	  (18.0 22.0)
-	  (20.0 24.0)
-	  (24.0 28.0)
-	  )
-	)
+        '((8.0 10.0)
+          (10.0 12.0)
+          (12.0 14.0)
+          (14.0 16.0)
+          (16.0 18.0)
+          (18.0 22.0)
+          (20.0 24.0)
+          (24.0 28.0)
+          )
+        )
   (my/set-fonts my-font-sizes-suite english-font chinese-font)
   )
 (setq use-default-font-for-symbols nil)
@@ -478,7 +477,7 @@ CLOSED: [2021-03-28 Sun 21:47]
 |----------|
 
 *** all-the-icons
-#+begin_src elisp 
+#+begin_src elisp
 (use-package all-the-icons)
 #+end_src
 
@@ -564,11 +563,11 @@ CLOSED: [2021-03-28 Sun 20:39]
   (cnfonts-enable)
   ;; (cnfonts-set-spacemacs-fallback-fonts)
   (setq cnfonts-profiles
-	'("program" "org-mode" "read-book"))
+        '("program" "org-mode" "read-book"))
   (setq cnfonts-personal-fontnames
-	'(("Iosevka Comfy" "MesloLGS NF" "Yanone Kaffeesatz")
-	  ("Noto Sans SC" "TsangerJinKai02 W04")
-	  ()))
+        '(("Iosevka Comfy" "MesloLGS NF" "Yanone Kaffeesatz")
+          ("Noto Sans SC" "TsangerJinKai02 W04")
+          ()))
   ;; (setq use-default-font-for-symbols nil)
   ;; (setq cnfonts-use-face-font-rescale t)
   :bind
@@ -627,32 +626,32 @@ CLOSED: [2021-03-28 Sun 20:39]
       ;; ((not (eq (file-remote-p (buffer-file-name)) nil))
       ;; "Remote")
       ((or (string-equal "*" (substring (buffer-name) 0 1))
-	   (memq major-mode '(magit-process-mode
-			      magit-status-mode
-			      magit-diff-mode
-			      magit-log-mode
-			      magit-file-mode
-			      magit-blob-mode
-			      magit-blame-mode
-			      )))
+           (memq major-mode '(magit-process-mode
+                              magit-status-mode
+                              magit-diff-mode
+                              magit-log-mode
+                              magit-file-mode
+                              magit-blob-mode
+                              magit-blame-mode
+                              )))
        "Emacs")
       ((derived-mode-p 'prog-mode)
        "Editing")
       ((derived-mode-p 'dired-mode)
        "Dired")
       ((memq major-mode '(helpful-mode
-			  help-mode))
+                          help-mode))
        "Help")
       ((memq major-mode '(org-mode
-			  org-agenda-clockreport-mode
-			  org-src-mode
-			  org-agenda-mode
-			  org-beamer-mode
-			  org-indent-mode
-			  org-bullets-mode
-			  org-cdlatex-mode
-			  org-agenda-log-mode
-			  diary-mode))
+                          org-agenda-clockreport-mode
+                          org-src-mode
+                          org-agenda-mode
+                          org-beamer-mode
+                          org-indent-mode
+                          org-bullets-mode
+                          org-cdlatex-mode
+                          org-agenda-log-mode
+                          diary-mode))
        "OrgMode")
       (t
        (centaur-tabs-get-group-name (current-buffer))))))
@@ -873,22 +872,22 @@ CLOSED: [2021-03-28 Sun 20:39]
     (setq dired-use-ls-dired t
           insert-directory-program "/usr/local/bin/gls"
           dired-listing-switches "-aBhl --group-directories-first"))
-  
-	(setq counsel-dired-listing-switches "-agho --group-directories-first")
+
+        (setq counsel-dired-listing-switches "-agho --group-directories-first")
   (setq dired-guess-shell-alist-user
-	'(("\\.pdf\\'" "open")
-	  ("\\.doc\\'" "open")
-	  ("\\.docx\\'" "open")
-	  ("\\.ppt\\'" "open")
-	  ("\\.pptx\\'" "open")
-	  ("\\.xls\\'" "open")
-	  ("\\.xlsx\\'" "open")))
-  (when (string= system-type "darwin")       
+        '(("\\.pdf\\'" "open")
+          ("\\.doc\\'" "open")
+          ("\\.docx\\'" "open")
+          ("\\.ppt\\'" "open")
+          ("\\.pptx\\'" "open")
+          ("\\.xls\\'" "open")
+          ("\\.xlsx\\'" "open")))
+  (when (string= system-type "darwin")
     (setq dired-use-ls-dired nil))
   ;; :hook
   ;; (dired-load . (lambda ()
-  ;; 		  (setq dired-x-hands-off-my-keys nil)
-  ;; 		  (load "dired-x")))
+  ;;              (setq dired-x-hands-off-my-keys nil)
+  ;;              (load "dired-x")))
   )
 
 #+end_src
@@ -916,7 +915,7 @@ loaded."
     (add-hook 'dired-load-hook 'my-dired-init))
   )
 #+end_src
-   
+
 **** dired-hide-dotfiles
 #+begin_src elisp
 (use-package dired-hide-dotfiles
@@ -959,7 +958,7 @@ loaded."
     (dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
     (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
     (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*")
-    )) 
+    ))
 #+end_src
 **** dired-collapse
 #+begin_src elisp
@@ -980,7 +979,7 @@ loaded."
 #+end_src
 **** dired-narrow
 #+begin_src elisp
-(use-package dired-narrow 
+(use-package dired-narrow
   :bind (:map dired-mode-map
               ("C-f" . dired-narrow)))
 #+end_src
@@ -1083,28 +1082,28 @@ Smart M-x
   :after ivy
   :config
   (setq ivy-re-builders-alist
-	'((ivy-bibtex . ivy--regex-ignore-order)
-	  (t . ivy--regex-plus)))
+        '((ivy-bibtex . ivy--regex-ignore-order)
+          (t . ivy--regex-plus)))
   (setq bibtex-completion-bibliography
-	'("~/SynologyDrive/Library/bib/mybib.bib"))
+        '("~/SynologyDrive/Library/bib/mybib.bib"))
   (setq bibtex-completion-library-path
-	'("~/SynologyDrive/Library/pdf"))
+        '("~/SynologyDrive/Library/pdf"))
   (setq bibtex-completion-pdf-field "File")
   (setq bibtex-completion-notes-path "~/SynologyDrive/Library/notes")
   (setq bibtex-completion-display-formats
-	'((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
-	  (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
-	  (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-	  (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
-	  (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
+        '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
+          (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+          (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+          (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+          (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
   (setq bibtex-completion-pdf-symbol "⌘")
   (setq bibtex-completion-notes-symbol "✎")
   (setq bibtex-completion-pdf-extension '(".pdf" ".djvu"))
   (setq bibtex-completion-format-citation-functions
-	'((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
-	  (latex-mode    . bibtex-completion-format-citation-cite)
-	  (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
-	  (default       . bibtex-completion-format-citation-default)))  
+        '((org-mode      . bibtex-completion-format-citation-org-link-to-PDF)
+          (latex-mode    . bibtex-completion-format-citation-cite)
+          (markdown-mode . bibtex-completion-format-citation-pandoc-citeproc)
+          (default       . bibtex-completion-format-citation-default)))
   (defun ivy-bibtex-my-publications (&optional arg)
     "Search BibTeX entries authored by “Jane Doe”.
 
@@ -1114,10 +1113,10 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
       (bibtex-completion-clear-cache))
     (bibtex-completion-init)
     (ivy-read "BibTeX Items: "
-	      (bibtex-completion-candidates)
-	      :initial-input "Jane Doe"
-	      :caller 'ivy-bibtex
-	      :action ivy-bibtex-default-action))
+              (bibtex-completion-candidates)
+              :initial-input "Jane Doe"
+              :caller 'ivy-bibtex
+              :action ivy-bibtex-default-action))
 
   ;; Bind this search function to Ctrl-x p:
   :bind (("C-x p" . ivy-bibtex-my-publications))
@@ -1212,10 +1211,10 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   :config
   (setq ivy-initial-inputs-alist nil)
   (setq counsel-find-file-ignore-regexp
-	(concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)"))
+        (concat "\\(?:\\`[#.]\\)" "\\|\\(?:\\`.+?[#~]\\'\\)"))
   )
 #+end_src
-   
+
 ** which-key
 #+begin_src elisp
 (use-package which-key
@@ -1285,7 +1284,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   lsp-ivy-workspace-symbol
   )
 #+end_src
-    
+
 *** lsp-ui
 #+begin_src elisp
 (use-package lsp-ui
@@ -1315,22 +1314,22 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (defun ladicle/toggle-lsp-ui-doc ()
     (interactive)
     (if lsp-ui-doc-mode
-	(progn
-	  (lsp-ui-doc-mode -1)
-	  (lsp-ui-doc--hide-frame))
+        (progn
+          (lsp-ui-doc-mode -1)
+          (lsp-ui-doc--hide-frame))
       (lsp-ui-doc-mode 1)))
   :bind
   (:map lsp-mode-map
-	("C-c C-r" . lsp-ui-peek-find-references)
-	("C-c C-j" . lsp-ui-peek-find-definitions)
-	("C-c i" . lsp-ui-peek-find-definitions)
-	("C-c m" . lsp-ui-imenu)
-	("C-c s" . lsp-ui-sideline-mode)
-	("C-c d"   . ladicle/toggle-lsp-ui-doc))
+        ("C-c C-r" . lsp-ui-peek-find-references)
+        ("C-c C-j" . lsp-ui-peek-find-definitions)
+        ("C-c i" . lsp-ui-peek-find-definitions)
+        ("C-c m" . lsp-ui-imenu)
+        ("C-c s" . lsp-ui-sideline-mode)
+        ("C-c d"   . ladicle/toggle-lsp-ui-doc))
   :hook
   (lsp-mode . lsp-ui-mode))
 #+end_src
-    
+
 *** lsp-treemacs
 #+begin_src elisp
 (use-package lsp-treemacs
@@ -1414,7 +1413,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   ((python-mode . dap-mode)
    (python-mode . dap-ui-mode))
   :config
-  ;; (require 'dap-python)  
+  ;; (require 'dap-python)
   (setq dap-auto-configure-features '(sessions breakpoints locals controls tooltip repl))
   ;; (dap-ui-mode 1)
   ;; (dap-tooltip-mode 1)
@@ -1424,7 +1423,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (dap-register-debug-template
    "Flutter :: Release"
    (list :type "flutter"
-	 :args "--release")
+         :args "--release")
    )
   )
 #+end_src
@@ -1513,18 +1512,20 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
     (setq org-hide-emphasis-markers t)
     ;; 打开文件方式自定义
     (setq org-file-apps
-          '(("\\.pdf\\'" . (lambda (file link) (org-pdftools-open link)))
-            (directory . emacs)
-            (auto-mode . emacs)
-            ("\\.mm\\'" . default)
-            ("\\.x?html?\\'" . default)
-            ("\\.pptx?\\'" . system)
-            ("\\.docx?\\'" . system)
-            ("\\.xlsx?\\'" . system)
-            ("\\.ppt?\\'" . system)
-            ("\\.doc?\\'" . system)
-            ("\\.xls?\\'" . system)
-            ("\\.png?\\'" . system)))
+          '
+          (
+           ("\\.pdf\\'" . system)
+           (directory . emacs)
+           (auto-mode . emacs)
+           ("\\.mm\\'" . default)
+           ("\\.x?html?\\'" . default)
+           ("\\.pptx?\\'" . system)
+           ("\\.docx?\\'" . system)
+           ("\\.xlsx?\\'" . system)
+           ("\\.ppt?\\'" . system)
+           ("\\.doc?\\'" . system)
+           ("\\.xls?\\'" . system)
+           ("\\.png?\\'" . system)))
     ;; 待办事项状态
     (setq org-todo-keywords
           '((sequence "TODO(t)" "NEXT(n)" "DOING(i)""|" "DONE(d)" "CANCEL(c)")))
@@ -1554,9 +1555,14 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 ***** 字体
 #+begin_src elisp
 (with-eval-after-load 'org
-  (add-to-list 'org-emphasis-alist
-               '("*" (:foreground "red" :weight bold)
-                 ))
+  (setq org-emphasis-alist
+        '(("*" (bold :foreground "magenta"))
+            ("/" (italic :foreground "cyan"))
+            ("_" underline)
+            ("=" org-verbatim verbatim)
+            ("~" org-code verbatim)
+            ("+" (:strike-through t)))
+        )
   )
 #+end_src
 
@@ -1623,61 +1629,55 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 
 (setq org-capture-templates
       '(
-        ("n"
-	 "Next"
-	 entry
-	 (file+headline
-	  "~/SynologyDrive/org/inbox.org"
-	  "Tasks")
-         "* NEXT %?\nSCHEDULED: %T\n\nReference: %a\n")
         ("t"
-	 "Todo"
-	 entry
-	 (file+headline
-	  "~/SynologyDrive/org/inbox.org"
-	  "Tasks")
+         "Todo"
+         entry
+         (file+headline
+          "~/SynologyDrive/org/inbox.org"
+          "Tasks")
          "* TODO %?\n")
         ("f"
-	 "Todo with File"
-	 entry
-	 (file+headline
-	  "~/SynologyDrive/org/inbox.org"
-	  "Tasks")
+         "Todo with File"
+         entry
+         (file+headline
+          "~/SynologyDrive/org/inbox.org"
+          "Tasks")
          "* TODO %?\nReference: %a\n")
         ("m"
-	 "Email"
-	 entry
-	 (file+headline
-	  "~/SynologyDrive/org/inbox.org"
-	  "Email")
+         "Email"
+         entry
+         (file+headline
+          "~/SynologyDrive/org/inbox.org"
+          "Email")
          "* TODO %^{待办事项} %^g\nSCHEDULED: %T\n:PROPERTIES:\nLINK: %a\n:END:\n%?")
-	("d"
-	 "Diary"
-	 entry
-	 (file+olp+datetree
-	  "~/SynologyDrive/org/diary.org")
+        ("d"
+         "Diary"
+         entry
+         (file+olp+datetree
+          "~/SynologyDrive/org/diary.org")
          "* 日记\n%?\nEntered on %U, %(format \"(Lat, Lng) = (%s, %s)\" osx-location-latitude osx-location-longitude)\n%i"
-	 :jump-to-captured t
-	 :immediate-finish t)
+         :jump-to-captured t
+         :immediate-finish t)
         ("j"
-	 "Journal entry"
-	 plain
-	 (function org-journal-find-location)
-	 "** %(format-time-string org-journal-time-format)%?\nSCHEDULED: %T\n"
+         "Journal entry"
+         plain
+         (function org-journal-find-location)
+         "** %(format-time-string org-journal-time-format)%?\nSCHEDULED: %T\n"
+         :jump-to-captured t
          )
         ("p"
-	 "org-protocol"
-	 entry
-	 (file+headline
-	  "~/SynologyDrive/org/inbox.org"
-	  "Web")
+         "org-protocol"
+         entry
+         (file+headline
+          "~/SynologyDrive/org/inbox.org"
+          "Web")
          "* %^{Title}\nSource: [[%:link][%:description]]\n#+begin_quote\n%i\n#+end_quote\n%?\nCaptured On: %U\n")
         ("l"
-	 "org-protocol link"
-	 entry
-	 (file+headline
-	  "~/SynologyDrive/org/inbox.org"
-	  "Web")
+         "org-protocol link"
+         entry
+         (file+headline
+          "~/SynologyDrive/org/inbox.org"
+          "Web")
          "* [[%:link][%:description]] \n%?\nCaptured On: %U")
         ))
 #+end_src
@@ -1688,11 +1688,11 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
       '((nil :maxlevel . 9)
         (("~/SynologyDrive/org/archive/emails.org"
           "~/SynologyDrive/org/archive/tasks.org"
-          "~/SynologyDrive/org/archive/webposts.org"	  
-	  ) :maxlevel . 1)
+          "~/SynologyDrive/org/archive/webposts.org"
+          ) :maxlevel . 1)
         (("~/SynologyDrive/Study/"
           "~/SynologyDrive/Work/"
-	  "~/SynologyDrive/Life/") :maxlevel . 9)))
+          "~/SynologyDrive/Life/") :maxlevel . 9)))
 (advice-add 'org-refile :after 'org-save-all-org-buffers)
 #+end_src
 
@@ -1719,7 +1719,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
   (org-image-actual-width 300)
   (org-download-screenshot-method "/usr/local/bin/pngpaste %s")
   :bind
-  ("C-M-y" . org-download-screenshot) 
+  ("C-M-y" . org-download-screenshot)
   :hook
   (dired-mode . org-download-enable)
   )
@@ -1728,7 +1728,7 @@ With a prefix ARG, the cache is invalidated and the bibliography reread."
 **** org-habit
 #+begin_src elisp
 (require 'org-habit)
-(setq org-habit-show-done-always-green t) 
+(setq org-habit-show-done-always-green t)
 ;;; 减少显示天数，使其可以放在任务条的左边
 (setq org-habit-graph-column 55)
 (setq org-habit-preceding-days 30)
@@ -1931,12 +1931,12 @@ CLOSED: [2021-04-19 Mon 06:55]
   (setq org-agenda-file-regexp "\\`\\\([^.].*\\.org\\\|[0-9]\\\{8\\\}\\\(\\.gpg\\\)?\\\)\\'")
 
   (setq org-agenda-files
-	'(
-	  "~/SynologyDrive/org/inbox.org"
-	  "~/SynologyDrive/org/habits.org"
-	  "~/SynologyDrive/org/archive/tasks.org"	  
-	  "~/SynologyDrive/org/birthdays.org"
-	  ))
+        '(
+          "~/SynologyDrive/org/inbox.org"
+          "~/SynologyDrive/org/habits.org"
+          "~/SynologyDrive/org/archive/tasks.org"
+          "~/SynologyDrive/org/birthdays.org"
+          ))
 
   (add-to-list 'org-agenda-files org-journal-dir)
   (setq org-journal-enable-agenda-integration t)
@@ -1953,11 +1953,11 @@ CLOSED: [2021-04-19 Mon 06:55]
   :config
   (setq deft-directory "~/SynologyDrive/org/roam"
         deft-extensions '("md" "org")
-	deft-recursive t
-	deft-use-filename-as-title nil
-	deft-use-filter-string-for-filename t
-	deft-file-naming-rules '((nospace . "-"))
-	)
+        deft-recursive t
+        deft-use-filename-as-title nil
+        deft-use-filter-string-for-filename t
+        deft-file-naming-rules '((nospace . "-"))
+        )
   )
 #+end_src
 
@@ -1971,14 +1971,14 @@ CLOSED: [2021-04-19 Mon 06:55]
   (setq lsp-python-ms-auto-install-server t)
   :hook (python-mode . (lambda () (require 'lsp-python-ms) (lsp))))
 #+end_src
-     
+
 **** pyenv-mode
 #+begin_src elisp
 (use-package pyenv-mode
   :after python-mode
   )
 #+end_src
-     
+
 **** dap-python
 #+begin_src elisp
 (require 'dap-python)
@@ -2005,8 +2005,8 @@ CLOSED: [2021-04-19 Mon 06:55]
 (setq pdf-view-use-imagemagick nil)
 (setq TeX-view-program-selection
       '((output-dvi "open")
-	(output-pdf "open")
-	(output-html "open")))
+        (output-pdf "open")
+        (output-html "open")))
 #+end_src
 
 *** Dart/Flutter
@@ -2038,7 +2038,7 @@ CLOSED: [2021-04-19 Mon 06:55]
   :defer t
   :config
   (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
-  (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))	       
+  (add-to-list 'auto-mode-alist '("\\.yaml\\'" . yaml-mode))
   )
 #+end_src
 
@@ -2156,7 +2156,7 @@ CLOSED: [2021-04-19 Mon 06:55]
                   (mu4e-sent-folder  . "/gmail/[Gmail]/Sent Mail")
                   (mu4e-refile-folder  . "/gmail/[Gmail]/All Mail")
                   (mu4e-trash-folder  . "/gmail/[Gmail]/Trash")
-                  (mu4e-maildir-shortcuts . 
+                  (mu4e-maildir-shortcuts .
                                           ((:maildir "/gmail/Inbox" :key ?i)
                                            (:maildir "/gmail/[Gmail]/Sent Mail" :key ?s)
                                            (:maildir "/gmail/[Gmail]/Trash" :key ?d)
@@ -2181,7 +2181,7 @@ CLOSED: [2021-04-19 Mon 06:55]
                   (mu4e-sent-folder  . "/outlook/Sent")
                   (mu4e-refile-folder  . "/outlook/Archive")
                   (mu4e-trash-folder  . "/outlook/Deleted")
-                  (mu4e-maildir-shortcuts . 
+                  (mu4e-maildir-shortcuts .
                                           ((:maildir "/outlook/Inbox" :key ?i)
                                            (:maildir "/outlook/Sent" :key ?s)
                                            (:maildir "/outlook/Deleted" :key ?d)
@@ -2293,7 +2293,7 @@ CLOSED: [2021-03-09 Tue 21:22]
   (define-key mu4e-headers-mode-map (kbd "<S-right>") 'mu4e-headers-unfold-all)
   )
 #+end_src
-    
+
 ** elfeed
 #+begin_src elisp
 (use-package elfeed
@@ -2361,7 +2361,7 @@ CLOSED: [2021-04-21 Wed 17:25]
   (setq calibredb-root-dir "~/SynologyDrive/Library/calibre")
   (setq calibredb-db-dir (expand-file-name "metadata.db" calibredb-root-dir))
   (setq calibredb-library-alist '(("~/SynologyDrive/Library/calibre")
-				))
+                                ))
   )
 #+end_src
 *** nov
@@ -2395,5 +2395,3 @@ CLOSED: [2021-04-21 Wed 17:25]
   :config
   (osx-location-watch))
 #+end_src
-
-

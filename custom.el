@@ -10,4 +10,4 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files
-   '("~/SynologyDrive/org/inbox.org" "~/SynologyDrive/org/habits.org" "~/SynologyDrive/org/archive/tasks.org" "~/SynologyDrive/org/birthdays.org" "/Users/davidqun/SynologyDrive/org/journal/2021-04.org")))
+   '("~/SynologyDrive/org/inbox.org" "~/SynologyDrive/org/habits.org" "~/SynologyDrive/org/archive/tasks.org" "~/SynologyDrive/org/birthdays.org" "/Users/davidqun/SynologyDrive/org/journal/2021-05.org")))
